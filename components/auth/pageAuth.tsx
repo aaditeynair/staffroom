@@ -2,7 +2,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 
-function withAuth<P extends object = {}>(
+function pageAuth<P extends object = {}>(
   Component: React.ComponentType<P>,
   pageRole?: 'teacher'|'admin'
 ) {
@@ -55,4 +55,4 @@ function withAuth<P extends object = {}>(
   }
 }
 
-export default withAuth
+export default pageAuth
