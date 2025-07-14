@@ -1,7 +1,11 @@
-import withAuth from "@/components/auth/withAuth";
+import pageAuth from "@/components/auth/pageAuth";
+import LogoutButton from "@/components/auth/logout";
 
 function Home() {
-  return <div>Home</div>;
+  return <div>
+            <p>Home</p>
+            <LogoutButton></LogoutButton>
+          </div>;
 }
 
-export default withAuth(Home)
+export default pageAuth(Home)
