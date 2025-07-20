@@ -8,12 +8,12 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Link from "next/link";
 import { CircularProgress } from "@mui/material";
 
-export default function AbsentTeachersList() {
+export default function AbsentTeachersList({ date, setDate, refreshKey }) {
   const [loading, setLoading] = useState(false);
-  const [date, setDate] = useState(dayjs());
+  // const [date, setDate] = useState(dayjs());
   const [absentTeachers, setAbsentTeachers] = useState([]);
 
-  const getAbsentTeachers = async (date = dayjs()) => {
+  const getAbsentTeachers = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("absences")
@@ -41,7 +41,7 @@ export default function AbsentTeachersList() {
 
   useEffect(() => {
     getAbsentTeachers();
-  }, []);
+  }, [date, refreshKey]);
 
   return (
     <div className="w-auto m-8">
@@ -53,7 +53,6 @@ export default function AbsentTeachersList() {
               value={date}
               onChange={(newDate) => {
                 setDate(dayjs(newDate));
-                getAbsentTeachers(newDate);
               }}
             />
           </LocalizationProvider>
