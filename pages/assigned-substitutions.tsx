@@ -1,4 +1,5 @@
 
+import pageAuth from "@/components/auth/pageAuth"
 import TeacherNavMobile from "@/components/teachers/teacherNavMobile"
 import Header from "@/components/ui/header"
 
@@ -25,4 +26,4 @@ function AssignedSubstitutions() {
         </div>
     )
 }
-export default AssignedSubstitutions
+export default pageAuth(AssignedSubstitutions, 'teacher')

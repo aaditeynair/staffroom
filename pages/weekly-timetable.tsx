@@ -1,6 +1,6 @@
+import pageAuth from "@/components/auth/pageAuth"
 import TeacherNavMobile from "@/components/teachers/teacherNavMobile"
 import WeeklyTimetable from "@/components/timetable/weeklyTimetable"
-import TemporaryDrawer from "@/components/ui/drawer"
 import Header from "@/components/ui/header"
 
 
@@ -23,4 +23,4 @@ function TeacherTimetables() {
     )
 }
 
-export default TeacherTimetables
+export default pageAuth(TeacherTimetables, 'teacher')
