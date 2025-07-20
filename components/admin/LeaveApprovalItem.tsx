@@ -5,7 +5,11 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import { Button, ListItem } from "@mui/material";
 import { supabase } from "@/lib/supabaseClient";
 
-export default function LeaveApprovalItem({ refresh, info }) {
+export default function LeaveApprovalItem({
+  refresh,
+  info,
+  onRelevantApproval,
+}) {
   const { id, teacher, date, leaveType, reason } = info;
 
   const handleAction = async (status: "confirmed" | "rejected") => {
@@ -16,6 +20,8 @@ export default function LeaveApprovalItem({ refresh, info }) {
 
     if (error) {
       console.log(error);
+    } else {
+      onRelevantApproval(date);
     }
     refresh(true);
   };

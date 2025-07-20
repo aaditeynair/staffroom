@@ -16,7 +16,7 @@ type AbsenceRequest = {
   teacher: Teacher;
 };
 
-export default function LeaveApproval() {
+export default function LeaveApproval({ onRelevantApproval }) {
   const [requests, setRequests] = useState<AbsenceRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -74,6 +74,7 @@ export default function LeaveApproval() {
               <LeaveApprovalItem
                 key={request.id}
                 refresh={fetchRequests}
+                onRelevantApproval={onRelevantApproval}
                 info={{
                   id: request.id,
                   teacher: request.teacher.name,
