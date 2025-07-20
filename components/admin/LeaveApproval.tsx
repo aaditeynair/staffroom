@@ -3,10 +3,8 @@ import LeaveApprovalItem from "./LeaveApprovalItem";
 
 export default function LeaveApproval() {
   return (
-    <div className="py-8 px-6">
-      <h1 className="text-xl ml-2 font-bold text-teal-700">
-        Approve Leave Request
-      </h1>
+    <div className="py-8 mx-8">
+      <h1 className="text-xl font-bold text-teal-700">Approve Leave Request</h1>
       <div className="mt-3">
         <List>
           <LeaveApprovalItem

@@ -7,7 +7,7 @@ import { Button, ListItem } from "@mui/material";
 export default function LeaveApprovalItem({ info }) {
   const { teacherID, date, leaveType, reason } = info;
   return (
-    <ListItem className="pl-2 rounded-md mt-1" disableGutters>
+    <ListItem className="rounded-md mt-1" disableGutters>
       <Accordion className="w-full">
         <AccordionSummary>
           <div className="flex justify-between w-full">
@@ -17,7 +17,7 @@ export default function LeaveApprovalItem({ info }) {
         </AccordionSummary>
         <AccordionDetails>
           <p>Type: {leaveType}</p>
-          <p className="mt-2">Reason: {reason}</p>
+          <p className="">Reason: {reason}</p>
           <div className="gap-4 mt-4 flex w-full">
             <Button
               variant="outlined"
