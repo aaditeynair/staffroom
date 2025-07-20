@@ -21,7 +21,9 @@ export default function LeaveApprovalItem({
     if (error) {
       console.log(error);
     } else {
-      onRelevantApproval(date);
+      if (status === "confirmed") {
+        onRelevantApproval(date);
+      }
     }
     refresh(true);
   };
