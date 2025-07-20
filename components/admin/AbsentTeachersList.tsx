@@ -6,12 +6,15 @@ import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import dayjs from "dayjs";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Link from "next/link";
+import { CircularProgress } from "@mui/material";
 
 export default function AbsentTeachersList() {
+  const [loading, setLoading] = useState(false);
   const [date, setDate] = useState(dayjs());
   const [absentTeachers, setAbsentTeachers] = useState([]);
 
   const getAbsentTeachers = async (date = dayjs()) => {
+    setLoading(true);
     const { data, error } = await supabase
       .from("absences")
       .select(
@@ -33,6 +36,7 @@ export default function AbsentTeachersList() {
     }
 
     setAbsentTeachers(data);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -54,33 +58,41 @@ export default function AbsentTeachersList() {
             />
           </LocalizationProvider>
         </div>
-        <div className="w-full grid grid-cols-2 gap-4 h-fit">
-          {absentTeachers.length === 0 ? (
-            <p>No absent teachers</p>
-          ) : (
-            <>
-              {absentTeachers.map((absence) => {
-                return (
-                  <Link
-                    key={absence.id}
-                    className="col-span-1 cursor-pointer rounded-md shadow-md hover:shadow-lg transition-shadow p-4 flex justify-between items-center"
-                    href={"/"}
-                  >
-                    <div>
-                      <p>{absence.teacher.name}</p>
-                      <p className="text-sm text-gray-500">
-                        {absence.leave_type}
+        {loading ? (
+          <div className="w-full flex items-center">
+            <p className="w-full text-center">
+              <CircularProgress />
+            </p>
+          </div>
+        ) : (
+          <div className="w-full grid grid-cols-2 gap-4 h-fit">
+            {absentTeachers.length === 0 ? (
+              <p>No absent teachers</p>
+            ) : (
+              <>
+                {absentTeachers.map((absence) => {
+                  return (
+                    <Link
+                      key={absence.id}
+                      className="col-span-1 cursor-pointer rounded-md shadow-md hover:shadow-lg transition-shadow p-4 flex justify-between items-center"
+                      href={"/"}
+                    >
+                      <div>
+                        <p>{absence.teacher.name}</p>
+                        <p className="text-sm text-gray-500">
+                          {absence.leave_type}
+                        </p>
+                      </div>
+                      <p className="text-teal-700">
+                        <ChevronRightIcon />
                       </p>
-                    </div>
-                    <p className="text-teal-700">
-                      <ChevronRightIcon />
-                    </p>
-                  </Link>
-                );
-              })}
-            </>
-          )}
-        </div>
+                    </Link>
+                  );
+                })}
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
