@@ -3,8 +3,9 @@ import AbsentTeachersList from "@/components/admin/AbsentTeachersList";
 import LeaveApproval from "@/components/admin/LeaveApproval";
 import { Grid } from "@mui/material";
 import dayjs from "dayjs";
+import pageAuth from "@/components/auth/pageAuth";
 
-export default function AdminDashboard() {
+function AdminDashboard() {
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [refreshFlag, setRefreshFlag] = useState(false);
 
@@ -37,3 +38,5 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
+export default pageAuth(AdminDashboard, "admin");
