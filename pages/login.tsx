@@ -15,43 +15,43 @@ export default function LoginPage() {
     setErrorMsg("");
 
     const {
-  data: { user },
-  error,
-} = await supabase.auth.signInWithPassword({
-  email: email.trim().toLowerCase(),
-  password: password,
-});
+      data: { user },
+      error,
+    } = await supabase.auth.signInWithPassword({
+      email: email.trim().toLowerCase(),
+      password: password,
+    });
 
-if (error || !user) {
-  setErrorMsg(error?.message ?? "Login failed");
-  setLoading(false);
-  return;
-}
+    if (error || !user) {
+      setErrorMsg(error?.message ?? "Login failed");
+      setLoading(false);
+      return;
+    }
 
-const { data: teacher } = await supabase
-  .from("teachers")
-  .select("*")
-  .eq("email", user.email)
-  .single();
+    const { data: teacher } = await supabase
+      .from("teachers")
+      .select("*")
+      .eq("email", user.email)
+      .single();
 
-if (!teacher) {
-  await supabase.auth.signOut();
-  setErrorMsg("Access denied. You are not authorized.");
-  setLoading(false);
-  return;
-}
+    if (!teacher) {
+      await supabase.auth.signOut();
+      setErrorMsg("Access denied. You are not authorized.");
+      setLoading(false);
+      return;
+    }
 
-if (!teacher.auth_id) {
-  await supabase
-    .from("teachers")
-    .update({ auth_id: user.id })
-    .eq("id", teacher.id);
-}
+    if (!teacher.auth_id) {
+      await supabase
+        .from("teachers")
+        .update({ auth_id: user.id })
+        .eq("id", teacher.id);
+    }
 
     if (teacher.is_admin === false) {
-      router.push("/teachers")
+      router.push("/teachers");
     } else {
-      router.push("/"); 
+      router.push("/admin");
     }
   };
 
