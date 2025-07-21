@@ -49,7 +49,7 @@ export default function LoginPage() {
     }
 
     if (teacher.is_admin === false) {
-      router.push("/teachers");
+      router.push("/teacher");
     } else {
       router.push("/admin");
     }

@@ -4,14 +4,33 @@ import { useState } from 'react'
 import pageAuth from "@/components/auth/pageAuth"
 import TeacherNavMobile from "@/components/teachers/teacherNavMobile"
 import Header from "@/components/ui/header"
-import { supabase } from '@/lib/supabaseClient' // adjust this import path
+import { supabase } from '@/lib/supabaseClient'
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import dayjs, { Dayjs } from 'dayjs'
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+
 
 function LeaveRequest() {
+
    const [leaveType, setLeaveType] = useState('')
   const [reason, setReason] = useState('')
+  const [customReason, setCustomReason] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs().add(1, 'day'))
   const [success, setSuccess] = useState(false)
+  const [alreadyExists, setAlreadyExists] = useState(false);
+
+    
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: '#008080', // for example, green instead of default blue
+      },
+    },
+  });
+
 
   const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -41,14 +60,24 @@ function LeaveRequest() {
       setLoading(false)
       return
     }
+    const selectedFormattedDate = selectedDate.format('YYYY-MM-DD')
+    const finalReason = reason === 'Other' ? customReason.trim() : reason
+    const {data:existing} = await supabase 
+      .from("absences")
+      .select("id")
+      .eq("teacher_id", teacher.id)
+      .eq("date", selectedFormattedDate)
 
-    const today = new Date().toISOString().split('T')[0] // yyyy-mm-dd
-
+    if ((existing && existing.length > 0)) {
+      setLoading(false)
+      setAlreadyExists(true)
+      return
+    }
     const { error: insertError } = await supabase.from('absences').insert({
       teacher_id: teacher.id,
-      date: today,
+      date: selectedFormattedDate,
       leave_type: leaveType,
-      reason
+      reason : finalReason
     })
 
     if (insertError) {
@@ -60,6 +89,7 @@ function LeaveRequest() {
     }
 
     setLoading(false)
+    setAlreadyExists(false)
   }
 
   return (
@@ -73,7 +103,20 @@ function LeaveRequest() {
           <h1 className="text-2xl font-semibold text-teal-700 text-center">
             Leave Request Form
           </h1>
-
+          <ThemeProvider theme={theme}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                <DatePicker
+                  value={selectedDate}
+                  onChange={(newValue) => setSelectedDate(newValue!)}
+                  disablePast
+                  format="YYYY-MM-DD"
+                  className="w-full"
+                />
+              </div>
+            </LocalizationProvider>
+          </ThemeProvider>
           <div>
             <label htmlFor="half_day" className="block text-sm font-medium text-gray-700 mb-1">
               Leave Type
@@ -92,7 +135,7 @@ function LeaveRequest() {
               <option value="afternoon">Afternoon</option>
             </select>
           </div>
-
+          
           <div>
             <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-1">
               Reason
@@ -110,10 +153,27 @@ function LeaveRequest() {
               <option value="Sick">Sick</option>
               <option value="Other">Other</option>
             </select>
+             {reason === 'Other' && (
+                <div className="mt-2">
+                  <label htmlFor="customReason" className="block text-sm font-medium text-gray-700 mb-1">
+                    Specify Reason
+                  </label>
+                  <textarea
+                    id="customReason"
+                    maxLength={100}
+                    placeholder='Enter reason'
+                    value={customReason}
+                    required={reason === "Other"}
+                    onChange={(e) => setCustomReason(e.target.value)}
+                    className="w-full border resize-none border-gray-300 rounded-md px-3 py-2 text-sm"
+                  />
+                </div>
+              )}
           </div>
 
           {error && <p className="text-red-500 text-sm">{error}</p>}
           {success && <p className="text-green-600 text-sm">Leave request submitted!</p>}
+          {alreadyExists && <p className='text-red-500 text-sm'> Leave request for this day was already submitted </p>}
 
           <button
             type="submit"
