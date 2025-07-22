@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import { Button } from "@mui/material";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -93,13 +94,13 @@ export default function LoginPage() {
 
           {errorMsg && <p className="text-sm text-red-600">{errorMsg}</p>}
 
-          <button
-            type="submit"
+          <Button
+            variant="contained"
             disabled={loading}
-            className="w-full bg-teal-800 text-white py-2 px-4 rounded-md hover:bg-teal-900 transition"
+            className="w-full text-white py-2 px-4 rounded-md"
           >
             {loading ? "Logging in..." : "Login"}
-          </button>
+          </Button>
 
           <p className="text-sm text-center text-teal-600 hover:underline cursor-pointer mt-2">
             Forgot password?

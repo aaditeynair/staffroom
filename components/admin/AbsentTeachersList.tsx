@@ -7,20 +7,11 @@ import dayjs from "dayjs";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Link from "next/link";
 import { CircularProgress } from "@mui/material";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 export default function AbsentTeachersList({ date, setDate, refreshKey }) {
   const [loading, setLoading] = useState(false);
   // const [date, setDate] = useState(dayjs());
   const [absentTeachers, setAbsentTeachers] = useState([]);
-
-  const theme = createTheme({
-    palette: {
-      primary: {
-        main: "#008080", // for example, green instead of default blue
-      },
-    },
-  });
 
   const getAbsentTeachers = async () => {
     setLoading(true);
@@ -57,16 +48,14 @@ export default function AbsentTeachersList({ date, setDate, refreshKey }) {
       <h1 className="text-xl font-bold text-teal-700">Absent Teachers</h1>
       <div className="lg:flex gap-8 mt-6">
         <div className="lg:w-2/5 rounded-md shadow-md">
-          <ThemeProvider theme={theme}>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DateCalendar
-                value={date}
-                onChange={(newDate) => {
-                  setDate(dayjs(newDate));
-                }}
-              />
-            </LocalizationProvider>
-          </ThemeProvider>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DateCalendar
+              value={date}
+              onChange={(newDate) => {
+                setDate(dayjs(newDate));
+              }}
+            />
+          </LocalizationProvider>
         </div>
         {loading ? (
           <div className="w-full flex items-center">
