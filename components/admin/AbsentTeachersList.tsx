@@ -21,6 +21,7 @@ export default function AbsentTeachersList({ date, setDate, refreshKey }) {
         `
         id,
         leave_type,
+        dealt_with,
         teacher:teacher_id (
           id,
           name
@@ -28,7 +29,8 @@ export default function AbsentTeachersList({ date, setDate, refreshKey }) {
       `,
       )
       .eq("status", "confirmed")
-      .eq("date", date);
+      .eq("date", date)
+      .order("dealt_with", { ascending: true });
 
     if (error) {
       console.log(error);
@@ -76,11 +78,21 @@ export default function AbsentTeachersList({ date, setDate, refreshKey }) {
                       className="col-span-1 cursor-pointer rounded-md shadow-md hover:shadow-lg transition-shadow p-4 flex justify-between items-center"
                       href={"/admin/substitution/" + absence.id}
                     >
-                      <div>
-                        <p>{absence.teacher.name}</p>
-                        <p className="text-sm text-gray-500">
-                          {absence.leave_type}
-                        </p>
+                      <div className="flex h-full">
+                        <div
+                          className={
+                            "w-2 h-full mr-4 " +
+                            (absence.dealt_with === true
+                              ? "bg-green-400"
+                              : "bg-red-400")
+                          }
+                        ></div>
+                        <div>
+                          <p>{absence.teacher.name}</p>
+                          <p className="text-sm text-gray-500">
+                            {absence.leave_type}
+                          </p>
+                        </div>
                       </div>
                       <p className="text-teal-700">
                         <ChevronRightIcon />
