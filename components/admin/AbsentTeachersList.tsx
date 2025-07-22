@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Link from "next/link";
 import { CircularProgress } from "@mui/material";
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 export default function AbsentTeachersList({ date, setDate, refreshKey }) {
   const [loading, setLoading] = useState(false);
@@ -17,7 +17,7 @@ export default function AbsentTeachersList({ date, setDate, refreshKey }) {
   const theme = createTheme({
     palette: {
       primary: {
-        main: '#008080', // for example, green instead of default blue
+        main: "#008080", // for example, green instead of default blue
       },
     },
   });
@@ -85,7 +85,7 @@ export default function AbsentTeachersList({ date, setDate, refreshKey }) {
                     <Link
                       key={absence.id}
                       className="col-span-1 cursor-pointer rounded-md shadow-md hover:shadow-lg transition-shadow p-4 flex justify-between items-center"
-                      href={"/"}
+                      href={"/admin/substitution/" + absence.id}
                     >
                       <div>
                         <p>{absence.teacher.name}</p>
