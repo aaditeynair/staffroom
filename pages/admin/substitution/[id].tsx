@@ -46,14 +46,17 @@ export default function SubstitutionPage() {
 
     if (absenceDetails.dealt_with !== true) {
       for (const period in substitutions) {
-        const { error } = await supabase.from("substitutions").insert({
-          date: absenceDetails.date,
-          period_number: period,
-          class: substitutions[period].class,
-          substitute_teacher: substitutions[period].substituteID,
-          for_absence: absenceDetails.id,
-          original_teacher: absenceDetails.teacher.id,
-        });
+        const { data, error } = await supabase
+          .from("substitutions")
+          .insert({
+            date: absenceDetails.date,
+            period_number: period,
+            class: substitutions[period].class,
+            substitute_teacher: substitutions[period].substituteID,
+            for_absence: absenceDetails.id,
+            original_teacher: absenceDetails.teacher.id,
+          })
+          .select("id, period_number, class, substitute_teacher");
 
         if (error) {
           setSnackbar({
@@ -64,16 +67,37 @@ export default function SubstitutionPage() {
           return;
         }
 
-        const { _ } = await supabase
-          .from("absences")
-          .update({ dealt_with: true })
-          .eq("id", absenceDetails.id);
+        data.map((period) => {
+          setSubstitutions((prev) => ({
+            ...prev,
+            [period.period_number]: {
+              substituteID: period.substitute_teacher,
+              class: period.class,
+              id: period.id,
+            },
+          }));
+        });
+      }
 
+      const { e } = await supabase
+        .from("absences")
+        .update({ dealt_with: true })
+        .eq("id", absenceDetails.id);
+
+      if (e) {
+        setSnackbar({
+          open: true,
+          message: "An error has occurred. Please try again later",
+          severity: "error",
+        });
+        return;
+      } else {
         setSnackbar({
           open: true,
           message: "Substitutions created successfully",
           severity: "success",
         });
+        setAbsenceDetails((prev) => ({ ...prev, dealt_with: true }));
       }
     } else {
       for (const period in substitutions) {
@@ -92,13 +116,12 @@ export default function SubstitutionPage() {
           });
           return;
         }
-
-        setSnackbar({
-          open: true,
-          message: "Substitutions updated successfully",
-          severity: "success",
-        });
       }
+      setSnackbar({
+        open: true,
+        message: "Substitutions updated successfully",
+        severity: "success",
+      });
     }
   };
 
@@ -164,15 +187,16 @@ export default function SubstitutionPage() {
           .select("id, period_number, class, substitute_teacher")
           .eq("for_absence", absence.id);
         if (data !== null) {
-          const substituteData = {};
           data.map((period) => {
-            substituteData[period.period_number] = {
-              substituteID: period.substitute_teacher,
-              class: period.class,
-              id: period.id,
-            };
+            setSubstitutions((prev) => ({
+              ...prev,
+              [period.period_number]: {
+                substituteID: period.substitute_teacher,
+                class: period.class,
+                id: period.id,
+              },
+            }));
           });
-          setSubstitutions(substituteData);
         }
       }
 
@@ -213,8 +237,7 @@ export default function SubstitutionPage() {
                     className="bg-white px-4 py-6 rounded-md shadow-md"
                   >
                     <h2 className="mb-2">
-                      Period {period.period_number}:{" "}
-                      {period.class}
+                      Period {period.period_number}: {period.class}
                     </h2>
                     <FormControl fullWidth>
                       <InputLabel>Select Substitute Teacher</InputLabel>
@@ -289,3 +312,4 @@ export default function SubstitutionPage() {
     </>
   );
 }
+
