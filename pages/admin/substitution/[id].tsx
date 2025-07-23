@@ -145,7 +145,7 @@ export default function SubstitutionPage() {
       // Get timetable for the absent teacher
       const { data: timetable } = await supabase
         .from("base_timetable")
-        .select("id, period_number, class, division")
+        .select("id, period_number, class")
         .eq("teacher_id", teacher.id)
         .eq("day_of_week", day);
 
@@ -214,7 +214,7 @@ export default function SubstitutionPage() {
                   >
                     <h2 className="mb-2">
                       Period {period.period_number}:{" "}
-                      {period.class + " " + period.division}
+                      {period.class}
                     </h2>
                     <FormControl fullWidth>
                       <InputLabel>Select Substitute Teacher</InputLabel>
