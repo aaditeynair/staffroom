@@ -3,11 +3,9 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import {
   CircularProgress,
-  MenuItem,
   Alert,
-  Select,
-  InputLabel,
-  FormControl,
+  Autocomplete,
+  TextField,
   Button,
   Snackbar,
 } from "@mui/material";
@@ -28,7 +26,7 @@ export default function SubstitutionPage() {
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
-    severity: "success", // "success" | "error"
+    severity: "success",
   });
   const handleSnackbarClose = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
@@ -236,32 +234,38 @@ export default function SubstitutionPage() {
                     key={period.id}
                     className="bg-white px-4 py-6 rounded-md shadow-md"
                   >
-                    <h2 className="mb-2">
+                    <h2 className="mb-4">
                       Period {period.period_number}: {period.class}
                     </h2>
-                    <FormControl fullWidth>
-                      <InputLabel>Select Substitute Teacher</InputLabel>
-                      <Select
-                        value={value}
-                        label="Select Substitute Teacher"
-                        onChange={(e) => {
-                          setSubstitutions((prev) => ({
-                            ...prev,
-                            [period.period_number]: {
-                              ...substitutions[period.period_number],
-                              substituteID: e.target.value,
-                              class: period.class,
-                            },
-                          }));
-                        }}
-                      >
-                        {allTeachers.map((t) => (
-                          <MenuItem key={t.id} value={t.id}>
-                            {t.name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
+                    <Autocomplete
+                      fullWidth
+                      disableClearable
+                      options={allTeachers}
+                      getOptionLabel={(option) => option.name}
+                      value={
+                        allTeachers.find(
+                          (t) =>
+                            t.id ===
+                            substitutions[period.period_number]?.substituteID,
+                        ) || null
+                      }
+                      onChange={(_, newValue) => {
+                        setSubstitutions((prev) => ({
+                          ...prev,
+                          [period.period_number]: {
+                            ...substitutions[period.period_number],
+                            substituteID: newValue?.id || null,
+                            class: period.class,
+                          },
+                        }));
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Select Substitute Teacher"
+                        />
+                      )}
+                    />
                   </div>
                 );
               })}
@@ -270,7 +274,7 @@ export default function SubstitutionPage() {
               <div className="p-4 bg-white rounded-md shadow-md mb-4">
                 <p className="mb-4">
                   <b className="text-teal-700">Date: </b>
-                  {absenceDetails.date}
+                  {dayjs(absenceDetails.date).format("DD MMMM YYYY")}
                 </p>
                 <p className="mb-4">
                   <b className="text-teal-700">Type: </b>
@@ -288,7 +292,10 @@ export default function SubstitutionPage() {
                   createSubstitutions();
                 }}
               >
-                <p className="py-2 font-bold">Confirm Substitutions</p>
+                <p className="py-2 font-bold">
+                  {absenceDetails.dealt_with ? "Update" : "Confirm"}{" "}
+                  Substitutions
+                </p>
               </Button>
             </div>
           </div>
@@ -312,4 +319,3 @@ export default function SubstitutionPage() {
     </>
   );
 }
-
