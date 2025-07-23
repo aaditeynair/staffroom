@@ -1,11 +1,16 @@
-import { useState } from "react";
-import pageAuth from "@/components/auth/pageAuth";
-import TeacherNavMobile from "@/components/teachers/teacherNavMobile";
-import Header from "@/components/ui/header";
-import { supabase } from "@/lib/supabaseClient";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs, { Dayjs } from "dayjs";
+'use client'
+
+import { useState } from 'react'
+import pageAuth from "@/components/auth/pageAuth"
+import TeacherNavMobile from "@/components/teachers/teacherNavMobile"
+import Header from "@/components/ui/header"
+import { supabase } from '@/lib/supabaseClient'
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import dayjs, { Dayjs } from 'dayjs'
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import LeaveReqManager from '@/components/teachers/leaveReqManager'
+
 
 function LeaveRequest() {
   const [leaveType, setLeaveType] = useState("");
@@ -18,12 +23,23 @@ function LeaveRequest() {
   );
   const [success, setSuccess] = useState(false);
   const [alreadyExists, setAlreadyExists] = useState(false);
+  const [refreshFlag, setRefreshFlag] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
+    
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: '#008080', // for example, green instead of default blue
+      },
+    },
+  });
+
+
+  const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+    setSuccess(false)
 
     const {
       data: { user },
@@ -51,14 +67,14 @@ function LeaveRequest() {
     const finalReason = reason === "Other" ? customReason.trim() : reason;
     const { data: existing } = await supabase
       .from("absences")
-      .select("id")
+      .select("status")
       .eq("teacher_id", teacher.id)
-      .eq("date", selectedFormattedDate);
+      .eq("date", selectedFormattedDate)
 
-    if (existing && existing.length > 0) {
-      setLoading(false);
-      setAlreadyExists(true);
-      return;
+    if ((existing && existing.length > 0)) {
+      setLoading(false)
+      setAlreadyExists(true)
+      return
     }
     const { error: insertError } = await supabase.from("absences").insert({
       teacher_id: teacher.id,
@@ -70,9 +86,10 @@ function LeaveRequest() {
     if (insertError) {
       setError(insertError.message);
     } else {
-      setSuccess(true);
-      setLeaveType("");
-      setReason("");
+      setSuccess(true)
+      setLeaveType('')
+      setReason('')
+      setRefreshFlag((prev) => !prev)
     }
 
     setLoading(false);
@@ -80,11 +97,11 @@ function LeaveRequest() {
   };
 
   return (
-    <div>
+    <div className='min-h-screen bg-gray-200 pb-16'>
       <Header heading="Leave Request" />
-      <div className="min-h-screen flex justify-center bg-gray-200 px-4">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,_30rem)_48rem] gap-8 lg:gap-16 px-6 py-6">
         <form
-          className="bg-white m-5 p-6 rounded-2xl shadow-md w-full max-h-fit max-w-md mx-auto space-y-4"
+          className="bg-white p-6 rounded-2xl shadow-md space-y-4"
           onSubmit={handleSubmit}
         >
           <h1 className="text-2xl font-semibold text-teal-700 text-center">
@@ -190,7 +207,9 @@ function LeaveRequest() {
             {loading ? "Submitting..." : "Submit Request"}
           </button>
         </form>
+        <LeaveReqManager refreshKey={refreshFlag}/>
       </div>
+      
       <TeacherNavMobile />
     </div>
   );

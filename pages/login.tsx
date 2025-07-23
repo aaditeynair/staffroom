@@ -49,7 +49,7 @@ export default function LoginPage() {
         .eq("id", teacher.id);
     }
 
-    if (teacher.is_admin === false) {
+    if (teacher.role == 'teacher') {
       router.push("/teacher");
     } else {
       router.push("/admin");
@@ -95,6 +95,7 @@ export default function LoginPage() {
           {errorMsg && <p className="text-sm text-red-600">{errorMsg}</p>}
 
           <Button
+            type='submit'
             variant="contained"
             disabled={loading}
             className="w-full text-white py-2 px-4 rounded-md"
