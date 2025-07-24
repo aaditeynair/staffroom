@@ -176,6 +176,7 @@ export default function SubstitutionPage() {
       const { data: teachers } = await supabase
         .from("teachers")
         .select("id, name")
+        .in("role", ["teacher", "admin-teacher"])
         .neq("id", teacher.id);
       setAllTeachers(teachers || []);
 
