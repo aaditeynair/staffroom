@@ -18,7 +18,9 @@ export default function SubstitutionPage() {
   const [loading, setLoading] = useState(true);
   const [absenceDetails, setAbsenceDetails] = useState<any>(null);
   const [teacherTimetable, setTeacherTimetable] = useState<any[]>([]);
-  const [allTeachers, setAllTeachers] = useState<any[]>([]);
+  const [availableTeachersByPeriod, setAvailableTeachersByPeriod] = useState(
+    {},
+  );
   const [substitutions, setSubstitutions] = useState<Record<string, string>>(
     {},
   );
@@ -129,6 +131,7 @@ export default function SubstitutionPage() {
     const fetchData = async () => {
       setLoading(true);
 
+      // Fetch Absence Details
       const { data: absence, error: absenceError } = await supabase
         .from("absences")
         .select(
@@ -143,13 +146,11 @@ export default function SubstitutionPage() {
         )
         .eq("id", id)
         .single();
-
       if (absenceError || !absence) {
         console.error("Invalid absence ID", absenceError);
         setLoading(false);
         return;
       }
-
       setAbsenceDetails(absence);
 
       const { date, teacher } = absence;
@@ -172,14 +173,40 @@ export default function SubstitutionPage() {
 
       setTeacherTimetable(timetable || []);
 
-      // Get list of all teachers
+      // Create list of available teachers by period
       const { data: teachers } = await supabase
         .from("teachers")
         .select("id, name")
         .in("role", ["teacher", "admin-teacher"])
         .neq("id", teacher.id);
-      setAllTeachers(teachers || []);
 
+      const availableTeachersByPeriod = {};
+      for (const period of timetable) {
+        const { data: busyDaily } = await supabase
+          .from("daily_timetable")
+          .select("teacher_id")
+          .eq("date", date)
+          .eq("period_number", period.period_number);
+
+        const { data: busyBase } = await supabase
+          .from("base_timetable")
+          .select("teacher_id")
+          .eq("day_of_week", day)
+          .eq("period_number", period.period_number);
+
+        const busyTeacherIds = [
+          ...(busyDaily?.map((t) => t.teacher_id) || []),
+          ...(busyBase?.map((t) => t.teacher_id) || []),
+          teacher.id,
+        ];
+
+        availableTeachersByPeriod[period.period_number] = (
+          teachers || []
+        ).filter((t) => !busyTeacherIds.includes(t.id));
+      }
+      setAvailableTeachersByPeriod(availableTeachersByPeriod);
+
+      // Update substitutions if already created
       if (absence.dealt_with === true) {
         const { data } = await supabase
           .from("substitutions")
@@ -241,10 +268,14 @@ export default function SubstitutionPage() {
                     <Autocomplete
                       fullWidth
                       disableClearable
-                      options={allTeachers}
+                      options={
+                        availableTeachersByPeriod[period.period_number] || []
+                      }
                       getOptionLabel={(option) => option.name}
                       value={
-                        allTeachers.find(
+                        (
+                          availableTeachersByPeriod[period.period_number] || []
+                        ).find(
                           (t) =>
                             t.id ===
                             substitutions[period.period_number]?.substituteID,
