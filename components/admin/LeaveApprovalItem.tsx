@@ -4,6 +4,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import { Button, ListItem } from "@mui/material";
 import { supabase } from "@/lib/supabaseClient";
+import dayjs from "dayjs";
 
 export default function LeaveApprovalItem({
   refresh,
@@ -34,7 +35,9 @@ export default function LeaveApprovalItem({
         <AccordionSummary>
           <div className="flex justify-between w-full">
             <div className="font-bold">{teacher}</div>
-            <div className="text-gray-500">{date}</div>
+            <div className="text-gray-500">
+              {dayjs(date).format("DD/MM/YYYY")}
+            </div>
           </div>
         </AccordionSummary>
         <AccordionDetails>
