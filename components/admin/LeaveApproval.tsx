@@ -56,7 +56,7 @@ export default function LeaveApproval({ onRelevantApproval }) {
   if (loading) return <p className="m-8">Loading...</p>;
   if (requests.length === 0)
     return (
-      <div className="m-8">
+      <div className="m-6 md:m-8">
         <h1 className="text-xl font-bold text-teal-700">
           Approve Leave Request
         </h1>
@@ -65,7 +65,7 @@ export default function LeaveApproval({ onRelevantApproval }) {
     );
 
   return (
-    <div className="m-8">
+    <div className="m-6 md:m-8">
       <h1 className="text-xl font-bold text-teal-700">Approve Leave Request</h1>
       <div className="mt-3">
         <List>

@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
+import {
+  DateCalendar,
+  LocalizationProvider,
+  DatePicker,
+} from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Link from "next/link";
@@ -10,7 +13,6 @@ import { CircularProgress } from "@mui/material";
 
 export default function AbsentTeachersList({ date, setDate, refreshKey }) {
   const [loading, setLoading] = useState(false);
-  // const [date, setDate] = useState(dayjs());
   const [absentTeachers, setAbsentTeachers] = useState([]);
 
   const getAbsentTeachers = async () => {
@@ -46,17 +48,29 @@ export default function AbsentTeachersList({ date, setDate, refreshKey }) {
   }, [date, refreshKey]);
 
   return (
-    <div className="w-auto m-8">
+    <div className="w-auto m-6 md:m-8">
       <h1 className="text-xl font-bold text-teal-700">Absent Teachers</h1>
       <div className="lg:flex gap-8 mt-6">
-        <div className="lg:w-2/5 rounded-md shadow-md">
+        <div className="lg:w-1/2 2xl:w-2/5 rounded-md shadow-md">
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DateCalendar
-              value={date}
-              onChange={(newDate) => {
-                setDate(dayjs(newDate));
-              }}
-            />
+            <div className="hidden lg:block">
+              <DateCalendar
+                value={date}
+                onChange={(newDate) => {
+                  setDate(dayjs(newDate));
+                }}
+              />
+            </div>
+            <div className="mb-4 lg:hidden">
+              <DatePicker
+                value={date}
+                onChange={(newDate) => {
+                  setDate(dayjs(newDate));
+                }}
+                format="DD-MM-YYYY"
+                className="w-full"
+              />
+            </div>
           </LocalizationProvider>
         </div>
         {loading ? (
@@ -66,7 +80,7 @@ export default function AbsentTeachersList({ date, setDate, refreshKey }) {
             </p>
           </div>
         ) : (
-          <div className="w-full grid grid-cols-2 gap-4 h-fit">
+          <div className="w-full grid md:grid-cols-2 gap-4 h-fit">
             {absentTeachers.length === 0 ? (
               <p>No absent teachers</p>
             ) : (

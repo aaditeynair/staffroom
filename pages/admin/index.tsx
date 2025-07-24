@@ -16,8 +16,8 @@ function AdminDashboard() {
   };
 
   return (
-    <div className="p-8 bg-gray-100 h-full w-full">
-      <Grid container spacing={4}>
+    <div className="p-4 md:p-8 bg-gray-100 h-full w-full">
+      <Grid container spacing={{ xs: 2, md: 4 }}>
         <Grid
           size={{ xs: 12, lg: 4 }}
           className="bg-white rounded-md shadow-md"
