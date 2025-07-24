@@ -8,7 +8,6 @@ import { supabase } from '@/lib/supabaseClient'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 import LeaveReqManager from '@/components/teachers/leaveReqManager'
 
 
@@ -24,16 +23,6 @@ function LeaveRequest() {
   const [success, setSuccess] = useState(false);
   const [alreadyExists, setAlreadyExists] = useState(false);
   const [refreshFlag, setRefreshFlag] = useState(false)
-
-    
-  const theme = createTheme({
-    palette: {
-      primary: {
-        main: '#008080', // for example, green instead of default blue
-      },
-    },
-  });
-
 
   const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
