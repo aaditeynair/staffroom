@@ -10,6 +10,7 @@ import {
   Snackbar,
 } from "@mui/material";
 import dayjs from "dayjs";
+import AbsenceDetailCard from "@/components/admin/AbsenceDetailCard";
 
 export default function SubstitutionPage() {
   const router = useRouter();
@@ -241,7 +242,7 @@ export default function SubstitutionPage() {
 
   return (
     <>
-      <div className="m-8">
+      <div className="m-6 md:m-8">
         <h1 className="text-2xl font-bold mb-8 text-teal-700">
           Substitution Management for {absenceDetails.teacher.name} on{" "}
           {dayjs(absenceDetails.date).format("dddd, DD MMMM YYYY")}
@@ -250,8 +251,11 @@ export default function SubstitutionPage() {
         {teacherTimetable.length === 0 ? (
           <p>No periods need substitution for this teacher on this day.</p>
         ) : (
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-4">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="md:hidden">
+              <AbsenceDetailCard absenceDetails={absenceDetails} />
+            </div>
+            <div className="flex flex-col gap-4 mb-4 md:mb-0">
               {teacherTimetable.map((period) => {
                 let value = "";
                 if (substitutions[period.period_number] !== undefined) {
@@ -303,19 +307,8 @@ export default function SubstitutionPage() {
               })}
             </div>
             <div className="h-fit">
-              <div className="p-4 bg-white rounded-md shadow-md mb-4">
-                <p className="mb-4">
-                  <b className="text-teal-700">Date: </b>
-                  {dayjs(absenceDetails.date).format("DD MMMM YYYY")}
-                </p>
-                <p className="mb-4">
-                  <b className="text-teal-700">Type: </b>
-                  {absenceDetails.leave_type}
-                </p>
-                <p>
-                  <b className="text-teal-700">Reason: </b>
-                  {absenceDetails.reason}
-                </p>
+              <div className="hidden md:block">
+                <AbsenceDetailCard absenceDetails={absenceDetails} />
               </div>
               <Button
                 className="w-full"
