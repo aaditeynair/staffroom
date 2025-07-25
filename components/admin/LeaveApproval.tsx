@@ -1,4 +1,4 @@
-import { List } from "@mui/material";
+import { CircularProgress, List } from "@mui/material";
 import LeaveApprovalItem from "./LeaveApprovalItem";
 import { supabase } from "@/lib/supabaseClient";
 import { useEffect, useState } from "react";
@@ -87,7 +87,17 @@ export default function LeaveApproval({
     fetchRequests();
   }, []);
 
-  if (loading) return <p className="m-8">Loading...</p>;
+  if (loading)
+    return (
+      <div className="m-6 md:m-8 w-auto">
+        <h1 className="text-xl font-bold text-teal-700">
+          Approve Leave Request
+        </h1>
+        <p className="mt-6">
+          <CircularProgress />
+        </p>
+      </div>
+    );
   if (requests.length === 0)
     return (
       <div className="m-6 md:m-8">
