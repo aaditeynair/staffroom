@@ -41,6 +41,7 @@ export default function DailyTimetable() {
         .eq("date", formattedDate)
         .order("period_number");
 
+      if (error) console.log(error);
       if (data) setPeriods(data);
       setLoading(false);
     };
