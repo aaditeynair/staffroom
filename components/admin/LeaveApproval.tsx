@@ -13,39 +13,73 @@ type AbsenceRequest = {
   date: string;
   reason: string;
   leave_type: string;
+  teacher_id: string;
   teacher: Teacher;
 };
 
-export default function LeaveApproval({ onRelevantApproval }) {
+type LeaveApprovalProps = {
+  onRelevantApproval: (approvedDate: string) => void;
+};
+
+export default function LeaveApproval({
+  onRelevantApproval,
+}: LeaveApprovalProps) {
   const [requests, setRequests] = useState<AbsenceRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchRequests = async (silent = false) => {
     if (!silent) setLoading(true);
 
-    const { data, error } = await supabase
+    // Step 1: Fetch absences without nested teacher object
+    const { data: absences, error: absencesError } = await supabase
       .from("absences")
-      .select(
-        `
-          id,
-          date,
-          reason,
-          leave_type,
-          teacher:teacher_id (
-            id,
-            name
-          )
-        `,
-      )
+      .select("id, date, reason, leave_type, teacher_id")
       .eq("status", "pending");
 
-    if (error) {
-      console.error("Error fetching absence requests:", error.message);
+    if (absencesError) {
+      console.error("Error fetching absence requests:", absencesError.message);
       setRequests([]);
-    } else {
-      setRequests(data as AbsenceRequest[]);
+      if (!silent) setLoading(false);
+      return;
     }
 
+    if (!absences || absences.length === 0) {
+      setRequests([]);
+      if (!silent) setLoading(false);
+      return;
+    }
+
+    // Step 2: Fetch all teachers referenced by absences
+    const teacherIds = absences.map((absence) => absence.teacher_id);
+
+    const { data: teachers, error: teachersError } = await supabase
+      .from("teachers")
+      .select("id, name")
+      .in("id", teacherIds);
+
+    if (teachersError) {
+      console.error("Error fetching teachers:", teachersError.message);
+      setRequests([]);
+      if (!silent) setLoading(false);
+      return;
+    }
+
+    // Step 3: Map teachers by their ID for quick lookup
+    const teacherMap = new Map<string, Teacher>();
+    teachers?.forEach((teacher) => {
+      teacherMap.set(teacher.id, teacher);
+    });
+
+    // Step 4: Combine absences with their corresponding teacher object
+    const combinedRequests: AbsenceRequest[] = absences.map((absence) => ({
+      ...absence,
+      teacher: teacherMap.get(absence.teacher_id) || {
+        id: "",
+        name: "Unknown",
+      },
+    }));
+
+    setRequests(combinedRequests);
     if (!silent) setLoading(false);
   };
 

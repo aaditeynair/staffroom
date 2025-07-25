@@ -6,11 +6,25 @@ import { Button, ListItem } from "@mui/material";
 import { supabase } from "@/lib/supabaseClient";
 import dayjs from "dayjs";
 
+interface LeaveApprovalInfo {
+  id: string;
+  teacher: string;
+  date: string;
+  leaveType: string;
+  reason: string;
+}
+
+interface LeaveApprovalItemProps {
+  refresh: (silent: boolean) => void | Promise<void>;
+  onRelevantApproval: (approvedDate: string) => void;
+  info: LeaveApprovalInfo;
+}
+
 export default function LeaveApprovalItem({
   refresh,
   info,
   onRelevantApproval,
-}) {
+}: LeaveApprovalItemProps) {
   const { id, teacher, date, leaveType, reason } = info;
 
   const handleAction = async (status: "confirmed" | "rejected") => {
