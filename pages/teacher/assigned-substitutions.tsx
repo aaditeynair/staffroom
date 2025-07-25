@@ -6,13 +6,14 @@ import TeacherNavMobile from "@/components/teachers/TeacherNavMobile"
 import Header from "@/components/ui/Header"
 import { CheckRounded, ClearRounded, WidthFull } from "@mui/icons-material";
 import { Button } from "@mui/material";
-import ConfirmDialog from "@/components/ui/Confirmdialog";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 type Substitution = {
-    id:string;
+    id: string;
     date: string;
     period_number: number;
     class: string;
+    confirmed_by_teacher: 'unconfirmed' | 'accepted' | 'declined'
 }
 function AssignedSubstitutions() {
     const [loading, setLoading] = useState(true)
@@ -20,6 +21,7 @@ function AssignedSubstitutions() {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [dialogMode, setDialogMode] = useState<'accept' | 'decline'>('accept');
     const [selectedSub, setSelectedSub] = useState<Substitution | null>(null);
+    const [refreshFlag, setRefreshFlag] = useState(false)
 
     useEffect(() => {
         const fetchAbsences = async () => {
@@ -39,9 +41,11 @@ function AssignedSubstitutions() {
 
             const { data, error } = await supabase
                 .from('substitutions')
-                .select('id,date,period_number,class')
+                .select('id,date,period_number,class,confirmed_by_teacher')
                 .eq('substitute_teacher', teacher.id)
                 .order('date')
+
+            console.log(teacher)
 
 
             if (data) setSubstitution(data)
@@ -50,7 +54,7 @@ function AssignedSubstitutions() {
 
         fetchAbsences()
 
-    }, [])
+    }, [refreshFlag])
     const handleOpenAccept = (sub: Substitution) => {
         setSelectedSub(sub)
         setDialogMode('accept');
@@ -65,16 +69,17 @@ function AssignedSubstitutions() {
 
     const handleDecision = async (accepted: boolean, reason?: string) => {
         if (!selectedSub) return;
-
+        const status = accepted ? 'accepted' : 'declined'
         const { error } = await supabase
             .from('substitutions')
-            .update({ confirmed_by_teacher: accepted,reason:reason })
+            .update({ confirmed_by_teacher: status, reason: reason })
             .eq('id', selectedSub.id);
 
         if (error) {
             console.error('Failed to update confirmation:', error.message);
         }
         setDialogOpen(false);
+        setRefreshFlag((prev) => !prev)
         setSelectedSub(null);
     };
     return (
@@ -100,10 +105,16 @@ function AssignedSubstitutions() {
                                         <td className="p-2 text-center">{substitution.period_number}</td>
                                         <td className="p-2 text-center">{substitution.class}</td>
                                         <td className="p-2 space-x-2">
-                                            <div className="flex flex-col gap-4">
-                                                <Button sx={{ color: 'green', border: 1 }} onClick={() => handleOpenAccept(substitution)}><CheckRounded /></Button>
-                                                <Button sx={{ color: 'red', border: 1 }} onClick={() => handleOpenDecline(substitution)}><ClearRounded /></Button>
-                                            </div>
+                                            {substitution.confirmed_by_teacher === 'unconfirmed' ? (
+                                                <div className="flex flex-col gap-4">
+                                                    <Button sx={{ color: 'green', border: 1 }} onClick={() => handleOpenAccept(substitution)}><CheckRounded /></Button>
+                                                    <Button sx={{ color: 'red', border: 1 }} onClick={() => handleOpenDecline(substitution)}><ClearRounded /></Button>
+                                                </div>
+                                            ) : (
+                                                <span className={substitution.confirmed_by_teacher === 'accepted' ? "text-green-600" : "text-red-600"}>
+                                                    {substitution.confirmed_by_teacher}
+                                                </span>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}
