@@ -2,13 +2,13 @@
 
 import { useState } from 'react'
 import pageAuth from "@/components/auth/pageAuth"
-import TeacherNavMobile from "@/components/teachers/teacherNavMobile"
-import Header from "@/components/ui/header"
+import TeacherNavMobile from "@/components/teachers/TeacherNavMobile"
+import Header from "@/components/ui/Header"
 import { supabase } from '@/lib/supabaseClient'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
-import LeaveReqManager from '@/components/teachers/leaveReqManager'
+import LeaveReqManager from '@/components/teachers/LeaveReqManager'
 
 
 function LeaveRequest() {
@@ -90,7 +90,7 @@ function LeaveRequest() {
       <Header heading="Leave Request" />
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,_30rem)_48rem] gap-8 lg:gap-16 px-6 py-6">
         <form
-          className="bg-white p-6 rounded-2xl shadow-md space-y-4"
+          className="bg-white p-6 rounded-md shadow-md space-y-4"
           onSubmit={handleSubmit}
         >
           <h1 className="text-2xl font-semibold text-teal-700 text-center">
@@ -105,21 +105,21 @@ function LeaveRequest() {
                 value={selectedDate}
                 onChange={(newValue) => setSelectedDate(newValue!)}
                 disablePast
-                format="YYYY-MM-DD"
+                format="DD-MM-YYYY"
                 className="w-full"
               />
             </div>
           </LocalizationProvider>
           <div>
             <label
-              htmlFor="half_day"
+              htmlFor="leave_type"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
               Leave Type
             </label>
             <select
-              id="half_day"
-              name="half_day"
+              id="leave_type"
+              name="leave_type"
               required
               value={leaveType}
               onChange={(e) => setLeaveType(e.target.value)}

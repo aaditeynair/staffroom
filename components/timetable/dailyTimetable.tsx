@@ -8,7 +8,7 @@ type Period = {
   division: string;
   is_substitute: boolean;
 };
-export default function TestTimetable() {
+export default function DailyTimetable() {
   const [periods, setPeriods] = useState<Period[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -54,7 +54,7 @@ export default function TestTimetable() {
     );
 
   return (
-    <div className="p-6 bg-white rounded-2xl shadow-lg">
+    <div className="p-6 bg-white rounded-md shadow-lg">
       <h2 className="text-2xl font-bold text-teal-800 mb-6">
         Today’s Schedule
       </h2>
@@ -65,7 +65,7 @@ export default function TestTimetable() {
           return (
             <div
               key={i}
-              className={`flex justify-between items-center px-4 py-3 rounded-xl border ${
+              className={`flex justify-between items-center px-4 py-3 rounded-md border ${
                 isSub
                   ? "bg-yellow-50 border-yellow-300"
                   : period

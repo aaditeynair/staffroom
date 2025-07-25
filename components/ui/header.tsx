@@ -1,9 +1,8 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AccountCircle from '@mui/icons-material/AccountCircle'
-import Modal from '@mui/material/Modal'
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import AccountModal from './account';
+import AccountModal from './Account';
 
 export default function Header({ heading }: { heading: string }) {
   const router = useRouter()

@@ -8,7 +8,7 @@ export default function TeacherNavDesktop() {
   const router = useRouter();
   return (
     <div className="hidden lg:flex flex-col gap-4">
-      <div className="flex bg-white p-4 rounded-xl shadow-lg h-fit justify-between">
+      <div className="flex bg-white p-4 rounded-md shadow-lg h-fit justify-between">
         <div>
           <p className="text-lg font-semibold text-teal-800">
             Assigned Substitutions
@@ -17,7 +17,7 @@ export default function TeacherNavDesktop() {
             onClick={() => {
               router.push("/teacher/assigned-substitutions");
             }}
-            className="mt-4 bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700"
+            className="mt-4 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700"
           >
             <ArrowForward />
           </button>
@@ -26,7 +26,7 @@ export default function TeacherNavDesktop() {
           <Substitutions sx={{ fontSize: 85 }} className="text-teal-600" />
         </div>
       </div>
-      <div className="flex bg-white p-4 rounded-xl shadow-lg h-fit justify-between">
+      <div className="flex bg-white p-4 rounded-md shadow-lg h-fit justify-between">
         <div>
           <p className="text-lg font-semibold text-teal-800">
             Weekly Timetable
@@ -35,7 +35,7 @@ export default function TeacherNavDesktop() {
             onClick={() => {
               router.push("/teacher/weekly-timetable");
             }}
-            className="mt-4 bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700"
+            className="mt-4 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700"
           >
             <ArrowForward />
           </button>
@@ -44,14 +44,14 @@ export default function TeacherNavDesktop() {
           <Calendar sx={{ fontSize: 85 }} className="text-teal-600" />
         </div>
       </div>
-      <div className="flex bg-white p-4 rounded-xl shadow-lg h-fit justify-between">
+      <div className="flex bg-white p-4 rounded-md shadow-lg h-fit justify-between">
         <div>
           <p className="text-lg font-semibold text-teal-800">Leave Request</p>
           <button
             onClick={() => {
               router.push("/teacher/leave-request");
             }}
-            className="mt-4 bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700"
+            className="mt-4 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700"
           >
             <ArrowForward />
           </button>

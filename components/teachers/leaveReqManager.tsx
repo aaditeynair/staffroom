@@ -46,9 +46,9 @@ export default function LeaveReqManager({refreshKey}:{refreshKey:boolean}) {
 
 
     return (
-        <div className="max-w-screen bg-gray-100 p-5 rounded-2xl shadow">
+        <div className="max-w-screen bg-gray-100 p-5 rounded-md shadow">
             <h2 className="text-2xl font-bold text-teal-800 mb-6">Submitted Leave Requests</h2>
-            <table className="border-separate border-spacing-y-3 min-w-full mt-4 overflow-hidden rounded-xl align text-left">
+            <table className="border-separate border-spacing-y-3 min-w-full mt-4 overflow-hidden rounded-md align text-left">
                 <thead>
                     <tr className="bg-gray-200">
                         <th className="p-2">Date</th>
@@ -62,7 +62,7 @@ export default function LeaveReqManager({refreshKey}:{refreshKey:boolean}) {
                             <td className="p-2">{new Date(absence.date).toDateString()}</td>
                             <td className="p-2">{absence.leave_type}</td>
                             <td> 
-                                <span className={`px-2 py-1 my-1 rounded-xl text-center space-y-6  ${
+                                <span className={`px-2 py-1 my-1 rounded-md text-center space-y-6  ${
                                 absence.status == 'confirmed' 
                                 ? 'bg-green-200 text-green-600' 
                                 : absence.status == 'rejected'

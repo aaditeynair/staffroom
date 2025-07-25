@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import {supabase} from '@/lib/supabaseClient'
+import { supabase } from '@/lib/supabaseClient'
 
 type Period = {
   period_number: number
@@ -13,74 +13,80 @@ type Period = {
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 
 export default function WeeklyTimetable() {
+  const [loading, setLoading] = useState(true)
   const [selectedDay, setSelectedDay] = useState<string>('Monday')
   const [periods, setPeriods] = useState<Period[]>([])
 
   useEffect(() => {
-  const loadPeriodsForSelectedDay = async () => {
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession()
+    const loadPeriodsForSelectedDay = async () => {
+      setLoading(true)
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession()
 
-    if (sessionError || !session?.user?.email) {
-      console.error("Session error", sessionError)
-      return
+      if (sessionError || !session?.user?.email) {
+        console.error("Session error", sessionError)
+        return
+      }
+
+      const email = session.user.email
+
+      const { data: teacher, error: teacherError } = await supabase
+        .from('teachers')
+        .select('id')
+        .eq('email', email)
+        .single()
+
+      if (teacherError || !teacher?.id) {
+        console.error("Teacher fetch error", teacherError)
+        return
+      }
+
+      const { data: entries, error: timetableError } = await supabase
+        .from('base_timetable')
+        .select('*')
+        .eq('teacher_id', teacher.id)
+        .eq('day_of_week', selectedDay)
+
+
+      if (timetableError) {
+        console.error("Timetable fetch error", timetableError)
+        return
+      }
+
+      const sorted = entries.sort((a, b) => a.period_number - b.period_number)
+
+      setPeriods(sorted)
+      setLoading(false)
     }
 
-    const email = session.user.email
-
-    const { data: teacher, error: teacherError } = await supabase
-      .from('teachers')
-      .select('id')
-      .eq('email', email)
-      .single()
-
-    if (teacherError || !teacher?.id) {
-      console.error("Teacher fetch error", teacherError)
-      return
-    }
-
-    const { data: entries, error: timetableError } = await supabase
-      .from('base_timetable')
-      .select('*')
-      .eq('teacher_id', teacher.id)
-      .eq('day_of_week', selectedDay)
-      
-
-    if (timetableError) {
-      console.error("Timetable fetch error", timetableError)
-      return
-    }
-
-    const sorted = entries.sort((a, b) => a.period_number - b.period_number)
-
-    setPeriods(sorted)
-  }
-
-  loadPeriodsForSelectedDay()
-}, [selectedDay])
+    loadPeriodsForSelectedDay()
+  }, [selectedDay])
+  if (loading)
+    return (
+      <p className="text-center mt-12 text-gray-500">Loading timetable...</p>
+    );
 
   return (
-    <div className="flex flex-col gap-4 w-full">   
-       <div className="flex flex-row rounded-t-xl items-center w-full min-w-0">
-    {days.map((day,index) => (
-      <button
-        key={day}
-        onClick={() => setSelectedDay(day)}
-        className={` text-xs sm:text-xs md:text-base font-medium px-3 py-3 flex-1 text-center transition-colors ${
-          selectedDay === day
-            ? "bg-teal-600 text-white"
-            : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-          
-        } 
-        ${index === 0 ? "rounded-l-lg" : ""}
-        ${index === days.length - 1 ? "rounded-r-lg" : ""}`}
-      >
-        {day}
-      </button>
-    ))}
-  </div>
+    <div className="flex flex-col gap-4 w-full">
+      <div className="flex flex-row rounded-t-md items-center w-full min-w-0">
+        {days.map((day, index) => (
+          <button
+            key={day}
+            onClick={() => setSelectedDay(day)}
+            className={` text-xs sm:text-xs md:text-base font-medium px-3 py-3 flex-1 text-center transition-colors ${selectedDay === day
+                ? "bg-teal-600 text-white"
+                : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+
+              } 
+        ${index === 0 ? "rounded-l-md" : ""}
+        ${index === days.length - 1 ? "rounded-r-md" : ""}`}
+          >
+            {day}
+          </button>
+        ))}
+      </div>
 
       <div className="w-full grid grid-cols-1 gap-4">
         {Array.from({ length: 10 }, (_, i) => {
@@ -89,13 +95,12 @@ export default function WeeklyTimetable() {
           return (
             <div
               key={i}
-              className={`flex justify-between items-center px-4 py-3 rounded-xl border ${
-                isSub
+              className={`flex justify-between items-center px-4 py-3 rounded-md border ${isSub
                   ? 'bg-yellow-50 border-yellow-300'
                   : period
-                  ? 'bg-blue-50 border-blue-200'
-                  : 'bg-gray-50 border-gray-200'
-              }`}
+                    ? 'bg-blue-50 border-blue-200'
+                    : 'bg-gray-50 border-gray-200'
+                }`}
             >
               <div className="font-semibold text-gray-700">Period {i + 1}</div>
               {period ? (
