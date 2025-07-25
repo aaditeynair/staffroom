@@ -6,40 +6,86 @@ import {
   LocalizationProvider,
   DatePicker,
 } from "@mui/x-date-pickers";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Link from "next/link";
 import { CircularProgress } from "@mui/material";
 
-export default function AbsentTeachersList({ date, setDate, refreshKey }) {
+interface AbsenteesListProps {
+  date: Dayjs;
+  setDate: (date: Dayjs) => void;
+  refreshKey?: boolean;
+}
+
+interface Teacher {
+  id: string;
+  name: string;
+}
+
+interface Absence {
+  id: string;
+  leave_type: string;
+  dealt_with: boolean;
+  teacher: Teacher;
+  teacher_id: string;
+}
+
+export default function AbsentTeachersList({
+  date,
+  setDate,
+  refreshKey,
+}: AbsenteesListProps) {
   const [loading, setLoading] = useState(false);
-  const [absentTeachers, setAbsentTeachers] = useState([]);
+  const [absentTeachers, setAbsentTeachers] = useState<Absence[]>([]);
 
   const getAbsentTeachers = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+
+    // Step 1: Fetch absence entries without teacher info
+    const { data: absences, error: absError } = await supabase
       .from("absences")
-      .select(
-        `
-        id,
-        leave_type,
-        dealt_with,
-        teacher:teacher_id (
-          id,
-          name
-        )
-      `,
-      )
+      .select("id, leave_type, dealt_with, teacher_id")
       .eq("status", "confirmed")
-      .eq("date", date)
+      .eq("date", date.format("YYYY-MM-DD"))
       .order("dealt_with", { ascending: true });
 
-    if (error) {
-      console.log(error);
+    if (absError) {
+      console.log(absError);
+      setLoading(false);
+      return;
+    }
+    if (!absences) {
+      setAbsentTeachers([]);
+      setLoading(false);
       return;
     }
 
-    setAbsentTeachers(data);
+    // Step 2: Extract all teacher IDs and fetch teacher info in batch
+    const teacherIds = absences.map((a) => a.teacher_id);
+    const { data: teachers, error: teacherError } = await supabase
+      .from("teachers")
+      .select("id, name")
+      .in("id", teacherIds);
+
+    if (teacherError) {
+      console.log(teacherError);
+      setLoading(false);
+      return;
+    }
+
+    // Step 3: Map teachers to their IDs for quick lookup
+    const teacherMap = new Map(teachers?.map((t) => [t.id, t]));
+
+    // Step 4: Combine absence and teacher objects, so each absence has a teacher object directly
+    const absencesWithTeachers = absences.map((absence) => ({
+      ...absence,
+      teacher: teacherMap.get(absence.teacher_id) || {
+        id: "",
+        name: "Unknown",
+      },
+    }));
+
+    setAbsentTeachers(absencesWithTeachers);
     setLoading(false);
   };
 
