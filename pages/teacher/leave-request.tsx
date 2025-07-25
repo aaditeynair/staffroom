@@ -90,7 +90,7 @@ function LeaveRequest() {
       <Header heading="Leave Request" />
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,_30rem)_48rem] gap-8 lg:gap-16 px-6 py-6">
         <form
-          className="bg-white p-6 rounded-2xl shadow-md space-y-4"
+          className="bg-white p-6 rounded-md shadow-md space-y-4"
           onSubmit={handleSubmit}
         >
           <h1 className="text-2xl font-semibold text-teal-700 text-center">
@@ -105,7 +105,7 @@ function LeaveRequest() {
                 value={selectedDate}
                 onChange={(newValue) => setSelectedDate(newValue!)}
                 disablePast
-                format="YYYY-MM-DD"
+                format="DD-MM-YYYY"
                 className="w-full"
               />
             </div>
