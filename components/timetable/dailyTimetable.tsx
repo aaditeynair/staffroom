@@ -8,7 +8,7 @@ type Period = {
   division: string;
   is_substitute: boolean;
 };
-export default function TestTimetable() {
+export default function DailyTimetable() {
   const [periods, setPeriods] = useState<Period[]>([]);
   const [loading, setLoading] = useState(true);
 

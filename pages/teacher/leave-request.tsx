@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import pageAuth from "@/components/auth/pageAuth"
-import TeacherNavMobile from "@/components/teachers/teacherNavMobile"
-import Header from "@/components/ui/header"
+import TeacherNavMobile from "@/components/teachers/TeacherNavMobile"
+import Header from "@/components/ui/Header"
 import { supabase } from '@/lib/supabaseClient'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'

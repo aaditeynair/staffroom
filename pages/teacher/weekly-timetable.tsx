@@ -1,7 +1,7 @@
 import pageAuth from "@/components/auth/pageAuth";
-import TeacherNavMobile from "@/components/teachers/teacherNavMobile";
-import WeeklyTimetable from "@/components/timetable/weeklyTimetable";
-import Header from "@/components/ui/header";
+import TeacherNavMobile from "@/components/teachers/TeacherNavMobile";
+import WeeklyTimetable from "@/components/timetable/WeeklyTimetable";
+import Header from "@/components/ui/Header";
 
 function TeacherTimetables() {
   return (

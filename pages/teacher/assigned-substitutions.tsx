@@ -2,8 +2,8 @@
 import pageAuth from "@/components/auth/pageAuth"
 import { supabase } from "@/lib/supabaseClient";
 import { useState, useEffect } from "react";
-import TeacherNavMobile from "@/components/teachers/teacherNavMobile"
-import Header from "@/components/ui/header"
+import TeacherNavMobile from "@/components/teachers/TeacherNavMobile"
+import Header from "@/components/ui/Header"
 import { CheckRounded, ClearRounded, WidthFull } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import ConfirmDialog from "@/components/ui/Confirmdialog";
