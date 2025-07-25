@@ -12,19 +12,49 @@ import {
 import dayjs from "dayjs";
 import AbsenceDetailCard from "@/components/admin/AbsenceDetailCard";
 
+interface Teacher {
+  id: string;
+  name: string;
+}
+
+interface AbsenceDetails {
+  id: string;
+  date: string;
+  leave_type: string;
+  reason: string;
+  dealt_with: boolean;
+  teacher: Teacher;
+}
+
+interface TimetablePeriod {
+  id: string;
+  period_number: number;
+  class: string;
+}
+
+interface SubstitutionInfo {
+  substituteID: string | null;
+  class: string;
+  id?: string;
+}
+
 export default function SubstitutionPage() {
   const router = useRouter();
   const { id } = router.query;
 
   const [loading, setLoading] = useState(true);
-  const [absenceDetails, setAbsenceDetails] = useState<any>(null);
-  const [teacherTimetable, setTeacherTimetable] = useState<any[]>([]);
-  const [availableTeachersByPeriod, setAvailableTeachersByPeriod] = useState(
-    {},
+  const [absenceDetails, setAbsenceDetails] = useState<AbsenceDetails | null>(
+    null,
   );
-  const [substitutions, setSubstitutions] = useState<Record<string, string>>(
-    {},
+  const [teacherTimetable, setTeacherTimetable] = useState<TimetablePeriod[]>(
+    [],
   );
+  const [availableTeachersByPeriod, setAvailableTeachersByPeriod] = useState<
+    Record<number, Teacher[]>
+  >({});
+  const [substitutions, setSubstitutions] = useState<
+    Record<string, SubstitutionInfo>
+  >({});
 
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -45,7 +75,7 @@ export default function SubstitutionPage() {
       return;
     }
 
-    if (absenceDetails.dealt_with !== true) {
+    if (absenceDetails && absenceDetails.dealt_with !== true) {
       for (const period in substitutions) {
         const { data, error } = await supabase
           .from("substitutions")
@@ -80,12 +110,12 @@ export default function SubstitutionPage() {
         });
       }
 
-      const { e } = await supabase
+      const { error } = await supabase
         .from("absences")
         .update({ dealt_with: true })
         .eq("id", absenceDetails.id);
 
-      if (e) {
+      if (error) {
         setSnackbar({
           open: true,
           message: "An error has occurred. Please try again later",
@@ -98,7 +128,9 @@ export default function SubstitutionPage() {
           message: "Substitutions created successfully",
           severity: "success",
         });
-        setAbsenceDetails((prev) => ({ ...prev, dealt_with: true }));
+        setAbsenceDetails((prev) =>
+          prev ? { ...prev, dealt_with: true } : prev,
+        );
       }
     } else {
       for (const period in substitutions) {
@@ -135,26 +167,31 @@ export default function SubstitutionPage() {
       // Fetch Absence Details
       const { data: absence, error: absenceError } = await supabase
         .from("absences")
-        .select(
-          `
-          id,
-          date,
-          leave_type,
-          reason,
-          dealt_with,
-          teacher:teacher_id ( id, name )
-        `,
-        )
+        .select("*")
         .eq("id", id)
         .single();
+
       if (absenceError || !absence) {
         console.error("Invalid absence ID", absenceError);
         setLoading(false);
         return;
       }
-      setAbsenceDetails(absence);
 
-      const { date, teacher } = absence;
+      const { data: teacher, error: teacherError } = await supabase
+        .from("teachers")
+        .select("id, name")
+        .eq("id", absence.teacher_id)
+        .single();
+
+      if (teacherError || !teacher) {
+        console.error("Teacher Problem", teacherError);
+        setLoading(false);
+        return;
+      }
+
+      setAbsenceDetails({ ...absence, teacher });
+
+      const { date } = absence;
       const day = [
         "Sunday",
         "Monday",
@@ -181,8 +218,8 @@ export default function SubstitutionPage() {
         .in("role", ["teacher", "admin-teacher"])
         .neq("id", teacher.id);
 
-      const availableTeachersByPeriod = {};
-      for (const period of timetable) {
+      const availableTeachersByPeriod: Record<number, Teacher[]> = {};
+      for (const period of timetable ?? []) {
         const { data: busyDaily } = await supabase
           .from("daily_timetable")
           .select("teacher_id")
@@ -201,7 +238,7 @@ export default function SubstitutionPage() {
           teacher.id,
         ];
 
-        availableTeachersByPeriod[period.period_number] = (
+        availableTeachersByPeriod[Number(period.period_number)] = (
           teachers || []
         ).filter((t) => !busyTeacherIds.includes(t.id));
       }
@@ -257,10 +294,6 @@ export default function SubstitutionPage() {
             </div>
             <div className="flex flex-col gap-4 mb-4 md:mb-0">
               {teacherTimetable.map((period) => {
-                let value = "";
-                if (substitutions[period.period_number] !== undefined) {
-                  value = substitutions[period.period_number].substituteID;
-                }
                 return (
                   <div
                     key={period.id}
@@ -283,7 +316,7 @@ export default function SubstitutionPage() {
                           (t) =>
                             t.id ===
                             substitutions[period.period_number]?.substituteID,
-                        ) || null
+                        ) || undefined
                       }
                       onChange={(_, newValue) => {
                         setSubstitutions((prev) => ({
