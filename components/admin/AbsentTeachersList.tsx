@@ -45,6 +45,7 @@ export default function AbsentTeachersList({ date, setDate, refreshKey }) {
 
   useEffect(() => {
     getAbsentTeachers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date, refreshKey]);
 
   return (
