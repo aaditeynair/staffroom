@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
-import LeaveReqManager from '@/components/teachers/leaveReqManager'
+import LeaveReqManager from '@/components/teachers/LeaveReqManager'
 
 
 function LeaveRequest() {
@@ -112,14 +112,14 @@ function LeaveRequest() {
           </LocalizationProvider>
           <div>
             <label
-              htmlFor="half_day"
+              htmlFor="leave_type"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
               Leave Type
             </label>
             <select
-              id="half_day"
-              name="half_day"
+              id="leave_type"
+              name="leave_type"
               required
               value={leaveType}
               onChange={(e) => setLeaveType(e.target.value)}
