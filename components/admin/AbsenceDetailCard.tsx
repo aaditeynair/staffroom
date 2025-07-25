@@ -1,6 +1,16 @@
 import dayjs from "dayjs";
 
-export default function AbsenceDetailCard({ absenceDetails }) {
+interface AbsenceDetailsProps {
+  absenceDetails: {
+    date: string;
+    leave_type: string;
+    reason: string;
+  };
+}
+
+export default function AbsenceDetailCard({
+  absenceDetails,
+}: AbsenceDetailsProps) {
   return (
     <div className="p-4 bg-white rounded-md shadow-md mb-2 md:mb-4">
       <p className="mb-4">
