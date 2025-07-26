@@ -9,25 +9,25 @@ import logo from "@/public/logo.png";
 function Home() {
   const router = useRouter();
 
-  // useEffect(() => {
-  //   const fetchUser = async () => {
-  //     const {
-  //       data: { session },
-  //     } = await supabase.auth.getSession();
-  //     const { data: profile } = await supabase
-  //       .from("teachers")
-  //       .select("role")
-  //       .eq("email", session?.user.email)
-  //       .single();
-  //
-  //     if (profile?.role == "teacher") {
-  //       router.push("/teacher");
-  //     } else {
-  //       router.push("/admin");
-  //     }
-  //   };
-  //   fetchUser();
-  // }, [router]);
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const { data: profile } = await supabase
+        .from("teachers")
+        .select("role")
+        .eq("email", session?.user.email)
+        .single();
+
+      if (profile?.role == "teacher") {
+        router.push("/teacher");
+      } else {
+        router.push("/admin");
+      }
+    };
+    fetchUser();
+  }, [router]);
   return (
     <div className="w-screen h-screen bg-white flex justify-center items-center">
       <div className="w-2/3 md:w-1/3 text-center text-teal-700 mb-12">
