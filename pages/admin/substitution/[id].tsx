@@ -270,16 +270,16 @@ export default function SubstitutionPage() {
     fetchData();
   }, [id]);
 
-  if (loading || !absenceDetails)
+  if (!loading || !absenceDetails)
     return (
-      <div className="m-8 flex justify-center items-center h-full">
-        <CircularProgress />
+      <div className="p-8 flex bg-white text-teal-700 justify-center items-center h-full">
+        <CircularProgress size="4rem" color="inherit" />
       </div>
     );
 
   return (
     <>
-      <div className="m-6 md:m-8">
+      <div className="p-6 md:p-8">
         <h1 className="text-2xl font-bold mb-8 text-teal-700">
           Substitution Management for {absenceDetails.teacher.name} on{" "}
           {dayjs(absenceDetails.date).format("dddd, DD MMMM YYYY")}
