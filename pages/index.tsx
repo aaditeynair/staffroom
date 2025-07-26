@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useEffect } from "react";
 import { LinearProgress } from "@mui/material";
 import Image from "next/image";
-import logo from "@/public/logo-high.png";
+import logo from "@/public/logo.png";
 
 function Home() {
   const router = useRouter();
