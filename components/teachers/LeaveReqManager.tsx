@@ -1,7 +1,6 @@
 import { supabase } from "@/lib/supabaseClient";
 import { useState, useEffect } from "react";
 import { CircularProgress } from "@mui/material";
-import { WidthFull } from "@mui/icons-material";
 
 type Absence = {
   date: string;

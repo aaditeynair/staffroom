@@ -54,6 +54,7 @@ if (loading)
     return (
       <div className="flex items-center justify-center w-full h-full p-5">
             <CircularProgress size={100} ></CircularProgress>
+            
           </div>
     );
 
