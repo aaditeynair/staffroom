@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
+import { CircularProgress } from '@mui/material'
 
 type Period = {
   period_number: number
@@ -65,17 +66,19 @@ export default function WeeklyTimetable() {
   }, [selectedDay])
   if (loading)
     return (
-      <p className="text-center mt-12 text-gray-500">Loading timetable...</p>
+      <div className="flex items-center justify-center w-full h-full p-5">
+            <CircularProgress size={100} ></CircularProgress>
+          </div>
     );
 
   return (
-    <div className="flex flex-col gap-4 w-full">
-      <div className="flex flex-row rounded-t-md items-center w-full min-w-0">
+    <div className="flex flex-col gap-4 max-w-screen">
+      <div className="flex flex-row rounded-t-md items-center w-full max-w-full overflow-hidden">
         {days.map((day, index) => (
           <button
             key={day}
             onClick={() => setSelectedDay(day)}
-            className={` text-xs sm:text-xs md:text-base font-medium px-3 py-3 flex-1 text-center transition-colors ${selectedDay === day
+            className={` text-xs px-3 py-3 flex-1 text-center min-w-0 truncate transition-colors ${selectedDay === day
                 ? "bg-teal-600 text-white"
                 : "bg-gray-100 text-gray-800 hover:bg-gray-200"
 

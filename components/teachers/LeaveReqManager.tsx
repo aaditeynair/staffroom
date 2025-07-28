@@ -1,5 +1,7 @@
 import { supabase } from "@/lib/supabaseClient";
 import { useState, useEffect } from "react";
+import { CircularProgress } from "@mui/material";
+import { WidthFull } from "@mui/icons-material";
 
 type Absence = {
   date: string;
@@ -50,7 +52,9 @@ export default function LeaveReqManager({
 
   if (loading)
     return (
-      <p className="text-center mt-12 text-gray-500">Loading timetable...</p>
+    <div className="flex items-center justify-center w-full h-full p-5">
+      <CircularProgress size={100} ></CircularProgress>
+    </div>
     );
 
   return (

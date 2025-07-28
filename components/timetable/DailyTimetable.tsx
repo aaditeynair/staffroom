@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { CircularProgress } from "@mui/material";
 
 type Period = {
   period_number: number;
@@ -49,9 +50,11 @@ export default function DailyTimetable() {
     fetchTimetable();
   }, []);
 
-  if (loading)
+if (loading)
     return (
-      <p className="text-center mt-12 text-gray-500">Loading timetable...</p>
+      <div className="flex items-center justify-center w-full h-full p-5">
+            <CircularProgress size={100} ></CircularProgress>
+          </div>
     );
 
   return (

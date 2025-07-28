@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import TeacherNavMobile from "@/components/teachers/TeacherNavMobile";
 import Header from "@/components/ui/Header";
 import { CheckRounded, ClearRounded } from "@mui/icons-material";
-import { Button } from "@mui/material";
+import { Button, ListItem, Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+
 
 type Substitution = {
   id: string;
@@ -41,8 +42,10 @@ function AssignedSubstitutions() {
       const { data, error } = await supabase
         .from("substitutions")
         .select("id,date,period_number,class,confirmed_by_teacher")
-        .eq("substitute_teacher", teacher.id)
-        .order("date");
+        .eq("substitute_teacher", teacher.id,)
+        .eq("confirmed_by_teacher", 'unconfirmed')
+        .order("date")
+        .order("period_number");
 
       if (error) {
         console.error(error);
@@ -87,76 +90,68 @@ function AssignedSubstitutions() {
     <div>
       <Header heading="Assigned Substitutions" />
       <div className="min-h-screen max-w-screen flex flex-col bg-gray-200 p-4">
-        <div className="max-w-screen bg-gray-100 p-5 rounded-md shadow">
-          <h2 className="text-2xl font-bold text-teal-800 mb-6">
-            Assigned Substitutions
-          </h2>
-          {!loading ? (
-            <table className="border-separate border-spacing-y-3 min-w-full mt-4 overflow-hidden rounded-md align text-left">
-              <thead>
-                <tr className="bg-gray-200">
-                  <th className="p-2">Date</th>
-                  <th className="p-2">Period</th>
-                  <th className="p-2">Class</th>
-                  <th className="p-2">Confirm</th>
-                </tr>
-              </thead>
-              <tbody>
-                {substitution.map((substitution, index) => (
-                  <tr key={index}>
-                    <td className="p-2">
-                      {new Date(substitution.date).toDateString()}
-                    </td>
-                    <td className="p-2 text-center">
-                      {substitution.period_number}
-                    </td>
-                    <td className="p-2 text-center">{substitution.class}</td>
-                    <td className="p-2 space-x-2">
-                      {substitution.confirmed_by_teacher === "unconfirmed" ? (
-                        <div className="flex flex-col gap-4">
-                          <Button
-                            sx={{ color: "green", border: 1 }}
-                            onClick={() => handleOpenAccept(substitution)}
-                          >
-                            <CheckRounded />
-                          </Button>
-                          <Button
-                            sx={{ color: "red", border: 1 }}
-                            onClick={() => handleOpenDecline(substitution)}
-                          >
-                            <ClearRounded />
-                          </Button>
-                        </div>
-                      ) : (
-                        <span
-                          className={
-                            substitution.confirmed_by_teacher === "accepted"
-                              ? "text-green-600"
-                              : "text-red-600"
-                          }
+
+        {!loading ? (
+          <div className="max-w-screen bg-gray-100 p-5 rounded-md">
+            <h2 className="text-2xl font-bold text-teal-800 mb-6">
+              Assigned Substitutions
+            </h2>
+            {substitution.map((substitution, index) => (
+              
+                <ListItem key={index} className="rounded-md mt-1" disableGutters>
+                  <Accordion className="w-full">
+                    <AccordionSummary>
+                      <div className="flex justify-between w-full">
+                        
+                      <div className="font-bold">Period: {substitution.period_number} <p className="text-teal-700">{substitution.class}</p></div>
+                      <div className="text-gray-800">{substitution.date}</div>
+                      </div>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      
+                      <div className="gap-4 mt-4 flex w-full">
+                        <Button
+                          variant="outlined"
+                          className="w-full"
+                          startIcon={<CheckRounded />}
+                          color="success"
+                          onClick={() => {
+                            handleOpenAccept(substitution)
+                          }}
                         >
-                          {substitution.confirmed_by_teacher}
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p> Loading... </p>
-          )}
-          <ConfirmDialog
+                          Approve
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          className="w-full"
+                          startIcon={<ClearRounded />}
+                          color="error"
+                          onClick={() => {
+                            handleOpenDecline(substitution)
+                          }}
+                        >
+                          Decline
+                        </Button>
+                      </div>
+                    </AccordionDetails>
+                  </Accordion>
+                </ListItem>
+            ))}
+          </div>
+        ) : (
+          <p> Loading... </p>
+        )}
+        < ConfirmDialog
             open={dialogOpen}
-            mode={dialogMode}
-            onClose={() => setDialogOpen(false)}
-            onConfirm={handleDecision}
+        mode={dialogMode}
+        onClose={() => setDialogOpen(false)}
+        onConfirm={handleDecision}
           />
-        </div>
+
       </div>
       <TeacherNavMobile />
     </div>
-  );
-}
+  )}
+
 export default pageAuth(AssignedSubstitutions, "teacher");
 

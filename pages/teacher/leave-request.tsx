@@ -88,7 +88,7 @@ function LeaveRequest() {
   return (
     <div className='min-h-screen bg-gray-200 pb-16'>
       <Header heading="Leave Request" />
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,_30rem)_48rem] gap-8 lg:gap-16 px-6 py-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,_30rem)_1fr] gap-8 lg:gap-16 px-6 py-6">
         <form
           className="bg-white p-6 rounded-md shadow-md space-y-4"
           onSubmit={handleSubmit}
