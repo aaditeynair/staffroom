@@ -92,7 +92,7 @@ function AssignedSubstitutions() {
       <div className="min-h-screen max-w-screen flex flex-col bg-gray-200 p-4">
 
         {!loading ? (
-          <div className="max-w-screen bg-gray-100 p-5 rounded-md">
+          <div className="max-w-screen bg-white p-5 rounded-md">
             <h2 className="text-2xl font-bold text-teal-800 mb-6">
               Assigned Substitutions
             </h2>
