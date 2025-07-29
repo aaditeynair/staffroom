@@ -226,6 +226,12 @@ export default function SubstitutionPage() {
           .eq("date", date)
           .eq("period_number", period.period_number);
 
+        // const { data: absentTeachers } = await supabase
+        //   .from("absences")
+        //   .select("teacher_id")
+        //   .eq("date", date);
+        // console.log(absentTeachers);
+
         const { data: busyBase } = await supabase
           .from("base_timetable")
           .select("teacher_id")
@@ -270,7 +276,7 @@ export default function SubstitutionPage() {
     fetchData();
   }, [id]);
 
-  if (!loading || !absenceDetails)
+  if (loading || !absenceDetails)
     return (
       <div className="p-8 flex bg-white text-teal-700 justify-center items-center h-full">
         <CircularProgress size="4rem" color="inherit" />
