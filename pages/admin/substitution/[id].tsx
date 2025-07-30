@@ -226,11 +226,10 @@ export default function SubstitutionPage() {
           .eq("date", date)
           .eq("period_number", period.period_number);
 
-        // const { data: absentTeachers } = await supabase
-        //   .from("absences")
-        //   .select("teacher_id")
-        //   .eq("date", date);
-        // console.log(absentTeachers);
+        const { data: absentTeachers } = await supabase
+          .from("absences")
+          .select("teacher_id")
+          .eq("date", date);
 
         const { data: busyBase } = await supabase
           .from("base_timetable")
@@ -241,6 +240,7 @@ export default function SubstitutionPage() {
         const busyTeacherIds = [
           ...(busyDaily?.map((t) => t.teacher_id) || []),
           ...(busyBase?.map((t) => t.teacher_id) || []),
+          ...(absentTeachers?.map((t) => t.teacher_id) || []),
           teacher.id,
         ];
 
