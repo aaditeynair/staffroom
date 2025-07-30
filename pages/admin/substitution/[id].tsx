@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import dayjs from "dayjs";
 import AbsenceDetailCard from "@/components/admin/AbsenceDetailCard";
+import AdminNavDesktop from "@/components/admin/AdminNavDesktop";
 
 interface Teacher {
   id: string;
@@ -285,6 +286,7 @@ export default function SubstitutionPage() {
   return (
     <>
       <div className="p-6 md:p-8">
+        <AdminNavDesktop />
         <h1 className="text-2xl font-bold mb-8 text-teal-700">
           Substitution Management for {absenceDetails.teacher.name} on{" "}
           {dayjs(absenceDetails.date).format("dddd, DD MMMM YYYY")}
