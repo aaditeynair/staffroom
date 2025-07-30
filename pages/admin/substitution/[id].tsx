@@ -241,7 +241,6 @@ export default function SubstitutionPage() {
           ...(busyDaily?.map((t) => t.teacher_id) || []),
           ...(busyBase?.map((t) => t.teacher_id) || []),
           ...(absentTeachers?.map((t) => t.teacher_id) || []),
-          teacher.id,
         ];
 
         availableTeachersByPeriod[Number(period.period_number)] = (
