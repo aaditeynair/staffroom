@@ -5,6 +5,7 @@ import { Grid } from "@mui/material";
 import dayjs from "dayjs";
 import pageAuth from "@/components/auth/pageAuth";
 import FalseSubstituionForm from "@/components/admin/FalseSubstitutionForm";
+import AdminNavDesktop from "@/components/admin/AdminNavDesktop";
 
 function AdminDashboard() {
   const [selectedDate, setSelectedDate] = useState(dayjs());
@@ -18,6 +19,7 @@ function AdminDashboard() {
 
   return (
     <div className="p-4 md:p-8 bg-gray-100">
+      <AdminNavDesktop />
       <Grid container spacing={{ xs: 2, md: 4 }}>
         <Grid
           size={{ xs: 12, lg: 4 }}
