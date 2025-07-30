@@ -3,25 +3,27 @@ import Link from "next/link";
 import logo from "@/public/logo-white.png";
 import AccountModal from "@/components/ui/Account";
 import { useState } from "react";
-import AccountCircle from "@mui/icons-material/AccountCircle";
+import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 
 export default function AdminNavDesktop() {
   const [open, setOpen] = useState(false);
   return (
-    <div className="flex justify-between bg-teal-700 w-full rounded-md mb-4 md:mb-8 text-white px-8 py-4 shadow-md items-center">
-      <div>
+    <div className="flex justify-between w-full rounded-md mb-4 md:mb-8 text-white">
+      <div className="bg-teal-700 px-8 py-4 rounded-md shadow-md">
         <Image src={logo} alt="Logo" width={180} />
       </div>
       <div className="flex gap-6 items-center">
-        <Link href="/admin">Dashboard</Link>
-        <Link href="/admin/substitution/">Substitutions</Link>
-        <Link href="/admin/manage-teachers">Teachers</Link>
-        <Link href="/admin/timetable">Timetable</Link>
+        <div className="flex gap-8 items-center bg-teal-700 rounded-md shadow-md px-8 py-4">
+          <Link href="/admin">Dashboard</Link>
+          <Link href="/admin/substitution/">Substitutions</Link>
+          <Link href="/admin/manage-teachers">Teachers</Link>
+          <Link href="/admin/timetable">Timetable</Link>
+        </div>
         <button
           onClick={() => setOpen(true)}
-          className="text-white cursor-pointer inline-flex items-center justify-center hover:bg-white/10 rounded-full"
+          className="text-white cursor-pointer inline-flex items-center justify-center rounded-md shadow-md bg-teal-700 p-3"
         >
-          <AccountCircle sx={{ fontSize: { xs: 35, lg: 35 } }} />
+          <PersonRoundedIcon sx={{ fontSize: { xs: 35, lg: 30 } }} />
         </button>
         <AccountModal open={open} onClose={() => setOpen(false)} />
       </div>
