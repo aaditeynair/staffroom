@@ -318,7 +318,6 @@ export default function FalseSubstitutionCreator({
         <div>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
-              label="Select Date"
               value={selectedDate}
               onChange={(newDate) => {
                 if (newDate) setSelectedDate(newDate);
@@ -337,7 +336,11 @@ export default function FalseSubstitutionCreator({
             value={selectedTeacher}
             onChange={(_, newValue) => setSelectedTeacher(newValue)}
             renderInput={(params) => (
-              <TextField {...params} label="Select Present Teacher" />
+              <TextField
+                {...params}
+                label="Select Present Teacher"
+                className="z-0"
+              />
             )}
             disabled={loading || presentTeachers.length === 0}
           />
@@ -353,7 +356,7 @@ export default function FalseSubstitutionCreator({
             value={selectedPeriod}
             onChange={(_, newValue) => setSelectedPeriod(newValue)}
             renderInput={(params) => (
-              <TextField {...params} label="Select Period" />
+              <TextField {...params} label="Select Period" className="z-0" />
             )}
             disabled={!selectedTeacher || teacherPeriods.length === 0}
           />
@@ -367,7 +370,11 @@ export default function FalseSubstitutionCreator({
             value={substituteTeacher}
             onChange={(_, newValue) => setSubstituteTeacher(newValue)}
             renderInput={(params) => (
-              <TextField {...params} label="Select Substitute Teacher" />
+              <TextField
+                {...params}
+                label="Select Substitute Teacher"
+                className="z-0"
+              />
             )}
             disabled={!selectedPeriod || availableSubstitutes.length === 0}
           />
