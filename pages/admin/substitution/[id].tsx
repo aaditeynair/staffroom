@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import dayjs from "dayjs";
 import AbsenceDetailCard from "@/components/admin/AbsenceDetailCard";
+import AdminNavDesktop from "@/components/admin/AdminNavDesktop";
 
 interface Teacher {
   id: string;
@@ -226,11 +227,10 @@ export default function SubstitutionPage() {
           .eq("date", date)
           .eq("period_number", period.period_number);
 
-        // const { data: absentTeachers } = await supabase
-        //   .from("absences")
-        //   .select("teacher_id")
-        //   .eq("date", date);
-        // console.log(absentTeachers);
+        const { data: absentTeachers } = await supabase
+          .from("absences")
+          .select("teacher_id")
+          .eq("date", date);
 
         const { data: busyBase } = await supabase
           .from("base_timetable")
@@ -241,7 +241,7 @@ export default function SubstitutionPage() {
         const busyTeacherIds = [
           ...(busyDaily?.map((t) => t.teacher_id) || []),
           ...(busyBase?.map((t) => t.teacher_id) || []),
-          teacher.id,
+          ...(absentTeachers?.map((t) => t.teacher_id) || []),
         ];
 
         availableTeachersByPeriod[Number(period.period_number)] = (
@@ -286,6 +286,7 @@ export default function SubstitutionPage() {
   return (
     <>
       <div className="p-6 md:p-8">
+        <AdminNavDesktop />
         <h1 className="text-2xl font-bold mb-8 text-teal-700">
           Substitution Management for {absenceDetails.teacher.name} on{" "}
           {dayjs(absenceDetails.date).format("dddd, DD MMMM YYYY")}
