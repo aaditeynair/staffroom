@@ -8,7 +8,7 @@ import {
 
 export default function AdminNavMobile() {
   return (
-    <div className="fixed bottom-0 left-0 w-full z-50">
+    <div className="fixed bottom-0 left-0 w-full z-50 lg:hidden">
       <div className="flex justify-between items-center bg-teal-700 text-white p-4 rounded-t-md">
         <AdminNavItem name="Home" link="/admin" icon={<HomeRounded />} />
         <AdminNavItem

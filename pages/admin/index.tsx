@@ -21,7 +21,7 @@ function AdminDashboard() {
   return (
     <div className="p-4 md:p-8 bg-gray-100">
       <AdminNavDesktop />
-      <Grid className="pb-20" container spacing={{ xs: 2, md: 4 }}>
+      <Grid className="pb-20 lg:pb-0" container spacing={{ xs: 2, md: 4 }}>
         <Grid
           size={{ xs: 12, lg: 4 }}
           className="bg-white rounded-md shadow-md"
