@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import logo from "@/public/logo-white.png";
-import AccountModal from "@/components/ui/Account";
+import ChangePassword from "@/components/ui/ChangePassword";
 import { useState } from "react";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 
@@ -25,7 +25,6 @@ export default function AdminNavDesktop() {
         >
           <PersonRoundedIcon sx={{ fontSize: { xs: 35, lg: 30 } }} />
         </button>
-        <AccountModal open={open} onClose={() => setOpen(false)} />
       </div>
     </div>
   );
