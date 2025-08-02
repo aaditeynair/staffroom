@@ -2,7 +2,7 @@ import pageAuth from "@/components/auth/pageAuth";
 import { supabase } from "@/lib/supabaseClient";
 import { useState, useEffect } from "react";
 import TeacherNavMobile from "@/components/teachers/TeacherNavMobile";
-import Header from "@/components/ui/Header";
+import TeacherNavDesktop from "@/components/teachers/TeacherNavDesktop";
 import { CheckRounded, ClearRounded } from "@mui/icons-material";
 import { Button, ListItem, Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
@@ -97,7 +97,7 @@ function AssignedSubstitutions() {
   };
   return (
       <div className="min-h-screen bg-gray-100 p-4 md:p-8">
-        <Header/>
+        <TeacherNavDesktop/>
         {!loading ? (
           <div className="max-w-screen bg-white p-5 rounded-md  pb-20 lg:pb-0">
             <h2 className="text-2xl font-bold text-teal-800 mb-6 text-center">
