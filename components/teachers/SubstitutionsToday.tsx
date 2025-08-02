@@ -37,6 +37,7 @@ export default function SubstitutionsToday() {
         .select("period_number,class")
         .eq("substitute_teacher", teacher.id)
         .eq("date", formattedDate)
+        .eq("confirmed_by_teacher","accepted")
         .order("period_number");
 
       if (error) console.log(error);
