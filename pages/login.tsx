@@ -2,13 +2,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@mui/material";
+import { VisibilityRounded,VisibilityOffRounded } from "@mui/icons-material";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [show, setShow] = useState(false)
   const router = useRouter();
+  
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,14 +85,25 @@ export default function LoginPage() {
             <label className="block text-sm font-semibold text-gray-700">
               Password
             </label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md outline-2 p-2 outline-gray-300 focus:outline-teal-700 sm:text-sm"
-              placeholder="Enter your password"
-            />
+            <div className="relative">
+
+
+              <input
+                type={show? "text" : "password"}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1 block w-full rounded-md outline-2 p-2 outline-gray-300 focus:outline-teal-700 sm:text-sm"
+                placeholder="Enter your password"
+              />
+              <button
+                type="button"
+                onClick={() => setShow((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+              >
+                {show ? <VisibilityRounded /> : <VisibilityOffRounded />}
+              </button>
+            </div>
           </div>
 
           {errorMsg && <p className="text-sm text-red-600">{errorMsg}</p>}

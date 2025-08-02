@@ -2,7 +2,7 @@ import pageAuth from "@/components/auth/pageAuth";
 import { supabase } from "@/lib/supabaseClient";
 import { useState, useEffect } from "react";
 import TeacherNavMobile from "@/components/teachers/TeacherNavMobile";
-import Header from "@/components/ui/Header";
+import TeacherNavDesktop from "@/components/teachers/TeacherNavDesktop";
 import { CheckRounded, ClearRounded } from "@mui/icons-material";
 import { Button, ListItem, Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
@@ -53,12 +53,21 @@ function AssignedSubstitutions() {
 
       console.log(teacher);
 
-      if (data) setSubstitution(data);
+      if (data) setSubstitution(
+          (data || []).map((sub) => ({
+          ...sub,
+          date: formatDateToDDMMYYYY(sub.date),
+  }))
+);
       setLoading(false);
     };
 
     fetchAbsences();
   }, [refreshFlag]);
+  function formatDateToDDMMYYYY(dateString: string): string {
+  const [year, month, day] = dateString.split("-");
+  return `${day}-${month}-${year}`;
+  }
   const handleOpenAccept = (sub: Substitution) => {
     setSelectedSub(sub);
     setDialogMode("accept");
@@ -87,13 +96,11 @@ function AssignedSubstitutions() {
     setSelectedSub(null);
   };
   return (
-    <div>
-      <Header heading="Assigned Substitutions" />
-      <div className="min-h-screen max-w-screen flex flex-col bg-gray-200 p-4">
-
+      <div className="min-h-screen bg-gray-100 p-4 md:p-8">
+        <TeacherNavDesktop/>
         {!loading ? (
-          <div className="max-w-screen bg-white p-5 rounded-md">
-            <h2 className="text-2xl font-bold text-teal-800 mb-6">
+          <div className="max-w-screen bg-white p-5 rounded-md  pb-20 lg:pb-0">
+            <h2 className="text-2xl font-bold text-teal-800 mb-6 text-center">
               Assigned Substitutions
             </h2>
             {substitution.map((substitution, index) => (
@@ -147,10 +154,9 @@ function AssignedSubstitutions() {
         onClose={() => setDialogOpen(false)}
         onConfirm={handleDecision}
           />
-
+        <TeacherNavMobile />
       </div>
-      <TeacherNavMobile />
-    </div>
+      
   )}
 
 export default pageAuth(AssignedSubstitutions, "teacher");
