@@ -6,9 +6,9 @@ import Header from "@/components/ui/Header";
 
 function TeacherDashboard() {
   return (
-    <div className="min-h-screen bg-gray-200 pb-16">
-      <Header heading="Teacher Dashboard" />
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,_1fr)_30rem] gap-16 px-6 py-6">
+    <div className="min-h-screen bg-gray-100 p-4 md:p-8">
+      <Header/>
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,_1fr)_30rem] gap-16">
         <DailyTimetable />
         <TeacherNavDesktop />
       </div>

@@ -5,7 +5,6 @@ import {
   IconButton,
   Button,
   TextField,
-  CircularProgress,
 } from "@mui/material";
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
@@ -84,7 +83,7 @@ export default function ChangePassword({ open, onClose }: ChangePasswordProps) {
       <DialogContent>
         <form onSubmit={handleChangePassword} className="flex flex-col gap-4 w-[300px]">
           <h1 className="font-bold text-2xl text-center text-teal-700"> Change Password </h1>
-          <div className="relative">
+          <div className="relative mb-4">
             <TextField
               label="Current Password"
               type={show.current ? "text" : "password"}

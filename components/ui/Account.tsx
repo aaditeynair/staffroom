@@ -1,4 +1,4 @@
-import AccountCircle from '@mui/icons-material/AccountCircle'
+import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import { Menu, MenuItem, IconButton, Divider, CircularProgress, Box, Paper } from "@mui/material"
 import { supabase } from '@/lib/supabaseClient';
 import { useState, useEffect } from 'react';
@@ -57,38 +57,32 @@ export default function Account({ onChangePasswordClick }: AccountProps) {
     return (
         <>
             <IconButton
+                sx={{p:0}}
                 onClick={handleClick}
-                sx={{ p: 1 }}
             >
-                <AccountCircle sx={{ fontSize: { xs: 35, lg: 45 }, color: 'white' }} />
+                <PersonRoundedIcon sx={{ fontSize: { xs: 25, lg: 25 },color:"white"}} />
             </IconButton>
             <Menu
                 anchorEl={anchorEl}
                 open={open}
                 onClose={handleClose}
                 disableScrollLock
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                 slotProps={{
                     paper: {
                         sx: {
                             width: '14rem',
                             maxWidth: '100%',
+                            mt:1.5,
+                            
                         },
                     },
                 }}
             >
-                <MenuItem
-                    onClick={handleClose}
-                    disableRipple
-                    disableGutters
-                    sx={{
-                        cursor: 'default',
-                        '&:hover': {
-                            backgroundColor: 'transparent',
-                        },
-                    }}
-                >
+                
                     {!loading ?
-                        <div className='flex flex-col'>
+                        <div className='flex flex-col pb-2'>
                             <Box px={2} color="#00786f" sx={{ fontWeight: 'bold', fontSize: 18 }}>
                                 {user?.name}
                             </Box>
@@ -100,8 +94,6 @@ export default function Account({ onChangePasswordClick }: AccountProps) {
                             <CircularProgress size={16} ></CircularProgress>
                         </div>
                     }
-                </MenuItem>
-
                 <Divider />
 
                 <MenuItem onClick={() => {handleClose(), onChangePasswordClick() }}>Change Password</MenuItem>

@@ -52,13 +52,13 @@ export default function LeaveReqManager({
   if (loading)
     return (
     <div className="flex items-center justify-center w-full h-full p-5">
-      <CircularProgress size={100} ></CircularProgress>
+      <CircularProgress size={80} ></CircularProgress>
     </div>
     );
 
   return (
-    <div className="max-w-screen bg-gray-100 p-5 rounded-md shadow">
-      <h2 className="text-2xl font-bold text-teal-800 mb-6">
+    <div className="max-w-screen bg-white p-5 rounded-md shadow">
+      <h2 className="text-2xl font-bold text-teal-800 mb-6 text-center">
         Submitted Leave Requests
       </h2>
       <table className="border-separate border-spacing-y-3 min-w-full mt-4 overflow-hidden rounded-md align text-left">

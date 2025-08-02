@@ -5,15 +5,12 @@ import Header from "@/components/ui/Header";
 
 function TeacherTimetables() {
   return (
-    <div>
-      <Header heading="Weekly Timetable" />
-      <div className="min-h-screen flex justify-center bg-gray-200 pb-16">
-        <div className="max-w-screen bg-gray-50 p-5 w-full rounded-md shadow m-3">
+      
+      <div className="min-h-screen bg-gray-100 p-4 md:p-8  pb-20 lg:pb-0">
+        <Header/>
           <WeeklyTimetable />
-        </div>
         <TeacherNavMobile />
       </div>
-    </div>
   );
 }
 

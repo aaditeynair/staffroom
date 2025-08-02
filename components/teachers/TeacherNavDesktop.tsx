@@ -1,58 +1,81 @@
-import LeaveRequest from "@mui/icons-material/AssignmentAdd";
-import Calendar from "@mui/icons-material/CalendarMonth";
-import Substitutions from "@mui/icons-material/School";
-import ArrowForward from "@mui/icons-material/ArrowForward";
-import Link from "next/link";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { CircularProgress } from "@mui/material";
 
-export default function TeacherNavDesktop() {
+type Sub = {
+  period_number: number;
+  class: string;
+};
+export default function DailyTimetable() {
+  const [subs, setSubs] = useState<Sub[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTimetable = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.user?.email) return;
+
+      const today = new Date();
+      const formattedDate = today
+        .toISOString()
+        .split("T")[0]
+        .replace(/-/g, "/");
+
+      const { data: teacher } = await supabase
+        .from("teachers")
+        .select("id")
+        .eq("email", session.user.email)
+        .single();
+
+      if (!teacher) return;
+
+      const { data, error } = await supabase
+        .from("substitutions")
+        .select("period_number,class")
+        .eq("substitute_teacher", teacher.id)
+        .eq("date", formattedDate)
+        .order("period_number");
+
+      if (error) console.log(error);
+      if (data) setSubs(data);
+      setLoading(false);
+    };
+
+    fetchTimetable();
+  }, []);
+
+  if (loading)
+    return (
+      <div className="flex items-center justify-center w-full h-full p-5">
+        <CircularProgress size={100} ></CircularProgress>
+
+      </div>
+    );
+
   return (
-    <div className="hidden lg:flex flex-col gap-4">
-      <div className="flex bg-white p-4 rounded-md shadow-lg h-fit justify-between">
-        <div>
-          <p className="text-lg font-semibold text-teal-800">
-            Assigned Substitutions
-          </p>
-          <Link
-            href="/teacher/assigned-substitutions"
-            className="inline-block mt-6 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 "
-          >
-            <ArrowForward />
-          </Link>
-        </div>
-        <div>
-          <Substitutions sx={{ fontSize: 85 }} className="text-teal-600" />
-        </div>
-      </div>
-      <div className="flex bg-white p-4 rounded-md shadow-lg h-fit justify-between">
-        <div>
-          <p className="text-lg font-semibold text-teal-800">
-            Weekly Timetable
-          </p>
-          <Link
-            href="/teacher/weekly-timetable"
-            className="inline-block mt-6 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 "
-          >
-            <ArrowForward />
-          </Link>
-        </div>
-        <div className="text-teal-600">
-          <Calendar sx={{ fontSize: 85 }} className="text-teal-600" />
+    <div>
+      <div className="hidden lg:block bg-white p-6 rounded-md shadow-md">
+        <h2 className="text-2xl font-bold text-teal-800 mb-6 text-center">
+          Substitutions Today
+        </h2>
+        <div className="flex flex-col gap-4">
+          {subs.map((sub, index) => (
+            <div
+              key={index}
+              className="flex justify-between items-center px-4 py-3 rounded-md bg-yellow-50 border border-yellow-200"
+            >
+              <div className="font-semibold text-gray-700">Period {sub.period_number}</div>
+              <div className="text-sm font-semibold text-teal-800">
+                {sub.class}
+              </div>
+
+            </div>
+          ))}
         </div>
       </div>
-      <div className="flex bg-white p-4 rounded-md shadow-lg h-fit justify-between">
-        <div>
-          <p className="text-lg font-semibold text-teal-800">Leave Request</p>
-          <Link
-            href="/teacher/leave-request"
-            className="inline-block mt-6 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 "
-          >
-            <ArrowForward />
-          </Link>
-        </div>
-        <div className="text-teal-600">
-          <LeaveRequest sx={{ fontSize: 85 }} className="text-teal-600" />
-        </div>
       </div>
-    </div>
-  );
+    ); 
 }
