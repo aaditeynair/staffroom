@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import CloseIcon from "@mui/icons-material/Close";
 

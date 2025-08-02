@@ -1,3 +1,4 @@
+"use client";
 import AdminNavItem from "./AdminNavItem";
 import {
   HomeRounded,
