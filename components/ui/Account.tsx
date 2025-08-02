@@ -1,30 +1,29 @@
+"use client";
+import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import {
-  Dialog,
-  DialogContent,
-  DialogActions,
+  Menu,
+  MenuItem,
   IconButton,
-  Button,
+  Divider,
   CircularProgress,
+  Box,
 } from "@mui/material";
-import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { useRouter } from "next/router";
-import AccountCircle from "@mui/icons-material/AccountCircle";
-import CloseIcon from "@mui/icons-material/Close";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-type AccountModalProps = {
-  open: boolean;
-  onClose: () => void;
-};
-
-interface User {
-  email: string;
+type User = {
   name: string;
-}
-
-export default function AccountModal({ open, onClose }: AccountModalProps) {
-  const [loading, setLoading] = useState(true);
+  email: string;
+};
+type AccountProps = {
+  onChangePasswordClick: () => void;
+};
+export default function Account({ onChangePasswordClick }: AccountProps) {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -32,7 +31,6 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
     if (!error) router.push("/login");
     else console.error("Logout failed:", error.message);
   };
-
   useEffect(() => {
     const fetchUser = async () => {
       setLoading(true);
@@ -55,36 +53,75 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
     if (open) fetchUser();
   }, [open]);
 
-  return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogActions sx={{ justifyContent: "flex-end", p: 1, mb: 0 }}>
-        <IconButton onClick={onClose}>
-          <CloseIcon />
-        </IconButton>
-      </DialogActions>
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
 
-      <DialogContent>
-        {loading ? (
-          <CircularProgress />
-        ) : user ? (
-          <div className="rounded-2xl flex flex-col items-center">
-            <AccountCircle sx={{ fontSize: 120, color: "#001919" }} />
-            <h2 className="text-2xl font-bold text-teal-800 mb-3">
-              {user.name}
-            </h2>
-            <p>{user.email}</p>
-            <Button
-              sx={{ color: "red", margin: 2 }}
-              onClick={() => handleLogout()}
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  return (
+    <>
+      <IconButton sx={{ p: 0 }} onClick={handleClick}>
+        <PersonRoundedIcon
+          sx={{ fontSize: { xs: 25, lg: 25 }, color: "white" }}
+        />
+      </IconButton>
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        disableScrollLock
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        slotProps={{
+          paper: {
+            sx: {
+              width: "14rem",
+              maxWidth: "100%",
+              mt: 1.5,
+            },
+          },
+        }}
+      >
+        {!loading ? (
+          <div className="flex flex-col pb-2">
+            <Box
+              px={2}
+              color="#00786f"
+              sx={{ fontWeight: "bold", fontSize: 18 }}
             >
-              {" "}
-              Logout{" "}
-            </Button>
+              {user?.name}
+            </Box>
+            <Box px={2} color="#646462" sx={{ fontSize: 14 }}>
+              {user?.email}
+            </Box>
           </div>
         ) : (
-          <p>No user found.</p>
+          <div className="flex items-center justify-center w-full h-full p-5">
+            <CircularProgress size={16}></CircularProgress>
+          </div>
         )}
-      </DialogContent>
-    </Dialog>
+        <Divider />
+
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            onChangePasswordClick();
+          }}
+        >
+          Change Password
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            handleLogout();
+          }}
+          sx={{ color: "red" }}
+        >
+          Logout
+        </MenuItem>
+      </Menu>
+    </>
   );
 }

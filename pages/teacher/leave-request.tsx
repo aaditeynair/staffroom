@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import pageAuth from "@/components/auth/pageAuth"
 import TeacherNavMobile from "@/components/teachers/TeacherNavMobile"
-import Header from "@/components/ui/Header"
+import TeacherNavDesktop from "@/components/teachers/TeacherNavDesktop"
 import { supabase } from '@/lib/supabaseClient'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
@@ -86,9 +86,10 @@ function LeaveRequest() {
   };
 
   return (
-    <div className='min-h-screen bg-gray-200 pb-16'>
-      <Header heading="Leave Request" />
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,_30rem)_1fr] gap-8 lg:gap-16 px-6 py-6">
+    <>
+    <div className='min-h-screen bg-gray-100 p-4 md:p-8'>
+      <TeacherNavDesktop/>
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,_30rem)_1fr] gap-8 lg:gap-16 pb-20 lg:pb-0">
         <form
           className="bg-white p-6 rounded-md shadow-md space-y-4"
           onSubmit={handleSubmit}
@@ -130,7 +131,7 @@ function LeaveRequest() {
               </option>
               <option value="full day">Full Day</option>
               <option value="morning">Morning</option>
-              <option value="afternoon">Afternoon</option>
+              <option value="afternoon">Afternoon</option> 
             </select>
           </div>
 
@@ -199,8 +200,9 @@ function LeaveRequest() {
         <LeaveReqManager refreshKey={refreshFlag}/>
       </div>
       
-      <TeacherNavMobile />
-    </div>
+      
+    </div><TeacherNavMobile />
+    </>
   );
 }
 
