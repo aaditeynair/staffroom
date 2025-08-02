@@ -1,4 +1,4 @@
-import AdminNavItem from "../admin/AdminNavItem";
+import AdminNavItem from "../ui/NavItem";
 import {
   HomeRounded,
   CalendarMonthRounded,

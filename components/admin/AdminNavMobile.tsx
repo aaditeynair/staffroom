@@ -1,4 +1,4 @@
-import AdminNavItem from "./AdminNavItem";
+import NavItem from "../ui/NavItem";
 import {
   HomeRounded,
   PeopleRounded,
@@ -10,18 +10,18 @@ export default function AdminNavMobile() {
   return (
     <div className="fixed bottom-0 left-0 w-full z-50 lg:hidden">
       <div className="flex justify-between items-center bg-teal-700 text-white p-4 rounded-t-md">
-        <AdminNavItem name="Home" link="/admin" icon={<HomeRounded />} />
-        <AdminNavItem
+        <NavItem name="Home" link="/admin" icon={<HomeRounded />} />
+        <NavItem
           name="Substitution"
           link="/admin/substitution/"
           icon={<SchoolRounded />}
         />
-        <AdminNavItem
+        <NavItem
           name="Teachers"
           link="/admin/manage-teachers"
           icon={<PeopleRounded />}
         />
-        <AdminNavItem
+        <NavItem
           name="Timetable"
           link="/admin/timetable"
           icon={<TableChartRounded />}
