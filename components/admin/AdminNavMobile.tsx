@@ -1,3 +1,4 @@
+"use client";
 import NavItem from "../ui/NavItem";
 import {
   HomeRounded,
