@@ -59,7 +59,7 @@ if (loading)
     );
 
   return (
-    <div className="p-6 bg-white rounded-md shadow-lg">
+    <div className="p-6 bg-white rounded-md shadow-md">
       <h2 className="text-2xl font-bold text-teal-800 mb-6">
         Today’s Schedule
       </h2>
