@@ -5,6 +5,7 @@ import BaseTimetableViewer from "@/components/timetable/BaseTimetableViewer";
 import { useState } from "react";
 
 export default function Timetable() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [active, setActive] = useState("base");
   return (
     <div className="p-4 md:p-8">

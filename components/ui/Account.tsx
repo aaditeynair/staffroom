@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { supabase } from "@/lib/supabaseClient";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 type User = {
   name: string;
@@ -106,7 +106,8 @@ export default function Account({ onChangePasswordClick }: AccountProps) {
 
         <MenuItem
           onClick={() => {
-            (handleClose(), onChangePasswordClick());
+            handleClose();
+            onChangePasswordClick();
           }}
         >
           Change Password
@@ -124,4 +125,3 @@ export default function Account({ onChangePasswordClick }: AccountProps) {
     </>
   );
 }
-
