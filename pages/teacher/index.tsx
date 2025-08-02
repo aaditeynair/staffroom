@@ -1,5 +1,5 @@
 import pageAuth from "@/components/auth/pageAuth";
-import TeacherNavDesktop from "@/components/teachers/TeacherNavDesktop";
+import SubstitutionsToday from "@/components/teachers/SubstitutionsToday";
 import TeacherNavMobile from "@/components/teachers/TeacherNavMobile";
 import DailyTimetable from "@/components/timetable/DailyTimetable";
 import Header from "@/components/ui/Header";
@@ -10,7 +10,7 @@ function TeacherDashboard() {
       <Header/>
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,_1fr)_30rem] gap-16">
         <DailyTimetable />
-        <TeacherNavDesktop />
+        <SubstitutionsToday />
       </div>
       <TeacherNavMobile />
     </div>

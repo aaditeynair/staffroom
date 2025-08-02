@@ -6,7 +6,7 @@ type Sub = {
   period_number: number;
   class: string;
 };
-export default function DailyTimetable() {
+export default function SubstitutionsToday() {
   const [subs, setSubs] = useState<Sub[]>([]);
   const [loading, setLoading] = useState(true);
 
