@@ -13,7 +13,7 @@ export function getSubstitutionCandidates({
 }: {
   availableTeachers: Candidate[];
   availableTeachersClassesMap: Record<string, string[]>;
-  timetableMap: Record<string, number[]>; 
+  timetableMap: Record<string, boolean[]>; 
   targetClass: string;
   targetDivision: "Junior" | "Senior";
 }) {
@@ -62,4 +62,6 @@ export function getSubstitutionCandidates({
     .filter((t) => t.flags.hasEnoughFreePeriods && t.flags.hasNoHeavyStreak)
     .sort((a, b) => b.score - a.score)
     .map((t) => t.teacher);
+    
+
 }

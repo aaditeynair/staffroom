@@ -279,13 +279,14 @@ export default function SubstitutionPage() {
           }
           timetableMap[entry.teacher_id].push(entry.period_number);
         }
-        const normalizedTimetableMap: Record<string, number[]> = {};
-        for (const [teacherId, slots] of Object.entries(timetableMap)) {
-          const periods: number[] = [];
-          slots.forEach((isBusy, index) => {
-            if (isBusy) periods.push(index + 1);
+        const fullDaySlots=10
+        const normalizedTimetableMap: Record<string, boolean[]> = {};
+        for (const [teacherId, periods] of Object.entries(timetableMap)) {
+          const slots: boolean[] = Array(fullDaySlots).fill(false);
+          periods.forEach((p) => {
+            if (p >= 1 && p <= fullDaySlots) slots[p - 1] = true;
           });
-          normalizedTimetableMap[teacherId] = periods;
+          normalizedTimetableMap[teacherId] = slots;
         }
         const freeTeachers = (teachers || []).filter(
           (t) => !busyTeacherIds.includes(t.id)
