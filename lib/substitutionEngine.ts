@@ -4,38 +4,34 @@ type Candidate = {
   division: "Junior" | "Senior";
 };
 
-export function getSubstitutionCandidates({
-  availableTeachers,
-  availableTeachersClassesMap,
-  timetableMap,
-  targetClass,
-  targetDivision,
-}: {
+type getSubstitutionCandidatesProps = {
   availableTeachers: Candidate[];
-  availableTeachersClassesMap: Record<string, string[]>;
-  timetableMap: Record<string, boolean[]>; 
-  targetClass: string;
+  teachersWhoTeachTargetClass: Set<string>;
+  timetableMap: Record<string, boolean[]>;
   targetDivision: "Junior" | "Senior";
-}) {
-  return availableTeachers
+};
+
+function getSubstitutionCandidates({
+  availableTeachers,
+  teachersWhoTeachTargetClass,
+  timetableMap,
+  targetDivision,
+}: getSubstitutionCandidatesProps) {
+  const candidates = availableTeachers
     .map((teacher) => {
-      const classes = availableTeachersClassesMap[teacher.id] || [];
-      const todayTimetable = timetableMap[teacher.id] || [];
-
-      const teachesTargetClass = classes.includes(targetClass);
+      const busyPeriods = timetableMap[teacher.id] || [];
+      const teachesTargetClass = teachersWhoTeachTargetClass.has(teacher.id);
       const isSameSection = teacher.division === targetDivision;
+      const freePeriods = busyPeriods.filter((p) => !p).length;
 
-      const freePeriods = todayTimetable.filter((p) => !p).length;
-
-      // Find max continuous class streak
-      let maxStreak = 0;
-      let currentStreak = 0;
-      for (let i = 0; i < todayTimetable.length; i++) {
-        if (todayTimetable[i]) {
-          currentStreak++;
-          maxStreak = Math.max(maxStreak, currentStreak);
+      let maxStreak = 0,
+        currStreak = 0;
+      for (const busy of busyPeriods) {
+        if (busy) {
+          currStreak++;
+          maxStreak = Math.max(maxStreak, currStreak);
         } else {
-          currentStreak = 0;
+          currStreak = 0;
         }
       }
 
@@ -62,6 +58,7 @@ export function getSubstitutionCandidates({
     .filter((t) => t.flags.hasEnoughFreePeriods && t.flags.hasNoHeavyStreak)
     .sort((a, b) => b.score - a.score)
     .map((t) => t.teacher);
-    
-
+  return candidates;
 }
+
+export default getSubstitutionCandidates;
