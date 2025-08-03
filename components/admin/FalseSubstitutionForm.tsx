@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import {
@@ -32,7 +33,7 @@ interface FalseSubstitutionProps {
   onSubstitutionCreated?: () => void;
 }
 
-export default function FalseSubstitutionCreator({
+export default function FalseSubstitutionForm({
   onSubstitutionCreated,
 }: FalseSubstitutionProps) {
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
