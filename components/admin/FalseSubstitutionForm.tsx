@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import {
@@ -25,7 +26,6 @@ interface TimetablePeriod {
   id: string;
   teacher_id: string;
   period_number: number;
-  subject: string;
   class: string;
 }
 
@@ -33,7 +33,7 @@ interface FalseSubstitutionProps {
   onSubstitutionCreated?: () => void;
 }
 
-export default function FalseSubstitutionCreator({
+export default function FalseSubstitutionForm({
   onSubstitutionCreated,
 }: FalseSubstitutionProps) {
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
@@ -122,7 +122,7 @@ export default function FalseSubstitutionCreator({
 
     const { data: periods, error } = await supabase
       .from("base_timetable")
-      .select("id, teacher_id, period_number, subject, class")
+      .select("id, teacher_id, period_number, class")
       .eq("teacher_id", selectedTeacher.id)
       .eq("day_of_week", dayOfWeek)
       .order("period_number", { ascending: true });
@@ -243,7 +243,6 @@ export default function FalseSubstitutionCreator({
       //     date: selectedDate.format("YYYY-MM-DD"),
       //     teacher_id: substituteTeacher.id,
       //     period_number: selectedPeriod.period_number,
-      //     subject: selectedPeriod.subject,
       //     class: selectedPeriod.class,
       //     is_substitute: true,
       //     absent_for_id: selectedTeacher.id,
@@ -417,7 +416,7 @@ export default function FalseSubstitutionCreator({
               <p>Original Teacher: {selectedTeacher.name}</p>
               <p>
                 Period & Class: Period {selectedPeriod.period_number}:{" "}
-                {selectedPeriod.class} - {selectedPeriod.subject}
+                {selectedPeriod.class}
               </p>
               <p>
                 Substitute Teacher:{" "}
