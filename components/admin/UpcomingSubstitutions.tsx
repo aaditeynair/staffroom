@@ -2,8 +2,6 @@
 
 import { useEffect, useState, useMemo } from "react";
 import {
-  Typography,
-  Grid,
   MenuItem,
   Select,
   FormControl,
@@ -30,12 +28,12 @@ interface Teacher {
 
 interface Substitution {
   id: string;
-  date: string; // ISO string
+  date: string;
   period_number: number;
   class: string;
   original_teacher: Teacher;
   substitute_teacher: Teacher;
-  confirmed_by_teacher: "pending" | "confirmed" | "canceled"; // adjust as needed
+  confirmed_by_teacher: "unconfirmed" | "accepted" | "declined";
 }
 
 interface Filters {
@@ -67,17 +65,7 @@ export default function UpcomingSubstitutions() {
       // Fetch substitutions over an extended date range (e.g. next 30 days)
       const { data: subsData, error: subsError } = await supabase
         .from("substitutions")
-        .select(
-          `
-          id,
-          date,
-          period_number,
-          class,
-          original_teacher:teachers!substitutions_original_teacher_fkey (id, name),
-          substitute_teacher:teachers!substitutions_substitute_teacher_fkey (id, name),
-          confirmed_by_teacher
-        `,
-        )
+        .select("*")
         .gte("date", filters.startDate?.toISOString() ?? null)
         .lte("date", filters.endDate?.toISOString() ?? null)
         .order("date", { ascending: true })
@@ -86,29 +74,58 @@ export default function UpcomingSubstitutions() {
       if (subsError) throw subsError;
       if (!subsData) setSubstitutions([]);
       else {
-        // Normalize status if you use "confirmed", "pending", etc. as strings in DB
-        setSubstitutions(
-          subsData.map((s: any) => ({
+        const subs: Substitution[] = [];
+        for (let i = 0; i < subsData.length; i++) {
+          const s = subsData[i];
+          console.log(s.original_teacher, s);
+          const { data: originalTeacher, error: ogTeacherError } =
+            await supabase
+              .from("teachers")
+              .select("id, name")
+              .eq("id", s.original_teacher)
+              .single();
+
+          const { data: substituteTeacher, error: subTeacherError } =
+            await supabase
+              .from("teachers")
+              .select("id, name")
+              .eq("id", s.substitute_teacher)
+              .single();
+
+          if (ogTeacherError) {
+            console.error(ogTeacherError);
+            continue;
+          }
+          if (subTeacherError) {
+            console.error(ogTeacherError);
+            continue;
+          }
+          if (!originalTeacher || !substituteTeacher) continue;
+
+          subs.push({
             id: s.id,
             date: s.date,
             period_number: s.period_number,
             class: s.class,
-            original_teacher: s.original_teacher,
-            substitute_teacher: s.substitute_teacher,
-            confirmed_by_teacher: s.confirmed_by_teacher || "pending",
-          })),
-        );
+            original_teacher: originalTeacher,
+            substitute_teacher: substituteTeacher,
+            confirmed_by_teacher: s.confirmed_by_teacher,
+          });
+        }
+        console.log(subs);
+        setSubstitutions(subs);
       }
 
       // Fetch all classes from base_timetable (unique)
       const { data: classData, error: classError } = await supabase
         .from("base_timetable")
-        .select("class", { count: "exact", distinct: true });
+        .select("class")
+        .order("class", { ascending: true });
 
       if (!classError && classData) {
-        const uniqueClasses = Array.from(
-          new Set(classData.map((c: any) => c.class)),
-        ).sort();
+        const uniqueClasses = [
+          ...new Set(classData?.map((r) => r.class)),
+        ].sort();
         setClasses(uniqueClasses);
       }
 
@@ -132,6 +149,7 @@ export default function UpcomingSubstitutions() {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.startDate, filters.endDate]);
 
   // Filter substitutions based on UI filters
