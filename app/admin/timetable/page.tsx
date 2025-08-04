@@ -1,4 +1,5 @@
 "use client";
+
 import BaseTimetableViewer from "@/components/timetable/BaseTimetableViewer";
 import { useState } from "react";
 

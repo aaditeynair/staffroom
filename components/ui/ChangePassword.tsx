@@ -1,7 +1,6 @@
 import {
   Dialog,
   DialogContent,
-  DialogActions,
   IconButton,
   Button,
   TextField,
@@ -63,6 +62,7 @@ export default function ChangePassword({ open, onClose }: ChangePasswordProps) {
 
     if (updateError) {
       setError("Failed to update password.");
+      console.log(updateError)
     } else {
       setSuccess("Password updated successfully.");
       setCurrentPassword("");
@@ -73,17 +73,32 @@ export default function ChangePassword({ open, onClose }: ChangePasswordProps) {
     setLoading(false);
   };
 
+  const handleClose = () => {
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("")
+    setSuccess("")
+    setError("")
+    setShow({
+    current: false,
+    new: false,
+    confirm: false,
+    })
+    onClose()    
+  }
+
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogActions sx={{ justifyContent: "flex-end", p: 1 }}>
-        <IconButton onClick={onClose}>
-          <CloseIcon />
-        </IconButton>
-      </DialogActions>
-      <DialogContent>
+    <Dialog open={open} onClose={handleClose}>
+      <DialogContent >
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="font-bold text-2xl text-center text-teal-700 py-4"> Change Password </h1>
+          <IconButton onClick={handleClose}>
+            <CloseIcon sx={{ fontSize: 20 }} />
+          </IconButton>
+        </div>
         <form onSubmit={handleChangePassword} className="flex flex-col gap-4 w-[300px]">
-          <h1 className="font-bold text-2xl text-center text-teal-700"> Change Password </h1>
-          <div className="relative mb-4">
+
+          <div className="relative">
             <TextField
               label="Current Password"
               type={show.current ? "text" : "password"}
@@ -97,41 +112,41 @@ export default function ChangePassword({ open, onClose }: ChangePasswordProps) {
               onClick={() => setShow((prev) => ({ ...prev, current: !prev.current }))}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
             >
-              {show.current ? <VisibilityRounded/> : <VisibilityOffRounded/>}
+              {show.current ? <VisibilityRounded /> : <VisibilityOffRounded />}
             </button>
           </div>
           <div className="relative">
-          <TextField
-            label="New Password"
-            type={show.current ? "text" : "password"}
-            fullWidth
-            required
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-          />
-          <button
+            <TextField
+              label="New Password"
+              type={show.new ? "text" : "password"}
+              fullWidth
+              required
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
+            <button
               type="button"
-              onClick={() => setShow((prev) => ({ ...prev, current: !prev.current }))}
+              onClick={() => setShow((prev) => ({ ...prev, new: !prev.new }))}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
             >
-              {show.current ? <VisibilityRounded/> : <VisibilityOffRounded/>}
+              {show.new ? <VisibilityRounded /> : <VisibilityOffRounded />}
             </button>
           </div>
           <div className="relative">
-          <TextField
-            label="Confirm New Password"
-            type={show.current ? "text" : "password"}
-            fullWidth
-            required
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-          <button
+            <TextField
+              label="Confirm Password"
+              type={show.confirm ? "text" : "password"}
+              fullWidth
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+            <button
               type="button"
-              onClick={() => setShow((prev) => ({ ...prev, current: !prev.current }))}
+              onClick={() => setShow((prev) => ({ ...prev, confirm: !prev.confirm }))}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
             >
-              {show.current ? <VisibilityRounded/> : <VisibilityOffRounded/>}
+              {show.confirm ? <VisibilityRounded /> : <VisibilityOffRounded />}
             </button>
           </div>
           {error && <p className="text-red-600 text-sm">{error}</p>}
