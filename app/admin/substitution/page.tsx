@@ -3,7 +3,7 @@ import UpcomingSubstitutions from "@/components/admin/UpcomingSubstitutions";
 
 export default function SubstitutionPage() {
   return (
-    <div className="p-4 md:p-8">
+    <>
       <h1 className="text-4xl font-bold text-teal-700 mb-8">
         Substitution Overview
       </h1>
@@ -15,6 +15,6 @@ export default function SubstitutionPage() {
           <FalseSubstitutionForm />
         </div>
       </div>
-    </div>
+    </>
   );
 }
