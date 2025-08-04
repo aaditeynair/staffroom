@@ -1,6 +1,4 @@
 "use client";
-import AdminNavDesktop from "@/components/admin/AdminNavDesktop";
-import AdminNavMobile from "@/components/admin/AdminNavMobile";
 import BaseTimetableViewer from "@/components/timetable/BaseTimetableViewer";
 import { useState } from "react";
 
