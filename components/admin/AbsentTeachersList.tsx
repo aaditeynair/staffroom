@@ -137,7 +137,7 @@ export default function AbsentTeachersList({
                     <Link
                       key={absence.id}
                       className="col-span-1 cursor-pointer rounded-md shadow-md hover:shadow-lg transition-shadow p-4 flex justify-between items-center"
-                      href={"/admin/substitution/" + absence.id}
+                      href={"/admin/absence/" + absence.id}
                     >
                       <div className="flex h-full">
                         <div
