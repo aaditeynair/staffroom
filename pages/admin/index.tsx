@@ -38,12 +38,6 @@ function AdminDashboard() {
             refreshKey={refreshFlag}
           />
         </Grid>
-        <Grid
-          size={{ xs: 12, md: 4 }}
-          className="bg-white rounded-md shadow-md"
-        >
-          <FalseSubstituionForm />
-        </Grid>
       </Grid>
       <AdminNavMobile />
     </div>
