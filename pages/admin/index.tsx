@@ -4,7 +4,6 @@ import LeaveApproval from "@/components/admin/LeaveApproval";
 import { Grid } from "@mui/material";
 import dayjs from "dayjs";
 import pageAuth from "@/components/auth/pageAuth";
-import FalseSubstituionForm from "@/components/admin/FalseSubstitutionForm";
 import AdminNavDesktop from "@/components/admin/AdminNavDesktop";
 import AdminNavMobile from "@/components/admin/AdminNavMobile";
 
@@ -37,12 +36,6 @@ function AdminDashboard() {
             setDate={setSelectedDate}
             refreshKey={refreshFlag}
           />
-        </Grid>
-        <Grid
-          size={{ xs: 12, md: 4 }}
-          className="bg-white rounded-md shadow-md"
-        >
-          <FalseSubstituionForm />
         </Grid>
       </Grid>
       <AdminNavMobile />
