@@ -1,4 +1,5 @@
-import { useRouter } from "next/router";
+"use client";
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import getSubstitutionCandidates from "@/lib/substitutionEngine";
@@ -12,8 +13,8 @@ import {
 } from "@mui/material";
 import dayjs from "dayjs";
 import AbsenceDetailCard from "@/components/admin/AbsenceDetailCard";
-import AdminNavDesktop from "@/components/admin/AdminNavDesktop";
 import getClassDivision from "@/lib/getClassDivision";
+import { useParams } from "next/navigation";
 
 interface Teacher {
   id: string;
@@ -42,9 +43,10 @@ interface SubstitutionInfo {
   id?: string;
 }
 
-export default function SubstitutionPage() {
-  const router = useRouter();
-  const { id } = router.query;
+export default function AbsenceIDPage() {
+  const params = useParams();
+  const id =
+    params?.id && (typeof params.id === "string" ? params.id : params.id[0]);
 
   const [loading, setLoading] = useState(true);
   const [absenceDetails, setAbsenceDetails] = useState<AbsenceDetails | null>(
@@ -368,94 +370,90 @@ export default function SubstitutionPage() {
 
   if (loading || !absenceDetails)
     return (
-      <div className="p-8 flex bg-white text-teal-700 justify-center items-center h-full">
+      <div className="p-8 flex text-teal-700 justify-center items-center grow">
         <CircularProgress size="4rem" color="inherit" />
       </div>
     );
 
   return (
     <>
-      <div className="p-6 md:p-8">
-        <AdminNavDesktop />
-        <h1 className="text-2xl font-bold mb-8 text-teal-700">
-          Substitution Management for {absenceDetails.teacher.name} on{" "}
-          {dayjs(absenceDetails.date).format("dddd, DD MMMM YYYY")}
-        </h1>
+      <h1 className="text-2xl font-bold mb-8 text-teal-700">
+        Substitution Management for {absenceDetails.teacher.name} on{" "}
+        {dayjs(absenceDetails.date).format("dddd, DD MMMM YYYY")}
+      </h1>
 
-        {teacherTimetable.length === 0 ? (
-          <p>No periods need substitution for this teacher on this day.</p>
-        ) : (
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="md:hidden">
+      {teacherTimetable.length === 0 ? (
+        <p>No periods need substitution for this teacher on this day.</p>
+      ) : (
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="md:hidden">
+            <AbsenceDetailCard absenceDetails={absenceDetails} />
+          </div>
+          <div className="flex flex-col gap-4 mb-4 md:mb-0">
+            {teacherTimetable.map((period) => {
+              return (
+                <div
+                  key={period.id}
+                  className="bg-white px-4 py-6 rounded-md shadow-md"
+                >
+                  <h2 className="mb-4">
+                    Period {period.period_number}: {period.class}
+                  </h2>
+                  <Autocomplete
+                    fullWidth
+                    disableClearable
+                    options={
+                      availableTeachersByPeriod[period.period_number] || []
+                    }
+                    getOptionLabel={(option) => option.name}
+                    value={
+                      (
+                        availableTeachersByPeriod[period.period_number] || []
+                      ).find(
+                        (t) =>
+                          t.id ===
+                          substitutions[period.period_number]?.substituteID,
+                      ) || undefined
+                    }
+                    onChange={(_, newValue) => {
+                      setSubstitutions((prev) => ({
+                        ...prev,
+                        [period.period_number]: {
+                          ...substitutions[period.period_number],
+                          substituteID: newValue?.id || null,
+                          class: period.class,
+                        },
+                      }));
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select Substitute Teacher"
+                      />
+                    )}
+                  />
+                </div>
+              );
+            })}
+          </div>
+          <div className="h-fit">
+            <div className="hidden md:block">
               <AbsenceDetailCard absenceDetails={absenceDetails} />
             </div>
-            <div className="flex flex-col gap-4 mb-4 md:mb-0">
-              {teacherTimetable.map((period) => {
-                return (
-                  <div
-                    key={period.id}
-                    className="bg-white px-4 py-6 rounded-md shadow-md"
-                  >
-                    <h2 className="mb-4">
-                      Period {period.period_number}: {period.class}
-                    </h2>
-                    <Autocomplete
-                      fullWidth
-                      disableClearable
-                      options={
-                        availableTeachersByPeriod[period.period_number] || []
-                      }
-                      getOptionLabel={(option) => option.name}
-                      value={
-                        (
-                          availableTeachersByPeriod[period.period_number] || []
-                        ).find(
-                          (t) =>
-                            t.id ===
-                            substitutions[period.period_number]?.substituteID,
-                        ) || undefined
-                      }
-                      onChange={(_, newValue) => {
-                        setSubstitutions((prev) => ({
-                          ...prev,
-                          [period.period_number]: {
-                            ...substitutions[period.period_number],
-                            substituteID: newValue?.id || null,
-                            class: period.class,
-                          },
-                        }));
-                      }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Select Substitute Teacher"
-                        />
-                      )}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-            <div className="h-fit">
-              <div className="hidden md:block">
-                <AbsenceDetailCard absenceDetails={absenceDetails} />
-              </div>
-              <Button
-                className="w-full"
-                variant="contained"
-                onClick={() => {
-                  createSubstitutions();
-                }}
-              >
-                <p className="py-2 font-bold">
-                  {absenceDetails.dealt_with ? "Update" : "Confirm"}{" "}
-                  Substitutions
-                </p>
-              </Button>
-            </div>
+            <Button
+              className="w-full"
+              variant="contained"
+              onClick={() => {
+                createSubstitutions();
+              }}
+            >
+              <p className="py-2 font-bold">
+                {absenceDetails.dealt_with ? "Update" : "Confirm"} Substitutions
+              </p>
+            </Button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
