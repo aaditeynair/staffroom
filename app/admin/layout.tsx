@@ -6,9 +6,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div className="p-4 md:p-8 min-h-full flex flex-col">
       <AdminNavDesktop />
-      <div className="pb-20 lg:pb-0 mt-8 md:mt-12 grow flex flex-col">
-        {children}
-      </div>
+      <div className="pb-20 lg:pb-0 mt-8 grow flex flex-col">{children}</div>
       <AdminNavMobile />
     </div>
   );
