@@ -1,5 +1,5 @@
-import FalseSubstitutionForm from "@/components/admin/FalseSubstitutionForm";
-import UpcomingSubstitutions from "@/components/admin/UpcomingSubstitutions";
+import FalseSubstitutionForm from "@/components/admin/substitution/FalseSubstitutionForm";
+import UpcomingSubstitutions from "@/components/admin/substitution/UpcomingSubstitutions";
 
 export default function SubstitutionPage() {
   return (
