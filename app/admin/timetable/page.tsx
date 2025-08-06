@@ -1,6 +1,6 @@
 "use client";
 
-import BaseTimetableViewer from "@/components/timetable/BaseTimetableViewer";
+import BaseTimetableViewer from "@/components/admin/timetable/BaseTimetableViewer";
 import { useState } from "react";
 
 export default function Timetable() {

@@ -1,5 +1,5 @@
 import { CircularProgress, List } from "@mui/material";
-import LeaveApprovalItem from "./LeaveApprovalItem";
+import LeaveApprovalItem from "@/components/admin/dashboard/LeaveApprovalItem";
 import { supabase } from "@/lib/supabaseClient";
 import { useEffect, useState } from "react";
 
