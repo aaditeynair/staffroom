@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import AbsentTeachersList from "@/components/admin/AbsentTeachersList";
-import LeaveApproval from "@/components/admin/LeaveApproval";
+import AbsentTeachersList from "@/components/admin/dashboard/AbsentTeachersList";
+import LeaveApproval from "@/components/admin/dashboard/LeaveApproval";
 import dayjs from "dayjs";
 
 export default function AbsenceOverview() {

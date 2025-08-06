@@ -12,7 +12,7 @@ import {
   Snackbar,
 } from "@mui/material";
 import dayjs from "dayjs";
-import AbsenceDetailCard from "@/components/admin/AbsenceDetailCard";
+import AbsenceDetailCard from "@/components/admin/absence/AbsenceDetailCard";
 import getClassDivision from "@/lib/getClassDivision";
 import { useParams } from "next/navigation";
 
