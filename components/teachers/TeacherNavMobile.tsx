@@ -1,3 +1,5 @@
+'use client'
+
 import AdminNavItem from "../ui/NavItem";
 import {
   HomeRounded,
