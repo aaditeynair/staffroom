@@ -1,10 +1,10 @@
-import pageAuth from "@/components/auth/pageAuth";
+'use client'
 import SubstitutionsToday from "@/components/teachers/SubstitutionsToday";
 import TeacherNavMobile from "@/components/teachers/TeacherNavMobile";
-import DailyTimetable from "@/components/timetable/DailyTimetable";
+import DailyTimetable from "@/components/teachers/DailyTimetable";
 import TeacherNavDesktop from "@/components/teachers/TeacherNavDesktop";
 
-function TeacherDashboard() {
+export default function TeacherDashboard() {
   return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-8">
       <TeacherNavDesktop/>
@@ -17,4 +17,3 @@ function TeacherDashboard() {
   );
 }
 
-export default pageAuth(TeacherDashboard, "teacher");

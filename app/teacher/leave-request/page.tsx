@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import pageAuth from "@/components/auth/pageAuth"
 import TeacherNavMobile from "@/components/teachers/TeacherNavMobile"
 import TeacherNavDesktop from "@/components/teachers/TeacherNavDesktop"
 import { supabase } from '@/lib/supabaseClient'
@@ -11,7 +10,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import LeaveReqManager from '@/components/teachers/LeaveReqManager'
 
 
-function LeaveRequest() {
+export default function LeaveRequest() {
   const [leaveType, setLeaveType] = useState("");
   const [reason, setReason] = useState("");
   const [customReason, setCustomReason] = useState("");
@@ -205,5 +204,3 @@ function LeaveRequest() {
     </>
   );
 }
-
-export default pageAuth(LeaveRequest, "teacher");
