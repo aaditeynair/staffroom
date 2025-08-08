@@ -1,3 +1,4 @@
+'use client'
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { CircularProgress } from "@mui/material";
@@ -67,13 +68,12 @@ export default function DailyTimetable() {
           return (
             <div
               key={i}
-              className={`flex justify-between items-center px-4 py-3 rounded-md border ${
-                isSub
-                  ? "bg-yellow-50 border-yellow-300"
-                  : period
-                    ? "bg-blue-50 border-blue-200"
-                    : "bg-gray-50 border-gray-200"
-              }`}
+              className={`flex justify-between items-center px-4 py-3 rounded-md border ${isSub
+                ? "bg-yellow-50 border-yellow-300"
+                : period
+                  ? "bg-blue-50 border-blue-200"
+                  : "bg-gray-50 border-gray-200"
+                }`}
             >
               <div className="font-semibold text-gray-700">Period {i + 1}</div>
               {period ? (

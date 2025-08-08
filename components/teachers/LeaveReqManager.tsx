@@ -1,3 +1,5 @@
+'use client'
+
 import { supabase } from "@/lib/supabaseClient";
 import { useState, useEffect } from "react";
 import { CircularProgress } from "@mui/material";

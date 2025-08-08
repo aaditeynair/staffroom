@@ -1,12 +1,12 @@
-import pageAuth from "@/components/auth/pageAuth";
-import { useRouter } from "next/router";
+'use client'
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useEffect } from "react";
 import { LinearProgress } from "@mui/material";
 import Image from "next/image";
 import logo from "@/public/logo.png";
 
-function Home() {
+export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
@@ -43,4 +43,3 @@ function Home() {
   );
 }
 
-export default pageAuth(Home);
