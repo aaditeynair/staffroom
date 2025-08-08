@@ -1,14 +1,17 @@
-'use client'
+"use client";
 
 import { supabase } from "@/lib/supabaseClient";
 import { useState, useEffect } from "react";
-import TeacherNavMobile from "@/components/teachers/TeacherNavMobile";
-import TeacherNavDesktop from "@/components/teachers/TeacherNavDesktop";
 import { CheckRounded, ClearRounded } from "@mui/icons-material";
-import { Button, ListItem, Accordion, AccordionSummary, AccordionDetails, CircularProgress } from "@mui/material";
+import {
+  Button,
+  ListItem,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  CircularProgress,
+} from "@mui/material";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
-
-
 
 type Substitution = {
   id: string;
@@ -44,8 +47,8 @@ export default function AssignedSubstitutions() {
       const { data, error } = await supabase
         .from("substitutions")
         .select("id,date,period_number,class,confirmed_by_teacher")
-        .eq("substitute_teacher", teacher.id,)
-        .eq("confirmed_by_teacher", 'unconfirmed')
+        .eq("substitute_teacher", teacher.id)
+        .eq("confirmed_by_teacher", "unconfirmed")
         .order("date")
         .order("period_number");
 
@@ -55,12 +58,13 @@ export default function AssignedSubstitutions() {
 
       console.log(teacher);
 
-      if (data) setSubstitution(
-        (data || []).map((sub) => ({
-          ...sub,
-          date: formatDateToDDMMYYYY(sub.date),
-        }))
-      );
+      if (data)
+        setSubstitution(
+          (data || []).map((sub) => ({
+            ...sub,
+            date: formatDateToDDMMYYYY(sub.date),
+          })),
+        );
       setLoading(false);
     };
 
@@ -98,8 +102,7 @@ export default function AssignedSubstitutions() {
     setSelectedSub(null);
   };
   return (
-    <div className="min-h-screen bg-gray-100 p-4 md:p-8 pb-20 lg:pb-0 ">
-      <TeacherNavDesktop />
+    <div>
       {!loading ? (
         <div className="max-w-screen bg-white p-5 rounded-md">
           <h2 className="text-2xl font-bold text-teal-800 p-4 text-center">
@@ -109,18 +112,18 @@ export default function AssignedSubstitutions() {
             <p> No Substitutions Assigned </p>
           ) : (
             substitution.map((substitution, index) => (
-
               <ListItem key={index} className="rounded-md mt-1" disableGutters>
                 <Accordion className="w-full">
                   <AccordionSummary>
                     <div className="flex justify-between w-full">
-
-                      <div className="font-bold">Period: {substitution.period_number} <p className="text-teal-700">{substitution.class}</p></div>
+                      <div className="font-bold">
+                        Period: {substitution.period_number}{" "}
+                        <p className="text-teal-700">{substitution.class}</p>
+                      </div>
                       <div className="text-gray-800">{substitution.date}</div>
                     </div>
                   </AccordionSummary>
                   <AccordionDetails>
-
                     <div className="gap-4 mt-4 flex w-full">
                       <Button
                         variant="outlined"
@@ -128,7 +131,7 @@ export default function AssignedSubstitutions() {
                         startIcon={<CheckRounded />}
                         color="success"
                         onClick={() => {
-                          handleOpenAccept(substitution)
+                          handleOpenAccept(substitution);
                         }}
                       >
                         Approve
@@ -139,7 +142,7 @@ export default function AssignedSubstitutions() {
                         startIcon={<ClearRounded />}
                         color="error"
                         onClick={() => {
-                          handleOpenDecline(substitution)
+                          handleOpenDecline(substitution);
                         }}
                       >
                         Decline
@@ -148,20 +151,20 @@ export default function AssignedSubstitutions() {
                   </AccordionDetails>
                 </Accordion>
               </ListItem>
-            )))}
+            ))
+          )}
         </div>
       ) : (
         <div className="flex items-center justify-center w-full h-full p-6">
           <CircularProgress size={50}></CircularProgress>
         </div>
       )}
-      < ConfirmDialog
+      <ConfirmDialog
         open={dialogOpen}
         mode={dialogMode}
         onClose={() => setDialogOpen(false)}
         onConfirm={handleDecision}
       />
-      <TeacherNavMobile />
     </div>
-  )
+  );
 }
