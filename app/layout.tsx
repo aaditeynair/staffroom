@@ -5,7 +5,11 @@ import GlobalStyles from "@mui/material/GlobalStyles";
 import { ReactNode } from "react";
 import theme from "@/lib/theme";
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   return (
     <html lang="en">
       <head />
