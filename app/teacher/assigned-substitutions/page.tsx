@@ -1,11 +1,13 @@
-import pageAuth from "@/components/auth/pageAuth";
+'use client'
+
 import { supabase } from "@/lib/supabaseClient";
 import { useState, useEffect } from "react";
 import TeacherNavMobile from "@/components/teachers/TeacherNavMobile";
 import TeacherNavDesktop from "@/components/teachers/TeacherNavDesktop";
 import { CheckRounded, ClearRounded } from "@mui/icons-material";
-import { Button, ListItem, Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
+import { Button, ListItem, Accordion, AccordionSummary, AccordionDetails, CircularProgress } from "@mui/material";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+
 
 
 type Substitution = {
@@ -15,7 +17,7 @@ type Substitution = {
   class: string;
   confirmed_by_teacher: "unconfirmed" | "accepted" | "declined";
 };
-function AssignedSubstitutions() {
+export default function AssignedSubstitutions() {
   const [loading, setLoading] = useState(true);
   const [substitution, setSubstitution] = useState<Substitution[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -54,19 +56,19 @@ function AssignedSubstitutions() {
       console.log(teacher);
 
       if (data) setSubstitution(
-          (data || []).map((sub) => ({
+        (data || []).map((sub) => ({
           ...sub,
           date: formatDateToDDMMYYYY(sub.date),
-  }))
-);
+        }))
+      );
       setLoading(false);
     };
 
     fetchAbsences();
   }, [refreshFlag]);
   function formatDateToDDMMYYYY(dateString: string): string {
-  const [year, month, day] = dateString.split("-");
-  return `${day}-${month}-${year}`;
+    const [year, month, day] = dateString.split("-");
+    return `${day}-${month}-${year}`;
   }
   const handleOpenAccept = (sub: Substitution) => {
     setSelectedSub(sub);
@@ -96,68 +98,70 @@ function AssignedSubstitutions() {
     setSelectedSub(null);
   };
   return (
-      <div className="min-h-screen bg-gray-100 p-4 md:p-8">
-        <TeacherNavDesktop/>
-        {!loading ? (
-          <div className="max-w-screen bg-white p-5 rounded-md  pb-20 lg:pb-0">
-            <h2 className="text-2xl font-bold text-teal-800 mb-6 text-center">
-              Assigned Substitutions
-            </h2>
-            {substitution.map((substitution, index) => (
-              
-                <ListItem key={index} className="rounded-md mt-1" disableGutters>
-                  <Accordion className="w-full">
-                    <AccordionSummary>
-                      <div className="flex justify-between w-full">
-                        
+    <div className="min-h-screen bg-gray-100 p-4 md:p-8 pb-20 lg:pb-0 ">
+      <TeacherNavDesktop />
+      {!loading ? (
+        <div className="max-w-screen bg-white p-5 rounded-md">
+          <h2 className="text-2xl font-bold text-teal-800 p-4 text-center">
+            Assigned Substitutions
+          </h2>
+          {substitution.length === 0 ? (
+            <p> No Substitutions Assigned </p>
+          ) : (
+            substitution.map((substitution, index) => (
+
+              <ListItem key={index} className="rounded-md mt-1" disableGutters>
+                <Accordion className="w-full">
+                  <AccordionSummary>
+                    <div className="flex justify-between w-full">
+
                       <div className="font-bold">Period: {substitution.period_number} <p className="text-teal-700">{substitution.class}</p></div>
                       <div className="text-gray-800">{substitution.date}</div>
-                      </div>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      
-                      <div className="gap-4 mt-4 flex w-full">
-                        <Button
-                          variant="outlined"
-                          className="w-full"
-                          startIcon={<CheckRounded />}
-                          color="success"
-                          onClick={() => {
-                            handleOpenAccept(substitution)
-                          }}
-                        >
-                          Approve
-                        </Button>
-                        <Button
-                          variant="outlined"
-                          className="w-full"
-                          startIcon={<ClearRounded />}
-                          color="error"
-                          onClick={() => {
-                            handleOpenDecline(substitution)
-                          }}
-                        >
-                          Decline
-                        </Button>
-                      </div>
-                    </AccordionDetails>
-                  </Accordion>
-                </ListItem>
-            ))}
-          </div>
-        ) : (
-          <p> Loading... </p>
-        )}
-        < ConfirmDialog
-            open={dialogOpen}
+                    </div>
+                  </AccordionSummary>
+                  <AccordionDetails>
+
+                    <div className="gap-4 mt-4 flex w-full">
+                      <Button
+                        variant="outlined"
+                        className="w-full"
+                        startIcon={<CheckRounded />}
+                        color="success"
+                        onClick={() => {
+                          handleOpenAccept(substitution)
+                        }}
+                      >
+                        Approve
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        className="w-full"
+                        startIcon={<ClearRounded />}
+                        color="error"
+                        onClick={() => {
+                          handleOpenDecline(substitution)
+                        }}
+                      >
+                        Decline
+                      </Button>
+                    </div>
+                  </AccordionDetails>
+                </Accordion>
+              </ListItem>
+            )))}
+        </div>
+      ) : (
+        <div className="flex items-center justify-center w-full h-full p-6">
+          <CircularProgress size={50}></CircularProgress>
+        </div>
+      )}
+      < ConfirmDialog
+        open={dialogOpen}
         mode={dialogMode}
         onClose={() => setDialogOpen(false)}
         onConfirm={handleDecision}
-          />
-        <TeacherNavMobile />
-      </div>
-      
-  )}
-
-export default pageAuth(AssignedSubstitutions, "teacher");
-
+      />
+      <TeacherNavMobile />
+    </div>
+  )
+}
