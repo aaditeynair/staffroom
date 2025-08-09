@@ -6,7 +6,7 @@ export default async function AdminList() {
 
   const { data: admins, error } = await supabase
     .from("teachers")
-    .select("id, name, email, role")
+    .select("*")
     .eq("role", "admin")
     .order("name");
 

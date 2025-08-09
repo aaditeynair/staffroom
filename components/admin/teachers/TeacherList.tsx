@@ -6,7 +6,7 @@ export default async function TeacherList() {
 
   const { data: teachers, error } = await supabase
     .from("teachers")
-    .select("id, name, email, role")
+    .select("*")
     .eq("role", "teacher")
     .order("name");
 
