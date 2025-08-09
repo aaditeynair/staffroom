@@ -183,7 +183,7 @@ export default function UpcomingSubstitutions() {
   }
 
   return (
-    <div className="p-8 flex flex-col">
+    <div className="p-6 md:p-8 flex flex-col">
       <h1 className="text-xl text-teal-700 font-bold mb-6">
         Upcoming Substitutions
       </h1>

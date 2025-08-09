@@ -126,8 +126,8 @@ export default function BaseTimetableViewer() {
   }
 
   return (
-    <Paper className="p-8 overflow-x-auto">
-      <div className="flex flex-col md:flex-row gap-4">
+    <div className="p-6 md:p-8 overflow-x-auto bg-white rounded-md shadow-md">
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
         <ToggleButtonGroup
           value={viewMode}
           exclusive
@@ -209,6 +209,6 @@ export default function BaseTimetableViewer() {
           the timetable.
         </Typography>
       )}
-    </Paper>
+    </div>
   );
 }
