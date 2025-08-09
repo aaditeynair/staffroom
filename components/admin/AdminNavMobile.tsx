@@ -19,12 +19,12 @@ export default function AdminNavMobile() {
         />
         <NavItem
           name="Teachers"
-          link="/admin/manage-teachers"
+          link="/admin/teachers/"
           icon={<PeopleRounded />}
         />
         <NavItem
           name="Timetable"
-          link="/admin/timetable"
+          link="/admin/timetable/"
           icon={<TableChartRounded />}
         />
       </div>

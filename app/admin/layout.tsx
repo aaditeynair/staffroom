@@ -13,7 +13,7 @@ export default async function AdminLayout({
   if (auth.redirect) redirect(auth.redirect);
 
   return (
-    <div className="p-4 md:p-8 min-h-full flex flex-col">
+    <div className="p-4 md:p-8 min-h-screen flex flex-col">
       <AdminNavDesktop />
       <div className="pb-20 lg:pb-0 mt-8 grow flex flex-col">{children}</div>
       <AdminNavMobile />
