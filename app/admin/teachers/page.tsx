@@ -1,5 +1,6 @@
 import AdminList from "@/components/admin/teachers/AdminList";
 import AdminTeacherList from "@/components/admin/teachers/AdminTeacherList";
+import NewUserForm from "@/components/admin/teachers/NewUserForm";
 import TeacherList from "@/components/admin/teachers/TeacherList";
 
 export default function TeachersOverview() {
@@ -18,8 +19,8 @@ export default function TeachersOverview() {
         <div className="bg-white rounded-md shadow-md row-span-2 p-6 md:p-8">
           <TeacherList />
         </div>
-        <div className="bg-white rounded-md shadow-md row-span-2 p-6 md:p-8">
-          <h2 className="text-xl font-bold text-teal-700 mb-8">New Teacher</h2>
+        <div className="bg-white rounded-md shadow-md p-6 md:p-8">
+          <NewUserForm />
         </div>
       </div>
     </>
