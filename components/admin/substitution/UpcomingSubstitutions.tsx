@@ -182,14 +182,14 @@ export default function UpcomingSubstitutions() {
   }
 
   return (
-    <div className="p-8 flex flex-col">
+    <div className="p-6 md:p-8 flex flex-col">
       <h1 className="text-xl text-teal-700 font-bold mb-6">
         Upcoming Substitutions
       </h1>
 
       {/* Filters */}
       <div className="flex flex-col gap-4 mb-6">
-        <div className="flex gap-4">
+        <div className="flex gap-4 flex-col md:flex-row">
           <div>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
@@ -215,8 +215,8 @@ export default function UpcomingSubstitutions() {
             </LocalizationProvider>
           </div>
         </div>
-        <div className="flex gap-4">
-          <div className="w-1/6">
+        <div className="flex gap-4 flex-col lg:flex-row">
+          <div className="w-full lg:w-1/6">
             <FormControl fullWidth size="small">
               <InputLabel id="class-filter-label">Class</InputLabel>
               <Select
@@ -239,7 +239,7 @@ export default function UpcomingSubstitutions() {
             </FormControl>
           </div>
 
-          <div className="w-1/5">
+          <div className="w-full lg:w-1/5">
             <FormControl fullWidth size="small">
               <InputLabel id="status-filter-label">Status</InputLabel>
               <Select
@@ -260,7 +260,7 @@ export default function UpcomingSubstitutions() {
             </FormControl>
           </div>
 
-          <div className="w-1/5">
+          <div className="w-full lg:w-1/5">
             <Autocomplete
               size="small"
               options={teachers}
@@ -290,44 +290,46 @@ export default function UpcomingSubstitutions() {
           <CircularProgress />
         </div>
       ) : (
-        <Table size="small" stickyHeader>
-          <TableHead>
-            <TableRow>
-              <TableCell>Date</TableCell>
-              <TableCell>Period</TableCell>
-              <TableCell>Class</TableCell>
-              <TableCell>Original Teacher</TableCell>
-              <TableCell>Substitute Teacher</TableCell>
-              <TableCell>Status</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredSubs.length === 0 ? (
+        <div className="overflow-x-auto">
+          <Table size="small" stickyHeader>
+            <TableHead>
               <TableRow>
-                <TableCell colSpan={6} align="center">
-                  No substitutions found for the selected filters.
-                </TableCell>
+                <TableCell>Date</TableCell>
+                <TableCell>Period</TableCell>
+                <TableCell>Class</TableCell>
+                <TableCell>Original Teacher</TableCell>
+                <TableCell>Substitute Teacher</TableCell>
+                <TableCell>Status</TableCell>
               </TableRow>
-            ) : (
-              filteredSubs.map((sub) => (
-                <TableRow key={sub.id}>
-                  <TableCell>
-                    {dayjs(sub.date).format("ddd, DD MMM YYYY")}
-                  </TableCell>
-                  <TableCell>{sub.period_number}</TableCell>
-                  <TableCell>{sub.class}</TableCell>
-                  <TableCell>{sub.original_teacher.name}</TableCell>
-                  <TableCell>
-                    {substituteTeacherDisplay(sub.substitute_teacher)}
-                  </TableCell>
-                  <TableCell>
-                    {capitalizeFirstLetter(sub.confirmed_by_teacher)}
+            </TableHead>
+            <TableBody>
+              {filteredSubs.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} align="center">
+                    No substitutions found for the selected filters.
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                filteredSubs.map((sub) => (
+                  <TableRow key={sub.id}>
+                    <TableCell>
+                      {dayjs(sub.date).format("ddd, DD MMM YYYY")}
+                    </TableCell>
+                    <TableCell>{sub.period_number}</TableCell>
+                    <TableCell>{sub.class}</TableCell>
+                    <TableCell>{sub.original_teacher.name}</TableCell>
+                    <TableCell>
+                      {substituteTeacherDisplay(sub.substitute_teacher)}
+                    </TableCell>
+                    <TableCell>
+                      {capitalizeFirstLetter(sub.confirmed_by_teacher)}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       )}
     </div>
   );
