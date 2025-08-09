@@ -18,7 +18,7 @@ export default function AdminNavDesktop() {
         <div className="hidden lg:flex gap-8 items-center">
           <Link href="/admin">Dashboard</Link>
           <Link href="/admin/substitution/">Substitutions</Link>
-          <Link href="/admin/manage-teachers">Teachers</Link>
+          <Link href="/admin/teachers">Teachers</Link>
           <Link href="/admin/timetable">Timetable</Link>
         </div>
         <Account onChangePasswordClick={() => setShowModal(true)} />
