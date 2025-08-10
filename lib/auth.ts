@@ -1,4 +1,4 @@
-import { createSupabaseServer } from "@/lib/supabaseServer";
+import { createSupabaseServer } from "@/lib/supabase/server";
 
 export async function requireRole(
   allowedRoles: ("admin" | "teacher" | "admin-teacher")[],

@@ -1,19 +1,18 @@
-'use client'
+"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/browser";
 import { Button } from "@mui/material";
-import { VisibilityRounded,VisibilityOffRounded } from "@mui/icons-material";
+import { VisibilityRounded, VisibilityOffRounded } from "@mui/icons-material";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [show, setShow] = useState(false)
+  const [show, setShow] = useState(false);
   const router = useRouter();
-  
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +53,7 @@ export default function LoginPage() {
         .eq("id", teacher.id);
     }
 
-    if (teacher.role == 'teacher') {
+    if (teacher.role == "teacher") {
       router.push("/teacher");
     } else {
       router.push("/admin");
@@ -88,10 +87,8 @@ export default function LoginPage() {
               Password
             </label>
             <div className="relative">
-
-
               <input
-                type={show? "text" : "password"}
+                type={show ? "text" : "password"}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -111,7 +108,7 @@ export default function LoginPage() {
           {errorMsg && <p className="text-sm text-red-600">{errorMsg}</p>}
 
           <Button
-            type='submit'
+            type="submit"
             variant="contained"
             disabled={loading}
             className="w-full text-white py-2 px-4 rounded-md"

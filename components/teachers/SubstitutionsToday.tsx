@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/browser";
 import { CircularProgress } from "@mui/material";
 
 type Sub = {
@@ -39,7 +39,7 @@ export default function SubstitutionsToday() {
         .select("period_number,class")
         .eq("substitute_teacher", teacher.id)
         .eq("date", formattedDate)
-        .eq("confirmed_by_teacher","accepted")
+        .eq("confirmed_by_teacher", "accepted")
         .order("period_number");
 
       if (error) console.log(error);
@@ -53,8 +53,7 @@ export default function SubstitutionsToday() {
   if (loading)
     return (
       <div className="flex items-center justify-center w-full h-full p-5">
-        <CircularProgress size={100} ></CircularProgress>
-
+        <CircularProgress size={100}></CircularProgress>
       </div>
     );
 
@@ -70,15 +69,16 @@ export default function SubstitutionsToday() {
               key={index}
               className="flex justify-between items-center px-4 py-3 rounded-md bg-yellow-50 border border-yellow-200"
             >
-              <div className="font-semibold text-gray-700">Period {sub.period_number}</div>
+              <div className="font-semibold text-gray-700">
+                Period {sub.period_number}
+              </div>
               <div className="text-sm font-semibold text-teal-800">
                 {sub.class}
               </div>
-
             </div>
           ))}
         </div>
       </div>
-      </div>
-    ); 
+    </div>
+  );
 }
