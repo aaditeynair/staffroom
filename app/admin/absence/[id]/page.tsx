@@ -20,6 +20,7 @@ interface Teacher {
   id: string;
   name: string;
   division: string;
+  score: number;
 }
 
 interface AbsenceDetails {
@@ -424,6 +425,19 @@ export default function AbsenceIDPage() {
                           class: period.class,
                         },
                       }));
+                    }}
+                    renderOption={(props, option) => {
+                      const { key, ...rest } = props;
+                      const colour =
+                        option.score > 4 ? "bg-green-700" :
+                          option.score <= 2 ? "bg-red-700" :
+                            "bg-amber-500"
+                      return (
+                        <li key={key}{...rest} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          {option.name}
+                          <div className={`h-2 w-2 rounded-full ${colour}`}></div>
+                        </li>
+                      )
                     }}
                     renderInput={(params) => (
                       <TextField
