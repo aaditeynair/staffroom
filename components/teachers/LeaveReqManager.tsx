@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/browser";
 import { useState, useEffect } from "react";
 import { CircularProgress } from "@mui/material";
 
@@ -53,9 +53,9 @@ export default function LeaveReqManager({
 
   if (loading)
     return (
-    <div className="flex items-center justify-center w-full h-full p-5">
-      <CircularProgress size={80} ></CircularProgress>
-    </div>
+      <div className="flex items-center justify-center w-full h-full p-5">
+        <CircularProgress size={80}></CircularProgress>
+      </div>
     );
 
   return (
@@ -96,4 +96,3 @@ export default function LeaveReqManager({
     </div>
   );
 }
-

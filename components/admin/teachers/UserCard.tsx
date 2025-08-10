@@ -41,7 +41,30 @@ export function UserCard({ user }: { user: User }) {
         className="no-underline rounded-md shadow-md hover:shadow-xl flex justify-between p-4 transition-shadow"
       >
         <div>
-          <h3 className="text-teal-800">{user.name}</h3>
+          <div className="flex gap-4 items-center">
+            <h3 className="text-teal-800">{user.name}</h3>
+            {user.role === "teacher" ? (
+              <span
+                className={
+                  "rounded-lg px-2 text-sm " +
+                  (user.division === "Senior"
+                    ? "bg-orange-300"
+                    : "bg-yellow-200")
+                }
+              >
+                {user.division.toLowerCase()}
+              </span>
+            ) : (
+              <span
+                className={
+                  "rounded-lg px-2 py-0.5 text-sm " +
+                  (user.role === "admin" ? "bg-blue-200" : "bg-green-200")
+                }
+              >
+                {user.role.toLowerCase()}
+              </span>
+            )}
+          </div>
           <p className="text-gray-700 text-sm">{user.email}</p>
         </div>
         <IconButton

@@ -1,5 +1,5 @@
 import { UserCard } from "@/components/admin/teachers/UserCard";
-import { createSupabaseServer } from "@/lib/supabaseServer";
+import { createSupabaseServer } from "@/lib/supabase/server";
 
 export default async function AdminList() {
   const supabase = await createSupabaseServer();
@@ -7,7 +7,7 @@ export default async function AdminList() {
   const { data: admins, error } = await supabase
     .from("teachers")
     .select("*")
-    .eq("role", "admin")
+    .in("role", ["admin", "admin-teacher"])
     .order("name");
 
   if (error) {

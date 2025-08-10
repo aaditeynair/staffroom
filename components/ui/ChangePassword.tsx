@@ -6,7 +6,7 @@ import {
   TextField,
 } from "@mui/material";
 import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/browser";
 import CloseIcon from "@mui/icons-material/Close";
 import { VisibilityRounded, VisibilityOffRounded } from "@mui/icons-material";
 
@@ -18,7 +18,7 @@ type ChangePasswordProps = {
 export default function ChangePassword({ open, onClose }: ChangePasswordProps) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -53,8 +53,8 @@ export default function ChangePassword({ open, onClose }: ChangePasswordProps) {
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match")
-      return
+      setError("Passwords do not match");
+      return;
     }
     const { error: updateError } = await supabase.auth.updateUser({
       password: newPassword,
@@ -62,12 +62,12 @@ export default function ChangePassword({ open, onClose }: ChangePasswordProps) {
 
     if (updateError) {
       setError("Failed to update password.");
-      console.log(updateError)
+      console.log(updateError);
     } else {
       setSuccess("Password updated successfully.");
       setCurrentPassword("");
       setNewPassword("");
-      setConfirmPassword("")
+      setConfirmPassword("");
     }
 
     setLoading(false);
@@ -76,28 +76,33 @@ export default function ChangePassword({ open, onClose }: ChangePasswordProps) {
   const handleClose = () => {
     setCurrentPassword("");
     setNewPassword("");
-    setConfirmPassword("")
-    setSuccess("")
-    setError("")
+    setConfirmPassword("");
+    setSuccess("");
+    setError("");
     setShow({
-    current: false,
-    new: false,
-    confirm: false,
-    })
-    onClose()    
-  }
+      current: false,
+      new: false,
+      confirm: false,
+    });
+    onClose();
+  };
 
   return (
     <Dialog open={open} onClose={handleClose}>
-      <DialogContent >
+      <DialogContent>
         <div className="flex justify-between items-center mb-4">
-          <h1 className="font-bold text-2xl text-center text-teal-700 py-4"> Change Password </h1>
+          <h1 className="font-bold text-2xl text-center text-teal-700 py-4">
+            {" "}
+            Change Password{" "}
+          </h1>
           <IconButton onClick={handleClose}>
             <CloseIcon sx={{ fontSize: 20 }} />
           </IconButton>
         </div>
-        <form onSubmit={handleChangePassword} className="flex flex-col gap-4 w-[300px]">
-
+        <form
+          onSubmit={handleChangePassword}
+          className="flex flex-col gap-4 w-[300px]"
+        >
           <div className="relative">
             <TextField
               label="Current Password"
@@ -109,7 +114,9 @@ export default function ChangePassword({ open, onClose }: ChangePasswordProps) {
             />
             <button
               type="button"
-              onClick={() => setShow((prev) => ({ ...prev, current: !prev.current }))}
+              onClick={() =>
+                setShow((prev) => ({ ...prev, current: !prev.current }))
+              }
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
             >
               {show.current ? <VisibilityRounded /> : <VisibilityOffRounded />}
@@ -143,7 +150,9 @@ export default function ChangePassword({ open, onClose }: ChangePasswordProps) {
             />
             <button
               type="button"
-              onClick={() => setShow((prev) => ({ ...prev, confirm: !prev.confirm }))}
+              onClick={() =>
+                setShow((prev) => ({ ...prev, confirm: !prev.confirm }))
+              }
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
             >
               {show.confirm ? <VisibilityRounded /> : <VisibilityOffRounded />}
