@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import {
@@ -21,47 +21,103 @@ export default function NewUserForm() {
     name: "",
     email: "",
     role: "teacher" as "teacher" | "admin" | "admin-teacher",
+    division: "junior" as "junior" | "senior",
   });
+
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [inviteSuccessMsg, setInviteSuccessMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (inviteSuccessMsg) {
+      const timer = setTimeout(() => {
+        setInviteSuccessMsg(null);
+      }, 5000); // 5 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [inviteSuccessMsg]);
+
+  useEffect(() => {
+    if (errorMsg) {
+      const timer = setTimeout(() => {
+        setErrorMsg(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMsg]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErrorMsg(null);
+    setInviteSuccessMsg(null);
 
     if (!form.name.trim() || !form.email.trim()) {
       setErrorMsg("Name and email are required.");
       return;
     }
 
+    // If teacher/admin-teacher, ensure division selected
+    if (
+      (form.role === "teacher" || form.role === "admin-teacher") &&
+      !form.division
+    ) {
+      setErrorMsg("Division is required for teachers and admin-teachers.");
+      return;
+    }
+
     setLoading(true);
 
-    const { error } = await supabase.from("teachers").insert([
+    // Determine division based on role
+    const divisionValue = form.role === "admin" ? "senior" : form.division;
+
+    // Step 1 - Insert into teachers table
+    const { error: insertError } = await supabase.from("teachers").insert([
       {
         name: form.name.trim(),
         email: form.email.trim(),
         role: form.role,
+        division: divisionValue,
       },
     ]);
 
-    setLoading(false);
-
-    if (error) {
-      setErrorMsg(error.message);
+    if (insertError) {
+      setLoading(false);
+      setErrorMsg(insertError.message);
       return;
     }
 
-    // Clear form
-    setForm({ name: "", email: "", role: "teacher" });
+    // Step 2 - Automatically send magic link with redirect to /set-password
+    const { error: inviteError } = await supabase.auth.signInWithOtp({
+      email: form.email.trim(),
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/set-password`,
+      },
+    });
 
-    // Refresh the lists
+    setLoading(false);
+
+    if (inviteError) {
+      setErrorMsg(
+        `User created but failed to send invite: ${inviteError.message}`,
+      );
+      return;
+    }
+
+    // Step 3 - Clear form and show success message
+    setForm({ name: "", email: "", role: "teacher", division: "junior" });
+    setInviteSuccessMsg(`Invitation sent to ${form.email.trim()}`);
+
+    // Refresh the lists instantly
     router.refresh();
   }
 
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
       <div className="flex flex-row align-center justify-between">
-        <h2 className="text-xl font-bold text-teal-700 mb-2">New Teacher</h2>
+        <h2 className="text-xl font-bold text-teal-700 mb-2">
+          New Teacher/Admin
+        </h2>
         <Button
           type="submit"
           variant="contained"
@@ -72,7 +128,9 @@ export default function NewUserForm() {
           <span className="px-4">{loading ? "Adding..." : "Add User"}</span>
         </Button>
       </div>
+
       {errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+      {inviteSuccessMsg && <Alert severity="success">{inviteSuccessMsg}</Alert>}
 
       <TextField
         label="Name"
@@ -106,6 +164,25 @@ export default function NewUserForm() {
           <MenuItem value="admin-teacher">Admin-Teacher</MenuItem>
         </Select>
       </FormControl>
+
+      {(form.role === "teacher" || form.role === "admin-teacher") && (
+        <FormControl fullWidth>
+          <InputLabel>Division</InputLabel>
+          <Select
+            value={form.division}
+            label="Division"
+            onChange={(e) =>
+              setForm({
+                ...form,
+                division: e.target.value as "junior" | "senior",
+              })
+            }
+          >
+            <MenuItem value="junior">Junior</MenuItem>
+            <MenuItem value="senior">Senior</MenuItem>
+          </Select>
+        </FormControl>
+      )}
     </form>
   );
 }
