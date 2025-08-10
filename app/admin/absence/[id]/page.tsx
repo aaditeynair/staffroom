@@ -338,8 +338,6 @@ export default function AbsenceIDPage() {
         });
 
         availableTeachersByPeriod[Number(period.period_number)] = candidates;
-        console.log(candidates)
-        console.log(availableTeachersByPeriod)
       }
 
       // Set to state for rendering
