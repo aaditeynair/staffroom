@@ -27,7 +27,7 @@ interface User {
 
 interface UserEditFormProps {
   user: User;
-  onSaveAction: (updated: User) => void; // callback after save (optional)
+  onSaveAction: (updated: User) => void;
   onCancelAction: () => void;
 }
 
@@ -68,10 +68,7 @@ export default function UserEditForm({
       return;
     }
 
-    // Call optional onSaveAction callback to notify parent
     if (onSaveAction) onSaveAction(form);
-
-    // Refresh current route to update UI after save
     router.refresh();
   };
 
