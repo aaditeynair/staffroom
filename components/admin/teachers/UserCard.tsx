@@ -7,14 +7,12 @@ import {
   Menu,
   MenuItem,
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  Button,
 } from "@mui/material";
 import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
 import { DeleteRounded, EditRounded, InfoRounded } from "@mui/icons-material";
-import UserEditForm from "./UserEditForm";
+import UserEditForm from "@/components/admin/teachers/UserEditForm";
+import UserDeleteModal from "./UserDeleteModal";
 
 interface User {
   id: string;
@@ -107,27 +105,11 @@ export function UserCard({ user }: { user: User }) {
         </DialogContent>
       </Dialog>
 
-      <Dialog
+      <UserDeleteModal
+        user={user}
         open={deleteOpen}
-        onClose={() => setDeleteOpen(false)}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle>Delete User</DialogTitle>
-        <DialogContent dividers>
-          Are you sure you want to delete <strong>{user.name}</strong>?
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteOpen(false)}>Cancel</Button>
-          <Button
-            color="error"
-            variant="contained"
-            onClick={() => setDeleteOpen(false)}
-          >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onCloseAction={() => setDeleteOpen(false)}
+      />
     </div>
   );
 }
