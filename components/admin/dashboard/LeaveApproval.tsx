@@ -1,6 +1,6 @@
 import { CircularProgress, List } from "@mui/material";
 import LeaveApprovalItem from "@/components/admin/dashboard/LeaveApprovalItem";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/browser";
 import { useEffect, useState } from "react";
 
 type Teacher = {

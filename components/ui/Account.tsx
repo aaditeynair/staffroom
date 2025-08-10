@@ -8,7 +8,7 @@ import {
   CircularProgress,
   Box,
 } from "@mui/material";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/browser";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 

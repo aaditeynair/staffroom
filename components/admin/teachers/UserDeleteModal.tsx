@@ -9,7 +9,7 @@ import {
   DialogContent,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/browser";
 
 interface User {
   id: string;

@@ -1,6 +1,6 @@
-'use client'
+"use client";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/browser";
 import { useEffect } from "react";
 import { LinearProgress } from "@mui/material";
 import Image from "next/image";
@@ -42,4 +42,3 @@ export default function Home() {
     </div>
   );
 }
-
