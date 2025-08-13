@@ -81,9 +81,13 @@ export default function AbsenceIDPage() {
       });
       return;
     }
-
     if (absenceDetails && absenceDetails.dealt_with !== true) {
       for (const period in substitutions) {
+        const periodNumber = Number(period);
+        const fallbackTeacher =
+          (availableTeachersByPeriod[periodNumber] || [])
+            .find(t => t.id !== substitutions[period].substituteID)?.id || null;
+
         const { data, error } = await supabase
           .from("substitutions")
           .insert({
@@ -93,10 +97,12 @@ export default function AbsenceIDPage() {
             substitute_teacher: substitutions[period].substituteID,
             for_absence: absenceDetails.id,
             original_teacher: absenceDetails.teacher.id,
+            fallback: fallbackTeacher
           })
           .select("id, period_number, class, substitute_teacher");
 
         if (error) {
+          console.error(error)
           setSnackbar({
             open: true,
             message: "An error has occurred. Please try again later",
@@ -141,10 +147,16 @@ export default function AbsenceIDPage() {
       }
     } else {
       for (const period in substitutions) {
+        const periodNumber = Number(period)
+        const fallbackTeacher =
+          (availableTeachersByPeriod[periodNumber] || [])
+            .find(t => t.id !== substitutions[period].substituteID)?.id || null
+
         const { error } = await supabase
           .from("substitutions")
           .update({
             substitute_teacher: substitutions[period].substituteID,
+            fallback: fallbackTeacher
           })
           .eq("id", substitutions[period].id);
 
