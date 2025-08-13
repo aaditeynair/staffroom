@@ -12,6 +12,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import getFallback from "@/lib/getFallback";
 
 type Substitution = {
   id: string;
@@ -93,6 +94,14 @@ export default function AssignedSubstitutions() {
       .from("substitutions")
       .update({ confirmed_by_teacher: status, reason: reason })
       .eq("id", selectedSub.id);
+    if (!accepted) {
+      try {
+        await getFallback(selectedSub.id);
+        console.log("Fallback promoted to substitute successfully");
+      } catch (err) {
+        console.error("Error handling fallback:", err);
+      }
+    }
 
     if (error) {
       console.error("Failed to update confirmation:", error.message);
