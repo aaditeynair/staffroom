@@ -35,11 +35,19 @@ export default async function fetchAvailableTeachers({
     .neq("id", absentTeacherId);
   const teachers = allTeachers || [];
 
+  //Get the absence id
+  const { data: absence } = await supabase
+    .from("absences")
+    .select("id")
+    .eq("teacher_id", absentTeacherId)
+    .eq("date", date)
+    .single()
+
   // Fetch declined substitutions for this absence
   const { data: declinedSubs } = await supabase
     .from("substitutions")
     .select("substitute_teacher, period_number")
-    .eq("for_absence", absentTeacherId)
+    .eq("for_absence", absence?.id)
     .eq("confirmed_by_teacher", "declined");
 
   // Build declined map: period → set of teacher IDs
@@ -63,19 +71,33 @@ export default async function fetchAvailableTeachers({
 
   // All periods of the day
   const allPeriods = Array.from(new Set(
-    (await supabase.from("base_timetable").select("period_number").eq("day_of_week", day))
+    (await supabase
+      .from("base_timetable")
+      .select("period_number")
+      .eq("day_of_week", day))
       .data?.map(r => r.period_number) || []
   )).sort((a, b) => a - b);
 
   // Timetable map: teacher → busy array
   const timetableMap: Record<string, boolean[]> = {};
   for (const t of teachers) {
-    const { data: baseData } = await supabase.from("base_timetable")
-      .select("period_number").eq("teacher_id", t.id).eq("day_of_week", day);
-    const { data: dailyData } = await supabase.from("daily_timetable")
-      .select("period_number").eq("teacher_id", t.id).eq("date", date);
-    const { data: absencesData } = await supabase.from("absences")
-      .select("id").eq("teacher_id", t.id).eq("date", date).eq("status", "confirmed");
+    const { data: baseData } = await supabase
+      .from("base_timetable")
+      .select("period_number")
+      .eq("teacher_id", t.id)
+      .eq("day_of_week", day);
+
+    const { data: dailyData } = await supabase
+      .from("daily_timetable")
+      .select("period_number")
+      .eq("teacher_id", t.id)
+      .eq("date", date);
+    const { data: absencesData } = await supabase
+      .from("absences")
+      .select("id")
+      .eq("teacher_id", t.id)
+      .eq("date", date)
+      .eq("status", "confirmed");
 
     const busyPeriodsSet = new Set<number>([...(baseData?.map(p => p.period_number) || []), ...(dailyData?.map(p => p.period_number) || [])]);
     const isAbsent = (absencesData?.length ?? 0) > 0;

@@ -15,7 +15,7 @@ export default async function getFallback(substitutionId: string) {
         // 2. Get the absence record
         const { data: absence, error: absErr } = await supabase
             .from("absences")
-            .select("*")
+            .select("teacher_id,date")
             .eq("id", substitution.for_absence)
             .single();
         if (absErr) throw absErr;
@@ -34,22 +34,6 @@ export default async function getFallback(substitutionId: string) {
             .eq("period_number", substitution.period_number);
         if (ttErr) throw ttErr;
 
-        // 4. Get list of teachers who have declined for this same absence + period
-        const { data: declinedSubs, error: declinedErr } = await supabase
-            .from("substitutions")
-            .select("substitute_teacher")
-            .eq("for_absence", substitution.for_absence)
-            .eq("period_number", substitution.period_number)
-            .eq("confirmed_by_teacher", "declined");
-
-        if (declinedErr) throw declinedErr;
-
-        const declinedTeacherIds = declinedSubs.map(s => s.substitute_teacher);
-
-        // Also add the current declined one (safety)
-        if (substitution.substitute_teacher) {
-            declinedTeacherIds.push(substitution.substitute_teacher);
-        }
 
         // 5. Get scored list for this period
         const availableTeachersByPeriod = await fetchAvailableTeachers({
@@ -60,8 +44,7 @@ export default async function getFallback(substitutionId: string) {
 
         let scoredList = availableTeachersByPeriod[substitution.period_number] || [];
 
-        // 6. Remove all declined teachers from list
-        scoredList = scoredList.filter(t => !declinedTeacherIds.includes(t.id));
+
 
         // 7. Pick next substitute and fallback
         const newSubstitute = substitution.fallback; // fallback from previous row becomes new sub
