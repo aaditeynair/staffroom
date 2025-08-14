@@ -95,6 +95,7 @@ export default function AbsenceIDPage() {
             date: absenceDetails.date,
             period_number: period,
             class: substitutions[period].class,
+            original_teacher: absenceDetails.teacher.id,
             substitute_teacher: substitutions[period].substituteID,
             for_absence: absenceDetails.id,
             fallback: fallbackTeacher
