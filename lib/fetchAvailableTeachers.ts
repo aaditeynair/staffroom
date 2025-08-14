@@ -25,7 +25,15 @@ export default async function fetchAvailableTeachers({
   date: string;
   timetable: TimetablePeriod[];
 }): Promise<Record<number, Teacher[]>> {
-  const day = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][dayjs(date).day()];
+  const day = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ][dayjs(date).day()];
 
   // Get all teachers except the absent one
   const { data: allTeachers } = await supabase
@@ -41,7 +49,7 @@ export default async function fetchAvailableTeachers({
     .select("id")
     .eq("teacher_id", absentTeacherId)
     .eq("date", date)
-    .single()
+    .single();
 
   // Fetch declined substitutions for this absence
   const { data: declinedSubs } = await supabase
@@ -52,13 +60,14 @@ export default async function fetchAvailableTeachers({
 
   // Build declined map: period → set of teacher IDs
   const declinedByPeriod: Record<number, Set<string>> = {};
-  (declinedSubs || []).forEach(s => {
-    if (!declinedByPeriod[s.period_number]) declinedByPeriod[s.period_number] = new Set();
+  (declinedSubs || []).forEach((s) => {
+    if (!declinedByPeriod[s.period_number])
+      declinedByPeriod[s.period_number] = new Set();
     declinedByPeriod[s.period_number].add(s.substitute_teacher);
   });
 
   // Build class → teachers map
-  const classesInTimetable = [...new Set(timetable.map(p => p.class))];
+  const classesInTimetable = [...new Set(timetable.map((p) => p.class))];
   const teachersByClassMap: Record<string, Set<string>> = {};
   for (const cls of classesInTimetable) {
     const { data: classTeachers, error } = await supabase
@@ -66,17 +75,23 @@ export default async function fetchAvailableTeachers({
       .select("teacher_id")
       .eq("class", cls);
 
-    teachersByClassMap[cls] = new Set(classTeachers?.map(r => r.teacher_id) || []);
+    if (error) console.error(error);
+    teachersByClassMap[cls] = new Set(
+      classTeachers?.map((r) => r.teacher_id) || [],
+    );
   }
 
   // All periods of the day
-  const allPeriods = Array.from(new Set(
-    (await supabase
-      .from("base_timetable")
-      .select("period_number")
-      .eq("day_of_week", day))
-      .data?.map(r => r.period_number) || []
-  )).sort((a, b) => a - b);
+  const allPeriods = Array.from(
+    new Set(
+      (
+        await supabase
+          .from("base_timetable")
+          .select("period_number")
+          .eq("day_of_week", day)
+      ).data?.map((r) => r.period_number) || [],
+    ),
+  ).sort((a, b) => a - b);
 
   // Timetable map: teacher → busy array
   const timetableMap: Record<string, boolean[]> = {};
@@ -99,19 +114,25 @@ export default async function fetchAvailableTeachers({
       .eq("date", date)
       .eq("status", "confirmed");
 
-    const busyPeriodsSet = new Set<number>([...(baseData?.map(p => p.period_number) || []), ...(dailyData?.map(p => p.period_number) || [])]);
+    const busyPeriodsSet = new Set<number>([
+      ...(baseData?.map((p) => p.period_number) || []),
+      ...(dailyData?.map((p) => p.period_number) || []),
+    ]);
     const isAbsent = (absencesData?.length ?? 0) > 0;
 
-    timetableMap[t.id] = allPeriods.map(p => isAbsent ? true : busyPeriodsSet.has(p));
+    timetableMap[t.id] = allPeriods.map((p) =>
+      isAbsent ? true : busyPeriodsSet.has(p),
+    );
   }
 
   // Generate candidates per period
   const availableTeachersByPeriod: Record<number, Teacher[]> = {};
   for (const period of timetable) {
     const targetClass = period.class;
-    const teachersWhoTeachTargetClass = teachersByClassMap[targetClass] || new Set();
+    const teachersWhoTeachTargetClass =
+      teachersByClassMap[targetClass] || new Set();
 
-    let notBusyTeachers = teachers.filter(t => {
+    let notBusyTeachers = teachers.filter((t) => {
       const busyToday = timetableMap[t.id] || [];
       const periodIndex = allPeriods.indexOf(period.period_number);
       if (periodIndex === -1) return false;
@@ -120,15 +141,17 @@ export default async function fetchAvailableTeachers({
 
     // Remove declined teachers for this period
     const declinedSet = declinedByPeriod[period.period_number] || new Set();
-    notBusyTeachers = notBusyTeachers.filter(t => !declinedSet.has(t.id));
+    notBusyTeachers = notBusyTeachers.filter((t) => !declinedSet.has(t.id));
 
     const targetDivision = getClassDivision(period.class);
-    availableTeachersByPeriod[period.period_number] = getSubstitutionCandidates({
-      availableTeachers: notBusyTeachers,
-      teachersWhoTeachTargetClass,
-      timetableMap,
-      targetDivision,
-    });
+    availableTeachersByPeriod[period.period_number] = getSubstitutionCandidates(
+      {
+        availableTeachers: notBusyTeachers,
+        teachersWhoTeachTargetClass,
+        timetableMap,
+        targetDivision,
+      },
+    );
   }
 
   return availableTeachersByPeriod;

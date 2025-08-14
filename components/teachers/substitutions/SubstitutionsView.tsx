@@ -10,7 +10,13 @@ type Sub = {
   class: string;
   date: string;
 };
-export default function SubstitutionsView({ mode,refreshFlag }: { mode: 'daily' | 'all',refreshFlag?:boolean }) {
+export default function SubstitutionsView({
+  mode,
+  refreshFlag,
+}: {
+  mode: "daily" | "all";
+  refreshFlag?: boolean;
+}) {
   const [subs, setSubs] = useState<Sub[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -40,7 +46,7 @@ export default function SubstitutionsView({ mode,refreshFlag }: { mode: 'daily' 
         .from("substitutions")
         .select("period_number,class,date")
         .eq("substitute_teacher", teacher.id)
-      [mode == 'daily' ? "eq" : "gte"]("date", formattedDate)
+        [mode == "daily" ? "eq" : "gte"]("date", formattedDate)
         .eq("confirmed_by_teacher", "accepted")
         .order("date")
         .order("period_number");
@@ -51,6 +57,7 @@ export default function SubstitutionsView({ mode,refreshFlag }: { mode: 'daily' 
     };
 
     fetchTimetable();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshFlag]);
 
   if (loading)
@@ -61,27 +68,27 @@ export default function SubstitutionsView({ mode,refreshFlag }: { mode: 'daily' 
     );
 
   return (
-        <div className="flex flex-col gap-4">
-        <table className="border-separate border-spacing-y-3 min-w-full w-full table-fixed mt-4 overflow-hidden rounded-md align text-left">
-          <thead>
-            <tr className="bg-gray-100">
-              {mode!='daily' &&
-              <th className="w-3/7 p-2">Date</th>}
-              <th className="w-2/7 p-2">Period</th>
-              <th className="w-3/7 p-2 ">Class</th>
+    <div className="flex flex-col gap-4">
+      <table className="border-separate border-spacing-y-3 min-w-full w-full table-fixed mt-4 overflow-hidden rounded-md align text-left">
+        <thead>
+          <tr className="bg-gray-100">
+            {mode != "daily" && <th className="w-3/7 p-2">Date</th>}
+            <th className="w-2/7 p-2">Period</th>
+            <th className="w-3/7 p-2 ">Class</th>
+          </tr>
+        </thead>
+        <tbody>
+          {subs.map((sub, index) => (
+            <tr key={index}>
+              {mode != "daily" && (
+                <td className="p-2">{dayjs(sub.date).format("DD-MM-YYYY")}</td>
+              )}
+              <td className="p-2">{sub.period_number}</td>
+              <td className="p-2">{sub.class}</td>
             </tr>
-          </thead>
-          <tbody>
-            {subs.map((sub,index) => (
-              <tr key={index}>
-                {mode!='daily' &&
-                <td className="p-2">{dayjs(sub.date).format('DD-MM-YYYY')}</td>}
-                <td className="p-2">{sub.period_number}</td>
-                <td className="p-2">{sub.class}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
