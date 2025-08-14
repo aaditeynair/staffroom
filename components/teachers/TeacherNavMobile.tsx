@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import AdminNavItem from "../ui/NavItem";
 import {
@@ -16,17 +16,17 @@ export default function AdminNavMobile() {
         <AdminNavItem
           name="Weekly Timetable"
           link="/teacher/weekly-timetable"
-          icon={<CalendarMonthRounded/>}
+          icon={<CalendarMonthRounded />}
         />
         <AdminNavItem
           name="Substitutions"
           link="/teacher/assigned-substitutions"
-          icon={<AssignmentRounded/>}
+          icon={<AssignmentRounded />}
         />
         <AdminNavItem
           name="Leave Request"
           link="/teacher/leave-request"
-          icon={<SchoolRounded/>}
+          icon={<SchoolRounded />}
         />
       </div>
     </div>

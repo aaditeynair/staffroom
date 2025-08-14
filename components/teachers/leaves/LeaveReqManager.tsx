@@ -9,7 +9,11 @@ type Absence = {
   leave_type: "full day" | "morning" | "afternoon";
   status: "pending" | "rejected" | "confirmed";
 };
-export default function LeaveReqManager({refreshFlag}: {refreshFlag: boolean}) {
+export default function LeaveReqManager({
+  refreshFlag,
+}: {
+  refreshFlag: boolean;
+}) {
   const [loading, setLoading] = useState(true);
   const [absences, setAbsences] = useState<Absence[]>([]);
 

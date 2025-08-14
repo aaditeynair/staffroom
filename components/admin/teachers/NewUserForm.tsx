@@ -14,6 +14,19 @@ import {
   CircularProgress,
 } from "@mui/material";
 
+async function sendInvite(email: string) {
+  const { data, error } = await supabase.functions.invoke("inviteUser", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+  return data;
+}
+
 export default function NewUserForm() {
   const router = useRouter();
 
@@ -67,10 +80,7 @@ export default function NewUserForm() {
 
     setLoading(true);
 
-    // Determine division based on role
     const divisionValue = form.role === "admin" ? "senior" : form.division;
-
-    // Step 1 - Insert into teachers table
     const { error: insertError } = await supabase.from("teachers").insert([
       {
         name: form.name.trim(),
@@ -86,25 +96,9 @@ export default function NewUserForm() {
       return;
     }
 
-    // Step 2 - Automatically send magic link with redirect to /set-password
-    const { error: inviteError } = await supabase.auth.signInWithOtp({
-      email: form.email.trim(),
-      options: {
-        shouldCreateUser: true,
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/set-password`,
-      },
-    });
-
+    await sendInvite(form.email.trim());
     setLoading(false);
 
-    if (inviteError) {
-      setErrorMsg(
-        `User created but failed to send invite: ${inviteError.message}`,
-      );
-      return;
-    }
-
-    // Step 3 - Clear form and show success message
     setForm({ name: "", email: "", role: "teacher", division: "junior" });
     setInviteSuccessMsg(`Invitation sent to ${form.email.trim()}`);
 

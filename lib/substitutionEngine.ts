@@ -59,7 +59,7 @@ function getSubstitutionCandidates({
     .sort((a, b) => b.score - a.score)
     .map((t) => ({
       ...t.teacher,
-      score: t.score
+      score: t.score,
     }));
   return candidates;
 }
