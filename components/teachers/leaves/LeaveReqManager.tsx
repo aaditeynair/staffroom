@@ -9,11 +9,7 @@ type Absence = {
   leave_type: "full day" | "morning" | "afternoon";
   status: "pending" | "rejected" | "confirmed";
 };
-export default function LeaveReqManager({
-  refreshKey,
-}: {
-  refreshKey: boolean;
-}) {
+export default function LeaveReqManager({refreshFlag}: {refreshFlag: boolean}) {
   const [loading, setLoading] = useState(true);
   const [absences, setAbsences] = useState<Absence[]>([]);
 
@@ -49,7 +45,7 @@ export default function LeaveReqManager({
     };
 
     fetchAbsences();
-  }, [refreshKey]);
+  }, [refreshFlag]);
 
   if (loading)
     return (
@@ -65,7 +61,7 @@ export default function LeaveReqManager({
       </h2>
       <table className="border-separate border-spacing-y-3 min-w-full mt-4 overflow-hidden rounded-md align text-left">
         <thead>
-          <tr className="bg-gray-200">
+          <tr className="bg-gray-100">
             <th className="p-2">Date</th>
             <th className="p-2">Leave Type</th>
             <th className="p-2">Status</th>

@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/browser";
 import { CircularProgress } from "@mui/material";
+import dayjs from "@/lib/dayjs";
 
 type Sub = {
   period_number: number;
   class: string;
+  date: string;
 };
-export default function SubstitutionsToday() {
+export default function SubstitutionsView({ mode,refreshFlag }: { mode: 'daily' | 'all',refreshFlag?:boolean }) {
   const [subs, setSubs] = useState<Sub[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,10 +38,11 @@ export default function SubstitutionsToday() {
 
       const { data, error } = await supabase
         .from("substitutions")
-        .select("period_number,class")
+        .select("period_number,class,date")
         .eq("substitute_teacher", teacher.id)
-        .eq("date", formattedDate)
+      [mode == 'daily' ? "eq" : "gte"]("date", formattedDate)
         .eq("confirmed_by_teacher", "accepted")
+        .order("date")
         .order("period_number");
 
       if (error) console.log(error);
@@ -48,37 +51,37 @@ export default function SubstitutionsToday() {
     };
 
     fetchTimetable();
-  }, []);
+  }, [refreshFlag]);
 
   if (loading)
     return (
       <div className="flex items-center justify-center w-full h-full p-5">
-        <CircularProgress size={100}></CircularProgress>
+        <CircularProgress size={60}></CircularProgress>
       </div>
     );
 
   return (
-    <div>
-      <div className="hidden lg:block bg-white p-6 rounded-md shadow-md">
-        <h2 className="text-2xl font-bold text-teal-800 mb-6 text-center">
-          Substitutions Today
-        </h2>
         <div className="flex flex-col gap-4">
-          {subs.map((sub, index) => (
-            <div
-              key={index}
-              className="flex justify-between items-center px-4 py-3 rounded-md bg-yellow-50 border border-yellow-200"
-            >
-              <div className="font-semibold text-gray-700">
-                Period {sub.period_number}
-              </div>
-              <div className="text-sm font-semibold text-teal-800">
-                {sub.class}
-              </div>
-            </div>
-          ))}
-        </div>
+        <table className="border-separate border-spacing-y-3 min-w-full w-full table-fixed mt-4 overflow-hidden rounded-md align text-left">
+          <thead>
+            <tr className="bg-gray-100">
+              {mode!='daily' &&
+              <th className="w-3/7 p-2">Date</th>}
+              <th className="w-2/7 p-2">Period</th>
+              <th className="w-3/7 p-2 ">Class</th>
+            </tr>
+          </thead>
+          <tbody>
+            {subs.map((sub,index) => (
+              <tr key={index}>
+                {mode!='daily' &&
+                <td className="p-2">{dayjs(sub.date).format('DD-MM-YYYY')}</td>}
+                <td className="p-2">{sub.period_number}</td>
+                <td className="p-2">{sub.class}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-    </div>
   );
 }
