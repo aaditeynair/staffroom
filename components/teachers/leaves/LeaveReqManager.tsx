@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/browser";
 import { useState, useEffect } from "react";
 import { CircularProgress } from "@mui/material";
 
@@ -10,9 +10,9 @@ type Absence = {
   status: "pending" | "rejected" | "confirmed";
 };
 export default function LeaveReqManager({
-  refreshKey,
+  refreshFlag,
 }: {
-  refreshKey: boolean;
+  refreshFlag: boolean;
 }) {
   const [loading, setLoading] = useState(true);
   const [absences, setAbsences] = useState<Absence[]>([]);
@@ -49,13 +49,13 @@ export default function LeaveReqManager({
     };
 
     fetchAbsences();
-  }, [refreshKey]);
+  }, [refreshFlag]);
 
   if (loading)
     return (
-    <div className="flex items-center justify-center w-full h-full p-5">
-      <CircularProgress size={80} ></CircularProgress>
-    </div>
+      <div className="flex items-center justify-center w-full h-full p-5">
+        <CircularProgress size={80}></CircularProgress>
+      </div>
     );
 
   return (
@@ -65,7 +65,7 @@ export default function LeaveReqManager({
       </h2>
       <table className="border-separate border-spacing-y-3 min-w-full mt-4 overflow-hidden rounded-md align text-left">
         <thead>
-          <tr className="bg-gray-200">
+          <tr className="bg-gray-100">
             <th className="p-2">Date</th>
             <th className="p-2">Leave Type</th>
             <th className="p-2">Status</th>
@@ -96,4 +96,3 @@ export default function LeaveReqManager({
     </div>
   );
 }
-

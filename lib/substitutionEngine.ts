@@ -57,7 +57,10 @@ function getSubstitutionCandidates({
     })
     .filter((t) => t.flags.hasEnoughFreePeriods && t.flags.hasNoHeavyStreak)
     .sort((a, b) => b.score - a.score)
-    .map((t) => t.teacher);
+    .map((t) => ({
+      ...t.teacher,
+      score: t.score,
+    }));
   return candidates;
 }
 

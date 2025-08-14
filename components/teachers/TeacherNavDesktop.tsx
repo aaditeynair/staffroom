@@ -1,17 +1,17 @@
-'use client'
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
 import logo from "@/public/logo-white.png";
 
 import { useState } from "react";
-import ChangePassword from '../ui/ChangePassword';
-import Account from '../ui/Account';
+import ChangePassword from "../ui/ChangePassword";
+import Account from "../ui/Account";
 
 export default function TeacherNavDesktop() {
-  const [showModal, setShowModal] = useState(false)
+  const [showModal, setShowModal] = useState(false);
   return (
-    <div className="px-8 py-4 bg-teal-700 flex justify-between w-full rounded-md mb-4 md:mb-8 text-white">
+    <div className="px-8 py-4 bg-teal-700 flex justify-between w-full rounded-md text-white">
       <div>
         <Image src={logo} alt="Logo" width={180} />
       </div>
@@ -22,8 +22,8 @@ export default function TeacherNavDesktop() {
           <Link href="/teacher/assigned-substitutions">Substitutions</Link>
           <Link href="/teacher/leave-request">Leave Requests</Link>
         </div>
-        <Account onChangePasswordClick={() => setShowModal(true)}/>
-        <ChangePassword open={showModal} onClose={() => setShowModal(false)}/>
+        <Account onChangePasswordClick={() => setShowModal(true)} />
+        <ChangePassword open={showModal} onClose={() => setShowModal(false)} />
       </div>
     </div>
   );

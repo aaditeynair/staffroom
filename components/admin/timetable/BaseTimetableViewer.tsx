@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/browser";
 import {
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -126,26 +125,27 @@ export default function BaseTimetableViewer() {
   }
 
   return (
-    <Paper className="p-8 overflow-x-auto">
-      <Box sx={{ mb: 2 }} display="flex" gap={2} flexWrap="wrap">
+    <div className="p-6 md:p-8 overflow-x-auto bg-white rounded-md shadow-md">
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
         <ToggleButtonGroup
           value={viewMode}
           exclusive
           onChange={(_, mode) => mode && setViewMode(mode)}
           aria-label="View mode"
           size="small"
+          className="flex"
         >
-          <ToggleButton value="teacher">
-            <span className="px-2">By Teacher</span>
+          <ToggleButton className="grow" value="teacher">
+            <span className="px-3">By Teacher</span>
           </ToggleButton>
-          <ToggleButton value="class">
-            <span className="px-2">By Class</span>
+          <ToggleButton className="grow" value="class">
+            <span className="px-3">By Class</span>
           </ToggleButton>
         </ToggleButtonGroup>
         {viewMode === "teacher" && (
           <Autocomplete
             size="small"
-            className="w-1/4"
+            className="w-full md:w-1/2 lg:w-1/3"
             options={teachers}
             getOptionLabel={(option) => option.name}
             value={teachers.find((t) => t.id === selectedTeacher) || null}
@@ -158,7 +158,7 @@ export default function BaseTimetableViewer() {
         {viewMode === "class" && (
           <Autocomplete
             size="small"
-            className="w-1/12"
+            className="w-full md:w-1/4 xl:w-[10%]"
             options={sortedClasses}
             getOptionLabel={(option) => option}
             value={selectedClass || null}
@@ -166,7 +166,7 @@ export default function BaseTimetableViewer() {
             renderInput={(params) => <TextField {...params} label="Class" />}
           />
         )}
-      </Box>
+      </div>
 
       {/* Only render table if something is selected */}
       {(viewMode === "teacher" ? selectedTeacher : selectedClass) ? (
@@ -208,6 +208,6 @@ export default function BaseTimetableViewer() {
           the timetable.
         </Typography>
       )}
-    </Paper>
+    </div>
   );
 }

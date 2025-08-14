@@ -1,4 +1,4 @@
-import { createSupabaseServer } from "@/lib/supabaseServer";
+import { createSupabaseServer } from "@/lib/supabase/server";
 
 export async function requireRole(
   allowedRoles: ("admin" | "teacher" | "admin-teacher")[],
@@ -13,15 +13,14 @@ export async function requireRole(
 
   const { data: profile, error: roleError } = await supabase
     .from("teachers")
-    .select("role")
+    .select("role, password_set")
     .eq("auth_id", user.id)
     .single();
 
   if (roleError || !profile) return { redirect: "/login" };
-
-  if (!allowedRoles.includes(profile.role)) {
+  if (!profile.password_set) return { redirect: "/set-password" };
+  if (!allowedRoles.includes(profile.role))
     return { redirect: "/not-authorized" };
-  }
 
   return { user, role: profile.role };
 }

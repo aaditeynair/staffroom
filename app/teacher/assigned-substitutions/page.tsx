@@ -1,170 +1,26 @@
 "use client";
 
-import { supabase } from "@/lib/supabaseClient";
-import { useState, useEffect } from "react";
-import { CheckRounded, ClearRounded } from "@mui/icons-material";
-import {
-  Button,
-  ListItem,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  CircularProgress,
-} from "@mui/material";
-import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import SubstitutionsView from "@/components/teachers/substitutions/SubstitutionsView";
+import PendingSubstitutions from "@/components/teachers/substitutions/PendingSubstitutions";
+import { useState } from "react";
 
-type Substitution = {
-  id: string;
-  date: string;
-  period_number: number;
-  class: string;
-  confirmed_by_teacher: "unconfirmed" | "accepted" | "declined";
-};
 export default function AssignedSubstitutions() {
-  const [loading, setLoading] = useState(true);
-  const [substitution, setSubstitution] = useState<Substitution[]>([]);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogMode, setDialogMode] = useState<"accept" | "decline">("accept");
-  const [selectedSub, setSelectedSub] = useState<Substitution | null>(null);
   const [refreshFlag, setRefreshFlag] = useState(false);
-
-  useEffect(() => {
-    const fetchAbsences = async () => {
-      setLoading(true);
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session?.user?.email) return;
-      const { data: teacher } = await supabase
-        .from("teachers")
-        .select("id")
-        .eq("email", session.user.email)
-        .single();
-
-      if (!teacher) return;
-
-      const { data, error } = await supabase
-        .from("substitutions")
-        .select("id,date,period_number,class,confirmed_by_teacher")
-        .eq("substitute_teacher", teacher.id)
-        .eq("confirmed_by_teacher", "unconfirmed")
-        .order("date")
-        .order("period_number");
-
-      if (error) {
-        console.error(error);
-      }
-
-      console.log(teacher);
-
-      if (data)
-        setSubstitution(
-          (data || []).map((sub) => ({
-            ...sub,
-            date: formatDateToDDMMYYYY(sub.date),
-          })),
-        );
-      setLoading(false);
-    };
-
-    fetchAbsences();
-  }, [refreshFlag]);
-  function formatDateToDDMMYYYY(dateString: string): string {
-    const [year, month, day] = dateString.split("-");
-    return `${day}-${month}-${year}`;
-  }
-  const handleOpenAccept = (sub: Substitution) => {
-    setSelectedSub(sub);
-    setDialogMode("accept");
-    setDialogOpen(true);
-  };
-
-  const handleOpenDecline = (sub: Substitution) => {
-    setSelectedSub(sub);
-    setDialogMode("decline");
-    setDialogOpen(true);
-  };
-
-  const handleDecision = async (accepted: boolean, reason?: string) => {
-    if (!selectedSub) return;
-    const status = accepted ? "accepted" : "declined";
-    const { error } = await supabase
-      .from("substitutions")
-      .update({ confirmed_by_teacher: status, reason: reason })
-      .eq("id", selectedSub.id);
-
-    if (error) {
-      console.error("Failed to update confirmation:", error.message);
-    }
-    setDialogOpen(false);
-    setRefreshFlag((prev) => !prev);
-    setSelectedSub(null);
-  };
   return (
-    <div>
-      {!loading ? (
-        <div className="max-w-screen bg-white p-5 rounded-md">
-          <h2 className="text-2xl font-bold text-teal-800 p-4 text-center">
-            Assigned Substitutions
-          </h2>
-          {substitution.length === 0 ? (
-            <p> No Substitutions Assigned </p>
-          ) : (
-            substitution.map((substitution, index) => (
-              <ListItem key={index} className="rounded-md mt-1" disableGutters>
-                <Accordion className="w-full">
-                  <AccordionSummary>
-                    <div className="flex justify-between w-full">
-                      <div className="font-bold">
-                        Period: {substitution.period_number}{" "}
-                        <p className="text-teal-700">{substitution.class}</p>
-                      </div>
-                      <div className="text-gray-800">{substitution.date}</div>
-                    </div>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <div className="gap-4 mt-4 flex w-full">
-                      <Button
-                        variant="outlined"
-                        className="w-full"
-                        startIcon={<CheckRounded />}
-                        color="success"
-                        onClick={() => {
-                          handleOpenAccept(substitution);
-                        }}
-                      >
-                        Approve
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        className="w-full"
-                        startIcon={<ClearRounded />}
-                        color="error"
-                        onClick={() => {
-                          handleOpenDecline(substitution);
-                        }}
-                      >
-                        Decline
-                      </Button>
-                    </div>
-                  </AccordionDetails>
-                </Accordion>
-              </ListItem>
-            ))
-          )}
+    <>
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,_2fr)_3fr] gap-8 lg:gap-16 pb-20 lg:pb-0">
+        <PendingSubstitutions
+          refreshFlag={refreshFlag}
+          setRefreshFlagAction={setRefreshFlag}
+        />
+        <div className="max-w-screen bg-white p-5 rounded-md shadow-md">
+          <h1 className="text-2xl text-teal-700 font-bold mb-4">
+            {" "}
+            Accepted Substitutions{" "}
+          </h1>
+          <SubstitutionsView mode="all" refreshFlag={refreshFlag} />
         </div>
-      ) : (
-        <div className="flex items-center justify-center w-full h-full p-6">
-          <CircularProgress size={50}></CircularProgress>
-        </div>
-      )}
-      <ConfirmDialog
-        open={dialogOpen}
-        mode={dialogMode}
-        onClose={() => setDialogOpen(false)}
-        onConfirm={handleDecision}
-      />
-    </div>
+      </div>
+    </>
   );
 }

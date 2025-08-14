@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/browser";
 import getSubstitutionCandidates from "@/lib/substitutionEngine";
 import {
   CircularProgress,
@@ -20,6 +20,7 @@ interface Teacher {
   id: string;
   name: string;
   division: string;
+  score: number;
 }
 
 interface AbsenceDetails {
@@ -39,6 +40,7 @@ interface TimetablePeriod {
 
 interface SubstitutionInfo {
   substituteID: string | null;
+  original_substituteID: string | null;
   class: string;
   id?: string;
 }
@@ -80,22 +82,28 @@ export default function AbsenceIDPage() {
       });
       return;
     }
-
     if (absenceDetails && absenceDetails.dealt_with !== true) {
       for (const period in substitutions) {
+        const periodNumber = Number(period);
+        const fallbackTeacher =
+          (availableTeachersByPeriod[periodNumber] || [])
+            .find(t => t.id !== substitutions[period].substituteID)?.id || null;
+
         const { data, error } = await supabase
           .from("substitutions")
           .insert({
             date: absenceDetails.date,
             period_number: period,
             class: substitutions[period].class,
+            original_teacher: absenceDetails.teacher.id,
             substitute_teacher: substitutions[period].substituteID,
             for_absence: absenceDetails.id,
-            original_teacher: absenceDetails.teacher.id,
+            fallback: fallbackTeacher
           })
           .select("id, period_number, class, substitute_teacher");
 
         if (error) {
+          console.error(error)
           setSnackbar({
             open: true,
             message: "An error has occurred. Please try again later",
@@ -109,6 +117,7 @@ export default function AbsenceIDPage() {
             ...prev,
             [period.period_number]: {
               substituteID: period.substitute_teacher,
+              original_substituteID: period.substitute_teacher,
               class: period.class,
               id: period.id,
             },
@@ -140,10 +149,18 @@ export default function AbsenceIDPage() {
       }
     } else {
       for (const period in substitutions) {
+        const sub = substitutions[period];
+        const periodNumber = Number(period)
+        const fallbackTeacher =
+          (availableTeachersByPeriod[periodNumber] || [])
+            .find(t => t.id !== substitutions[period].substituteID)?.id || null
+        const hasChanged = sub.original_substituteID !== sub.substituteID;
         const { error } = await supabase
           .from("substitutions")
           .update({
             substitute_teacher: substitutions[period].substituteID,
+            fallback: fallbackTeacher,
+            confirmed_by_teacher: hasChanged ? 'unconfirmed' : undefined
           })
           .eq("id", substitutions[period].id);
 
@@ -354,6 +371,7 @@ export default function AbsenceIDPage() {
               ...prev,
               [period.period_number]: {
                 substituteID: period.substitute_teacher,
+                original_substituteID: period.substitute_teacher,
                 class: period.class,
                 id: period.id,
               },
@@ -424,6 +442,19 @@ export default function AbsenceIDPage() {
                           class: period.class,
                         },
                       }));
+                    }}
+                    renderOption={(props, option) => {
+                      const { key, ...rest } = props;
+                      const colour =
+                        option.score > 4 ? "bg-green-700" :
+                          option.score <= 2 ? "bg-red-700" :
+                            "bg-amber-500"
+                      return (
+                        <li key={key}{...rest} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          {option.name}
+                          <div className={`h-2 w-2 rounded-full ${colour}`}></div>
+                        </li>
+                      )
                     }}
                     renderInput={(params) => (
                       <TextField
