@@ -2,16 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import {
-  IconButton,
-  Menu,
-  MenuItem,
-  Dialog,
-  DialogContent,
-} from "@mui/material";
+import { IconButton, Menu, MenuItem } from "@mui/material";
 import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
 import { DeleteRounded, EditRounded, InfoRounded } from "@mui/icons-material";
-import UserEditForm from "@/components/admin/teachers/UserEditForm";
+import UserEditModal from "@/components/admin/teachers/UserEditModal";
 import UserDeleteModal from "./UserDeleteModal";
 
 interface User {
@@ -37,7 +31,7 @@ export function UserCard({ user }: { user: User }) {
   return (
     <div>
       <Link
-        href={`/teachers/${user.id}`}
+        href={`/admin/teachers/${user.id}`}
         className="no-underline rounded-md shadow-md hover:shadow-xl flex justify-between p-4 transition-shadow"
       >
         <div>
@@ -118,15 +112,11 @@ export function UserCard({ user }: { user: User }) {
         </MenuItem>
       </Menu>
 
-      <Dialog open={editOpen} onClose={() => setEditOpen(false)} fullWidth>
-        <DialogContent>
-          <UserEditForm
-            user={user}
-            onSaveAction={() => setEditOpen(false)}
-            onCancelAction={() => setEditOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      <UserEditModal
+        user={user}
+        open={editOpen}
+        onCloseAction={() => setEditOpen(false)}
+      />
 
       <UserDeleteModal
         user={user}
