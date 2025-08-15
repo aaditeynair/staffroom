@@ -11,14 +11,42 @@ import dayjs from "@/lib/dayjs";
 import Link from "next/link";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
+interface Teacher {
+  id: string;
+  name: string;
+  email: string;
+  password_set: boolean;
+  division: string;
+  role: "admin" | "teacher" | "admin-teacher";
+}
+
+interface TimetableEntry {
+  id: string;
+  teacher_id: string;
+  day_of_week: string;
+  period_number: number;
+  class: string;
+}
+
+interface Absence {
+  id: string;
+  teacher_id: string;
+  date: string;
+  created_at: string;
+  reason: string;
+  status: string;
+  leave_type: string;
+  dealt_with: boolean;
+}
+
 export default function TeacherDetailPage() {
   const params = useParams();
   const teacherId = params?.id;
 
-  const [teacher, setTeacher] = useState<any>(null);
-  const [timetable, setTimetable] = useState<any>(null);
-  const [upcomingAbsences, setUpcomingAbsences] = useState<any>(null);
-  const [recentAbsences, setRecentAbsences] = useState<any>(null);
+  const [teacher, setTeacher] = useState<Teacher | null>(null);
+  const [timetable, setTimetable] = useState<TimetableEntry[] | []>([]);
+  const [upcomingAbsences, setUpcomingAbsences] = useState<Absence[] | []>([]);
+  const [recentAbsences, setRecentAbsences] = useState<Absence[] | []>([]);
 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -147,7 +175,9 @@ export default function TeacherDetailPage() {
       />
 
       <section className="p-8 bg-white rounded-md shadow-md">
-        <WeekTimetable title="Weekly Timetable" timetable={timetable} />
+        {timetable && (
+          <WeekTimetable title="Weekly Timetable" timetable={timetable} />
+        )}
       </section>
       <div className="flex gap-8 w-full">
         <div className="p-8 bg-white rounded-md shadow-md grow space-y-8">
