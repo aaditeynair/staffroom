@@ -1,28 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/browser";
 import UserDeleteModal from "@/components/admin/teachers/UserDeleteModal";
-import {
-  CircularProgress,
-  Alert,
-  Typography,
-  Card,
-  CardContent,
-  Divider,
-  Button,
-} from "@mui/material";
+import { CircularProgress, Alert, Button } from "@mui/material";
 import UserEditModal from "@/components/admin/teachers/UserEditModal";
+import WeekTimetable from "@/components/admin/timetable/WeekTimetable";
 
 export default function TeacherDetailPage() {
-  const router = useRouter();
   const params = useParams();
   const teacherId = params?.id;
 
   const [teacher, setTeacher] = useState<any>(null);
+  const [timetable, setTimetable] = useState<any>(null);
+
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -41,6 +36,13 @@ export default function TeacherDetailPage() {
         setErrorMsg("Could not fetch teacher data.");
         setTeacher(null);
       } else {
+        const { data: timetable, error: timetableError } = await supabase
+          .from("base_timetable")
+          .select("*")
+          .eq("teacher_id", data.id);
+        if (!timetableError) {
+          setTimetable(timetable);
+        }
         setTeacher(data);
       }
       setLoading(false);
@@ -122,7 +124,9 @@ export default function TeacherDetailPage() {
         user={teacher}
       />
 
-      <section className="p-8 bg-white rounded-md shadow-md">Timetable</section>
+      <section className="p-8 bg-white rounded-md shadow-md">
+        <WeekTimetable timetable={timetable} />
+      </section>
       <div className="flex gap-8 w-full">
         <section className="p-8 bg-white rounded-md shadow-md grow">
           Absences
