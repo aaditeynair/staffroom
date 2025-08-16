@@ -1,15 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/browser";
 import UserDeleteModal from "@/components/admin/teachers/UserDeleteModal";
-import { CircularProgress, Alert, Button } from "@mui/material";
+import {
+  CircularProgress,
+  Alert,
+  Button,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+} from "@mui/material";
 import UserEditModal from "@/components/admin/teachers/UserEditModal";
 import WeekTimetable from "@/components/admin/timetable/WeekTimetable";
+import TeacherAbsenceItem from "@/components/admin/teachers/TeacherAbsenceItem";
 import dayjs from "@/lib/dayjs";
-import Link from "next/link";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 interface Teacher {
   id: string;
@@ -39,14 +47,25 @@ interface Absence {
   dealt_with: boolean;
 }
 
+interface Substitution {
+  id: string;
+  date: string;
+  period_number: string;
+  class: string;
+  original_teacher: { name: string };
+  confirmed_by_teacher: string;
+}
+
 export default function TeacherDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const teacherId = params?.id;
 
   const [teacher, setTeacher] = useState<Teacher | null>(null);
   const [timetable, setTimetable] = useState<TimetableEntry[] | []>([]);
   const [upcomingAbsences, setUpcomingAbsences] = useState<Absence[] | []>([]);
   const [recentAbsences, setRecentAbsences] = useState<Absence[] | []>([]);
+  const [substitutions, setSubstitutions] = useState<Substitution[] | []>([]);
 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -94,6 +113,30 @@ export default function TeacherDetailPage() {
           .order("date", { ascending: false })
           .limit(5);
         if (!recentError) setRecentAbsences(recentAbsences);
+
+        const { data: subs, error: subsError } = await supabase
+          .from("substitutions")
+          .select(
+            "id, date, class, period_number, original_teacher, confirmed_by_teacher",
+          )
+          .eq("substitute_teacher", teacherId)
+          .order("date", { ascending: false })
+          .limit(8);
+
+        if (!subsError) {
+          const updatedSubs = [];
+          for (let i = 0; i < subs.length; i++) {
+            const sub = subs[i];
+            const { data: ogTeacher, error: teacherError } = await supabase
+              .from("teachers")
+              .select("name")
+              .eq("id", sub.original_teacher)
+              .single();
+            if (!teacherError && ogTeacher)
+              updatedSubs.push({ ...sub, original_teacher: ogTeacher });
+          }
+          setSubstitutions(updatedSubs);
+        }
       }
       setLoading(false);
     }
@@ -101,7 +144,7 @@ export default function TeacherDetailPage() {
     if (teacherId) {
       fetchTeacher();
     }
-  }, [teacherId]);
+  }, [teacherId, router]);
 
   if (loading) {
     return (
@@ -166,11 +209,29 @@ export default function TeacherDetailPage() {
       <UserEditModal
         user={teacher}
         open={editOpen}
+        onSaveAction={() => {
+          const update = async () => {
+            const { data, error } = await supabase
+              .from("teachers")
+              .select("*")
+              .eq("id", teacherId)
+              .single();
+
+            if (error || !data) {
+              setErrorMsg("Could not fetch teacher data.");
+              setTeacher(null);
+            } else {
+              setTeacher(data);
+            }
+          };
+          update();
+        }}
         onCloseAction={() => setEditOpen(false)}
       />
       <UserDeleteModal
         open={deleteOpen}
         onCloseAction={() => setDeleteOpen(false)}
+        onSaveAction={() => router.push("/admin/teachers")}
         user={teacher}
       />
 
@@ -191,33 +252,7 @@ export default function TeacherDetailPage() {
               <div className="grid grid-cols-2 gap-4">
                 {upcomingAbsences.map((absence) => {
                   return (
-                    <Link
-                      key={absence.id}
-                      href={"/admin/absence/" + absence.id}
-                      className="rounded-md shadow-md hover:shadow-lg transition-shadow p-4 flex justify-between items-center"
-                    >
-                      <div className="flex h-full">
-                        <div
-                          className={
-                            "w-2 h-auto mr-4 " +
-                            (absence.dealt_with === true
-                              ? "bg-green-400"
-                              : "bg-red-400")
-                          }
-                        ></div>
-                        <div>
-                          <p>
-                            {dayjs(absence.date).format("dddd - DD/MM/YYYY")}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {absence.leave_type}
-                          </p>
-                        </div>
-                      </div>
-                      <p className="text-teal-700">
-                        <ChevronRightIcon />
-                      </p>
-                    </Link>
+                    <TeacherAbsenceItem key={absence.id} absence={absence} />
                   );
                 })}
               </div>
@@ -233,33 +268,7 @@ export default function TeacherDetailPage() {
               <div className="grid grid-cols-2 gap-4">
                 {recentAbsences.map((absence) => {
                   return (
-                    <Link
-                      key={absence.id}
-                      href={"/admin/absence/" + absence.id}
-                      className="rounded-md shadow-md hover:shadow-lg transition-shadow p-4 flex justify-between items-center"
-                    >
-                      <div className="flex h-full">
-                        <div
-                          className={
-                            "w-2 h-auto mr-4 " +
-                            (absence.dealt_with === true
-                              ? "bg-green-400"
-                              : "bg-red-400")
-                          }
-                        ></div>
-                        <div>
-                          <p>
-                            {dayjs(absence.date).format("dddd - DD/MM/YYYY")}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {absence.leave_type}
-                          </p>
-                        </div>
-                      </div>
-                      <p className="text-teal-700">
-                        <ChevronRightIcon />
-                      </p>
-                    </Link>
+                    <TeacherAbsenceItem key={absence.id} absence={absence} />
                   );
                 })}
               </div>
@@ -267,7 +276,37 @@ export default function TeacherDetailPage() {
           </section>
         </div>
         <section className="p-8 bg-white rounded-md shadow-md grow">
-          Substitutions
+          <h2 className="font-bold text-lg text-teal-800 mb-4">
+            Substitutions
+          </h2>
+          {substitutions.length === 0 ? (
+            <p className="text-gray-800 italic">No recent substitutions</p>
+          ) : (
+            <Table size="small" stickyHeader>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Period</TableCell>
+                  <TableCell>Class</TableCell>
+                  <TableCell>Original Teacher</TableCell>
+                  <TableCell>Status</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {substitutions.map((sub) => (
+                  <TableRow key={sub.id}>
+                    <TableCell>
+                      {dayjs(sub.date).format("DD MMM YYYY")}
+                    </TableCell>
+                    <TableCell>{sub.period_number}</TableCell>
+                    <TableCell>{sub.class}</TableCell>
+                    <TableCell>{sub.original_teacher.name}</TableCell>
+                    <TableCell>{sub.confirmed_by_teacher}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </section>
       </div>
     </div>

@@ -7,6 +7,7 @@ import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
 import { DeleteRounded, EditRounded, InfoRounded } from "@mui/icons-material";
 import UserEditModal from "@/components/admin/teachers/UserEditModal";
 import UserDeleteModal from "./UserDeleteModal";
+import { useRouter } from "next/navigation";
 
 interface User {
   id: string;
@@ -17,6 +18,7 @@ interface User {
 }
 
 export function UserCard({ user }: { user: User }) {
+  const router = useRouter();
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -116,12 +118,18 @@ export function UserCard({ user }: { user: User }) {
         user={user}
         open={editOpen}
         onCloseAction={() => setEditOpen(false)}
+        onSaveAction={() => {
+          router.refresh();
+        }}
       />
 
       <UserDeleteModal
         user={user}
         open={deleteOpen}
         onCloseAction={() => setDeleteOpen(false)}
+        onSaveAction={() => {
+          router.refresh();
+        }}
       />
     </div>
   );

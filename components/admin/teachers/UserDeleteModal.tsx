@@ -8,7 +8,6 @@ import {
   Dialog,
   DialogContent,
 } from "@mui/material";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/browser";
 
 interface User {
@@ -22,17 +21,18 @@ interface User {
 interface UserDeleteModalProps {
   open: boolean;
   onCloseAction: () => void;
+  onSaveAction: () => void;
   user: User;
 }
 
 export default function UserDeleteModal({
   open,
   onCloseAction,
+  onSaveAction,
   user,
 }: UserDeleteModalProps) {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const router = useRouter();
 
   const handleDelete = async () => {
     setLoading(true);
@@ -49,8 +49,8 @@ export default function UserDeleteModal({
       return;
     }
 
+    onSaveAction();
     onCloseAction();
-    router.refresh();
   };
 
   return (

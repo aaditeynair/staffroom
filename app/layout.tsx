@@ -5,6 +5,10 @@ import GlobalStyles from "@mui/material/GlobalStyles";
 import { ReactNode } from "react";
 import theme from "@/lib/theme";
 
+export const metadata = {
+  title: "Staffroom",
+};
+
 export default async function RootLayout({
   children,
 }: {
