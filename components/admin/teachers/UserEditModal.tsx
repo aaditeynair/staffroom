@@ -14,7 +14,6 @@ import {
   Stack,
   Alert,
 } from "@mui/material";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/browser";
 
 type Role = "admin" | "teacher" | "admin-teacher";
@@ -30,6 +29,7 @@ interface User {
 interface UserEditModalProps {
   open: boolean;
   onCloseAction: () => void;
+  onSaveAction: () => void;
   user: User;
 }
 
@@ -37,12 +37,11 @@ export default function UserEditModal({
   user,
   open,
   onCloseAction,
+  onSaveAction,
 }: UserEditModalProps) {
   const [form, setForm] = useState<User>(user);
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  const router = useRouter();
 
   const handleChange = (field: keyof User, value: string) => {
     setForm({ ...form, [field]: value } as User);
@@ -70,7 +69,8 @@ export default function UserEditModal({
       return;
     }
 
-    router.refresh();
+    onSaveAction();
+    onCloseAction();
   };
 
   return (

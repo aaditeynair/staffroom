@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/browser";
 import UserDeleteModal from "@/components/admin/teachers/UserDeleteModal";
 import {
@@ -58,6 +58,7 @@ interface Substitution {
 
 export default function TeacherDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const teacherId = params?.id;
 
   const [teacher, setTeacher] = useState<Teacher | null>(null);
@@ -143,7 +144,7 @@ export default function TeacherDetailPage() {
     if (teacherId) {
       fetchTeacher();
     }
-  }, [teacherId]);
+  }, [teacherId, router]);
 
   if (loading) {
     return (
@@ -208,11 +209,29 @@ export default function TeacherDetailPage() {
       <UserEditModal
         user={teacher}
         open={editOpen}
+        onSaveAction={() => {
+          const update = async () => {
+            const { data, error } = await supabase
+              .from("teachers")
+              .select("*")
+              .eq("id", teacherId)
+              .single();
+
+            if (error || !data) {
+              setErrorMsg("Could not fetch teacher data.");
+              setTeacher(null);
+            } else {
+              setTeacher(data);
+            }
+          };
+          update();
+        }}
         onCloseAction={() => setEditOpen(false)}
       />
       <UserDeleteModal
         open={deleteOpen}
         onCloseAction={() => setDeleteOpen(false)}
+        onSaveAction={() => router.push("/admin/teachers")}
         user={teacher}
       />
 

@@ -34,7 +34,7 @@ export default function NewUserForm() {
     name: "",
     email: "",
     role: "teacher" as "teacher" | "admin" | "admin-teacher",
-    division: "junior" as "junior" | "senior",
+    division: "Junior" as "Junior" | "Senior",
   });
 
   const [loading, setLoading] = useState(false);
@@ -99,7 +99,7 @@ export default function NewUserForm() {
     await sendInvite(form.email.trim());
     setLoading(false);
 
-    setForm({ name: "", email: "", role: "teacher", division: "junior" });
+    setForm({ name: "", email: "", role: "teacher", division: "Junior" });
     setInviteSuccessMsg(`Invitation sent to ${form.email.trim()}`);
 
     // Refresh the lists instantly
@@ -168,12 +168,12 @@ export default function NewUserForm() {
             onChange={(e) =>
               setForm({
                 ...form,
-                division: e.target.value as "junior" | "senior",
+                division: e.target.value as "Junior" | "Senior",
               })
             }
           >
-            <MenuItem value="junior">Junior</MenuItem>
-            <MenuItem value="senior">Senior</MenuItem>
+            <MenuItem value="Junior">Junior</MenuItem>
+            <MenuItem value="Senior">Senior</MenuItem>
           </Select>
         </FormControl>
       )}
