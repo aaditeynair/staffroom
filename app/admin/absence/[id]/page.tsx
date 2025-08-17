@@ -86,8 +86,9 @@ export default function AbsenceIDPage() {
       for (const period in substitutions) {
         const periodNumber = Number(period);
         const fallbackTeacher =
-          (availableTeachersByPeriod[periodNumber] || [])
-            .find(t => t.id !== substitutions[period].substituteID)?.id || null;
+          (availableTeachersByPeriod[periodNumber] || []).find(
+            (t) => t.id !== substitutions[period].substituteID,
+          )?.id || null;
 
         const { data, error } = await supabase
           .from("substitutions")
@@ -98,12 +99,12 @@ export default function AbsenceIDPage() {
             original_teacher: absenceDetails.teacher.id,
             substitute_teacher: substitutions[period].substituteID,
             for_absence: absenceDetails.id,
-            fallback: fallbackTeacher
+            fallback: fallbackTeacher,
           })
           .select("id, period_number, class, substitute_teacher");
 
         if (error) {
-          console.error(error)
+          console.error(error);
           setSnackbar({
             open: true,
             message: "An error has occurred. Please try again later",
@@ -150,17 +151,18 @@ export default function AbsenceIDPage() {
     } else {
       for (const period in substitutions) {
         const sub = substitutions[period];
-        const periodNumber = Number(period)
+        const periodNumber = Number(period);
         const fallbackTeacher =
-          (availableTeachersByPeriod[periodNumber] || [])
-            .find(t => t.id !== substitutions[period].substituteID)?.id || null
+          (availableTeachersByPeriod[periodNumber] || []).find(
+            (t) => t.id !== substitutions[period].substituteID,
+          )?.id || null;
         const hasChanged = sub.original_substituteID !== sub.substituteID;
         const { error } = await supabase
           .from("substitutions")
           .update({
             substitute_teacher: substitutions[period].substituteID,
             fallback: fallbackTeacher,
-            confirmed_by_teacher: hasChanged ? 'unconfirmed' : undefined
+            confirmed_by_teacher: hasChanged ? "unconfirmed" : undefined,
           })
           .eq("id", substitutions[period].id);
 
@@ -389,7 +391,7 @@ export default function AbsenceIDPage() {
   if (loading || !absenceDetails)
     return (
       <div className="p-8 flex text-teal-700 justify-center items-center grow">
-        <CircularProgress size="4rem" color="inherit" />
+        <CircularProgress size="3rem" color="inherit" />
       </div>
     );
 
@@ -446,15 +448,27 @@ export default function AbsenceIDPage() {
                     renderOption={(props, option) => {
                       const { key, ...rest } = props;
                       const colour =
-                        option.score > 4 ? "bg-green-700" :
-                          option.score <= 2 ? "bg-red-700" :
-                            "bg-amber-500"
+                        option.score > 4
+                          ? "bg-green-700"
+                          : option.score <= 2
+                            ? "bg-red-700"
+                            : "bg-amber-500";
                       return (
-                        <li key={key}{...rest} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <li
+                          key={key}
+                          {...rest}
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
                           {option.name}
-                          <div className={`h-2 w-2 rounded-full ${colour}`}></div>
+                          <div
+                            className={`h-2 w-2 rounded-full ${colour}`}
+                          ></div>
                         </li>
-                      )
+                      );
                     }}
                     renderInput={(params) => (
                       <TextField
