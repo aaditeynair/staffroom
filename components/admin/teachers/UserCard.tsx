@@ -93,7 +93,7 @@ export function UserCard({ user }: { user: User }) {
         </MenuItem>
         <MenuItem
           component={Link}
-          href={`/teachers/${user.id}`}
+          href={`/admin/teachers/${user.id}`}
           onClick={closeMenu}
         >
           <p className="text-sm text-teal-700 uppercase flex gap-2">
