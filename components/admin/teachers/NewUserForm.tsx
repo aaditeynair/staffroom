@@ -108,10 +108,8 @@ export default function NewUserForm() {
 
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-      <div className="flex flex-row align-center justify-between">
-        <h2 className="text-xl font-bold text-teal-700 mb-2">
-          New Teacher/Admin
-        </h2>
+      <div className="flex flex-row justify-between items-center mb-2">
+        <h2 className="text-xl font-bold text-teal-700">New User</h2>
         <Button
           type="submit"
           variant="contained"

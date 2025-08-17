@@ -148,8 +148,8 @@ export default function TeacherDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center mt-20">
-        <CircularProgress />
+      <div className="p-8 flex text-teal-700 justify-center items-center grow">
+        <CircularProgress size="3rem" color="inherit" />
       </div>
     );
   }
@@ -171,9 +171,9 @@ export default function TeacherDetailPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      <section className="bg-white rounded-md shadow-md p-8">
-        <div className="flex justify-between items-center">
+    <div className="flex flex-col gap-4 md:gap-8">
+      <section className="bg-white rounded-md shadow-md p-4 md:p-8">
+        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
           <div>
             <h1 className="text-4xl font-bold text-teal-800">{teacher.name}</h1>
             <p className="text-gray-800">{teacher.email}</p>
@@ -235,13 +235,13 @@ export default function TeacherDetailPage() {
         user={teacher}
       />
 
-      <section className="p-8 bg-white rounded-md shadow-md">
+      <section className="p-4 md:p-8 bg-white rounded-md shadow-md">
         {timetable && (
           <WeekTimetable title="Weekly Timetable" timetable={timetable} />
         )}
       </section>
-      <div className="flex gap-8 w-full">
-        <div className="p-8 bg-white rounded-md shadow-md grow space-y-8">
+      <div className="flex flex-col lg:flex-row gap-4 md:gap-8 w-full">
+        <div className="p-4 md:p-8 bg-white rounded-md shadow-md grow space-y-8">
           <section>
             <h2 className="font-bold text-lg text-teal-800 mb-4">
               Upcoming Absences
@@ -249,7 +249,7 @@ export default function TeacherDetailPage() {
             {upcomingAbsences.length === 0 ? (
               <p className="text-gray-800 italic">No upcoming absences</p>
             ) : (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid md:grid-cols-2 gap-4">
                 {upcomingAbsences.map((absence) => {
                   return (
                     <TeacherAbsenceItem key={absence.id} absence={absence} />
@@ -259,13 +259,13 @@ export default function TeacherDetailPage() {
             )}
           </section>
           <section>
-            <h2 className="font-bold text-lg text-teal-800 mb-4">
+            <h2 className="font-bold text-lg text-teal-800 mb-2 md:mb-4">
               Recent Absences
             </h2>
             {recentAbsences.length === 0 ? (
               <p className="text-gray-800 italic">No recent absences</p>
             ) : (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid md:grid-cols-2 gap-4">
                 {recentAbsences.map((absence) => {
                   return (
                     <TeacherAbsenceItem key={absence.id} absence={absence} />
@@ -275,8 +275,8 @@ export default function TeacherDetailPage() {
             )}
           </section>
         </div>
-        <section className="p-8 bg-white rounded-md shadow-md grow">
-          <h2 className="font-bold text-lg text-teal-800 mb-4">
+        <section className="p-4 md:p-8 bg-white rounded-md shadow-md grow">
+          <h2 className="font-bold text-lg text-teal-800 mb-2 md:mb-4">
             Substitutions
           </h2>
           {substitutions.length === 0 ? (
