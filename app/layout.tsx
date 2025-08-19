@@ -7,6 +7,7 @@ import theme from "@/lib/theme";
 
 export const metadata = {
   title: "Staffroom",
+  manifest: "/manifest.webmanifest",
 };
 
 export default async function RootLayout({
