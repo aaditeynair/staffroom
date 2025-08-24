@@ -51,20 +51,6 @@ export default async function fetchAvailableTeachers({
     .eq("date", date)
     .single();
 
-  // Fetch declined substitutions for this absence
-  const { data: declinedSubs } = await supabase
-    .from("substitutions")
-    .select("substitute_teacher, period_number")
-    .eq("for_absence", absence?.id)
-    .eq("confirmed_by_teacher", "declined");
-
-  // Build declined map: period → set of teacher IDs
-  const declinedByPeriod: Record<number, Set<string>> = {};
-  (declinedSubs || []).forEach((s) => {
-    if (!declinedByPeriod[s.period_number])
-      declinedByPeriod[s.period_number] = new Set();
-    declinedByPeriod[s.period_number].add(s.substitute_teacher);
-  });
 
   // Build class → teachers map
   const classesInTimetable = [...new Set(timetable.map((p) => p.class))];
@@ -138,11 +124,6 @@ export default async function fetchAvailableTeachers({
       if (periodIndex === -1) return false;
       return !busyToday[periodIndex];
     });
-
-    // Remove declined teachers for this period
-    const declinedSet = declinedByPeriod[period.period_number] || new Set();
-    notBusyTeachers = notBusyTeachers.filter((t) => !declinedSet.has(t.id));
-
     const targetDivision = getClassDivision(period.class);
     availableTeachersByPeriod[period.period_number] = getSubstitutionCandidates(
       {

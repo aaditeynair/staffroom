@@ -41,8 +41,21 @@ export default async function getFallback(substitutionId: string) {
       timetable: timetable || [],
     });
 
-    const scoredList =
+    let scoredList =
       availableTeachersByPeriod[substitution.period_number] || [];
+      // 5. Fetch declined teachers for this absence+period
+    const { data: declinedSubs, error: decErr } = await supabase
+      .from("substitutions")
+      .select("substitute_teacher")
+      .eq("for_absence", substitution.for_absence)
+      .eq("period_number", substitution.period_number)
+      .eq("confirmed_by_teacher", "declined");
+    if (decErr) throw decErr;
+
+    const declinedSet = new Set(declinedSubs?.map((d) => d.substitute_teacher));
+
+    // 6. Remove declined teachers
+    scoredList = scoredList.filter((t) => !declinedSet.has(t.id));
 
     // Pick next substitute and fallback
     const newSubstitute = substitution.fallback; // fallback from previous row becomes new sub
@@ -56,6 +69,7 @@ export default async function getFallback(substitutionId: string) {
       class: substitution.class,
       for_absence: substitution.for_absence,
       original_teacher: substitution.original_teacher,
+      confirmed_by_teacher: newFallback ? "unconfirmed" : "accepted",
       substitute_teacher: newSubstitute,
       fallback: newFallback,
     });

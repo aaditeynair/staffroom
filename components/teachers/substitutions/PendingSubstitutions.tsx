@@ -58,6 +58,7 @@ export default function PendingSubstitutions({
         .select("id,date,period_number,class,confirmed_by_teacher")
         .eq("substitute_teacher", teacher.id)
         .eq("confirmed_by_teacher", "unconfirmed")
+        .not("fallback", "is", null)
         .order("date")
         .order("period_number");
 

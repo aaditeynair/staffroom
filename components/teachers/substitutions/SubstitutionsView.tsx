@@ -9,6 +9,7 @@ type Sub = {
   period_number: number;
   class: string;
   date: string;
+  fallback: string | null;
 };
 export default function SubstitutionsView({
   mode,
@@ -44,7 +45,7 @@ export default function SubstitutionsView({
 
       const { data, error } = await supabase
         .from("substitutions")
-        .select("period_number,class,date")
+        .select("period_number,class,date,fallback")
         .eq("substitute_teacher", teacher.id)
         [mode == "daily" ? "eq" : "gte"]("date", formattedDate)
         .eq("confirmed_by_teacher", "accepted")
@@ -84,7 +85,11 @@ export default function SubstitutionsView({
                 <td className="p-2">{dayjs(sub.date).format("DD-MM-YYYY")}</td>
               )}
               <td className="p-2">{sub.period_number}</td>
-              <td className="p-2">{sub.class}</td>
+              <td className="p-2">{sub.class}
+                {!sub.fallback && (
+                  <p>You're Stuck With This Screw You  </p>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>

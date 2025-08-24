@@ -43,6 +43,7 @@ interface SubstitutionInfo {
   original_substituteID: string | null;
   class: string;
   id?: string;
+  fallbackID?:string
 }
 
 export default function AbsenceIDPage() {
@@ -86,9 +87,10 @@ export default function AbsenceIDPage() {
       for (const period in substitutions) {
         const periodNumber = Number(period);
         const fallbackTeacher =
-          (availableTeachersByPeriod[periodNumber] || []).find(
+            substitutions[period].fallbackID ||
+            (availableTeachersByPeriod[periodNumber] || []).find(
             (t) => t.id !== substitutions[period].substituteID,
-          )?.id || null;
+            )?.id || null;
 
         const { data, error } = await supabase
           .from("substitutions")
@@ -153,9 +155,10 @@ export default function AbsenceIDPage() {
         const sub = substitutions[period];
         const periodNumber = Number(period);
         const fallbackTeacher =
-          (availableTeachersByPeriod[periodNumber] || []).find(
+            substitutions[period].fallbackID ||
+            (availableTeachersByPeriod[periodNumber] || []).find(
             (t) => t.id !== substitutions[period].substituteID,
-          )?.id || null;
+            )?.id || null;
         const hasChanged = sub.original_substituteID !== sub.substituteID;
         const { error } = await supabase
           .from("substitutions")
@@ -365,7 +368,7 @@ export default function AbsenceIDPage() {
       if (absence.dealt_with === true) {
         const { data } = await supabase
           .from("substitutions")
-          .select("id, period_number, class, substitute_teacher")
+          .select("id, period_number, class, substitute_teacher, fallback")
           .eq("for_absence", absence.id);
         if (data !== null) {
           data.map((period) => {
@@ -376,6 +379,7 @@ export default function AbsenceIDPage() {
                 original_substituteID: period.substitute_teacher,
                 class: period.class,
                 id: period.id,
+                fallbackID: period.fallback
               },
             }));
           });
@@ -411,6 +415,7 @@ export default function AbsenceIDPage() {
           </div>
           <div className="flex flex-col gap-4 mb-4 md:mb-0">
             {teacherTimetable.map((period) => {
+
               return (
                 <div
                   key={period.id}
@@ -475,6 +480,29 @@ export default function AbsenceIDPage() {
                         {...params}
                         label="Select Substitute Teacher"
                       />
+                    )}
+                  />
+                  <Autocomplete
+                    className="mt-4"
+                    fullWidth
+                    options={(availableTeachersByPeriod[period.period_number] || []).filter(
+                      t => t.id !== substitutions[period.period_number]?.substituteID
+                    )}
+                    getOptionLabel={(option) => option.name}
+                    value={(availableTeachersByPeriod[period.period_number] || []).find(
+                      t => t.id === substitutions[period.period_number]?.fallbackID
+                    ) || null}
+                    onChange={(_, newValue) => {
+                      setSubstitutions((prev) => ({
+                        ...prev,
+                        [period.period_number]: {
+                          ...substitutions[period.period_number],
+                          fallbackID: newValue?.id || null,
+                        },
+                      }));
+                    }}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Select Fallback Teacher" />
                     )}
                   />
                 </div>
