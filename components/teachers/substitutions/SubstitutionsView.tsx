@@ -87,7 +87,7 @@ export default function SubstitutionsView({
               <td className="p-2">{sub.period_number}</td>
               <td className="p-2">{sub.class}
                 {!sub.fallback && (
-                  <p>You're Stuck With This Screw You  </p>
+                  <p>Emergency Substituion</p>
                 )}
               </td>
             </tr>

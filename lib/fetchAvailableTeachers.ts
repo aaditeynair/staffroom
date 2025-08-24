@@ -43,15 +43,6 @@ export default async function fetchAvailableTeachers({
     .neq("id", absentTeacherId);
   const teachers = allTeachers || [];
 
-  //Get the absence id
-  const { data: absence } = await supabase
-    .from("absences")
-    .select("id")
-    .eq("teacher_id", absentTeacherId)
-    .eq("date", date)
-    .single();
-
-
   // Build class → teachers map
   const classesInTimetable = [...new Set(timetable.map((p) => p.class))];
   const teachersByClassMap: Record<string, Set<string>> = {};
@@ -118,7 +109,7 @@ export default async function fetchAvailableTeachers({
     const teachersWhoTeachTargetClass =
       teachersByClassMap[targetClass] || new Set();
 
-    let notBusyTeachers = teachers.filter((t) => {
+    const notBusyTeachers = teachers.filter((t) => {
       const busyToday = timetableMap[t.id] || [];
       const periodIndex = allPeriods.indexOf(period.period_number);
       if (periodIndex === -1) return false;
