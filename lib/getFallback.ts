@@ -39,6 +39,7 @@ export default async function getFallback(substitutionId: string) {
       absentTeacherId: absence.teacher_id,
       date: absence.date,
       timetable: timetable || [],
+      day:dayOfWeek
     });
 
     let scoredList =
@@ -49,7 +50,7 @@ export default async function getFallback(substitutionId: string) {
       .select("substitute_teacher")
       .eq("for_absence", substitution.for_absence)
       .eq("period_number", substitution.period_number)
-      .eq("confirmed_by_teacher", "declined");
+      .eq("accepted", false);
     if (decErr) throw decErr;
 
     const declinedSet = new Set(declinedSubs?.map((d) => d.substitute_teacher));
@@ -69,7 +70,6 @@ export default async function getFallback(substitutionId: string) {
       class: substitution.class,
       for_absence: substitution.for_absence,
       original_teacher: substitution.original_teacher,
-      confirmed_by_teacher: newFallback ? "unconfirmed" : "accepted",
       substitute_teacher: newSubstitute,
       fallback: newFallback,
     });

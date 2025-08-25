@@ -9,6 +9,7 @@ type getSubstitutionCandidatesProps = {
   teachersWhoTeachTargetClass: Set<string>;
   timetableMap: Record<string, boolean[]>;
   targetDivision: "Junior" | "Senior";
+  periodIndex: number;
 };
 
 function getSubstitutionCandidates({
@@ -16,6 +17,7 @@ function getSubstitutionCandidates({
   teachersWhoTeachTargetClass,
   timetableMap,
   targetDivision,
+  periodIndex,
 }: getSubstitutionCandidatesProps) {
   const candidates = availableTeachers
     .map((teacher) => {
@@ -23,27 +25,25 @@ function getSubstitutionCandidates({
       const teachesTargetClass = teachersWhoTeachTargetClass.has(teacher.id);
       const isSameSection = teacher.division === targetDivision;
       const freePeriods = busyPeriods.filter((p) => !p).length;
-
-      let maxStreak = 0,
-        currStreak = 0;
-      for (const busy of busyPeriods) {
-        if (busy) {
-          currStreak++;
-          maxStreak = Math.max(maxStreak, currStreak);
-        } else {
-          currStreak = 0;
-        }
+      console.log("Checking teacher:", teacher.id, "for period", periodIndex+1);
+      console.log("Existing periods:", busyPeriods);
+      let left = 0;
+      for (let i = periodIndex - 1; i >= 0 && busyPeriods[i]; i--) left++;
+      let right = 0;
+      for (let i = periodIndex + 1; i < busyPeriods.length && busyPeriods[i]; i++) right++;
+      const wouldStreak = left + 1 + right; // +1 for this new assignment
+      let streakPenalty = 0;
+      if (wouldStreak >= 3) {
+        streakPenalty = wouldStreak - 2;
       }
-
       const hasEnoughFreePeriods = freePeriods >= 2;
-      const hasNoHeavyStreak = maxStreak <= 4;
 
       let score = 0;
       if (teachesTargetClass) score += 3;
       if (isSameSection) score += 2;
       if (hasEnoughFreePeriods) score += 1;
-      if (hasNoHeavyStreak) score += 1;
-
+      score -= streakPenalty
+      console.log('score', score)
       return {
         teacher,
         score,
@@ -51,11 +51,11 @@ function getSubstitutionCandidates({
           teachesTargetClass,
           isSameSection,
           hasEnoughFreePeriods,
-          hasNoHeavyStreak,
+          streakPenalty,
         },
       };
     })
-    .filter((t) => t.flags.hasEnoughFreePeriods && t.flags.hasNoHeavyStreak)
+    .filter((t) => t.flags.hasEnoughFreePeriods)
     .sort((a, b) => b.score - a.score)
     .map((t) => ({
       ...t.teacher,

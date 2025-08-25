@@ -48,7 +48,7 @@ export default function SubstitutionsView({
         .select("period_number,class,date,fallback")
         .eq("substitute_teacher", teacher.id)
         [mode == "daily" ? "eq" : "gte"]("date", formattedDate)
-        .eq("confirmed_by_teacher", "accepted")
+        .eq("accepted", true)
         .order("date")
         .order("period_number");
 

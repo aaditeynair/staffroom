@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/browser";
-import getSubstitutionCandidates from "@/lib/substitutionEngine";
+import fetchAvailableTeachers from "@/lib/fetchAvailableTeachers";
 import {
   CircularProgress,
   Alert,
@@ -13,7 +13,6 @@ import {
 } from "@mui/material";
 import dayjs from "dayjs";
 import AbsenceDetailCard from "@/components/admin/absence/AbsenceDetailCard";
-import getClassDivision from "@/lib/getClassDivision";
 import { useParams } from "next/navigation";
 
 interface Teacher {
@@ -39,11 +38,10 @@ interface TimetablePeriod {
 }
 
 interface SubstitutionInfo {
-  substituteID: string | null;
-  original_substituteID: string | null;
+  substituteID: string | undefined;
   class: string;
   id?: string;
-  fallbackID?:string
+  fallbackID?:string | undefined
 }
 
 export default function AbsenceIDPage() {
@@ -120,7 +118,6 @@ export default function AbsenceIDPage() {
             ...prev,
             [period.period_number]: {
               substituteID: period.substitute_teacher,
-              original_substituteID: period.substitute_teacher,
               class: period.class,
               id: period.id,
             },
@@ -152,20 +149,18 @@ export default function AbsenceIDPage() {
       }
     } else {
       for (const period in substitutions) {
-        const sub = substitutions[period];
         const periodNumber = Number(period);
         const fallbackTeacher =
             substitutions[period].fallbackID ||
             (availableTeachersByPeriod[periodNumber] || []).find(
             (t) => t.id !== substitutions[period].substituteID,
             )?.id || null;
-        const hasChanged = sub.original_substituteID !== sub.substituteID;
         const { error } = await supabase
           .from("substitutions")
           .update({
             substitute_teacher: substitutions[period].substituteID,
             fallback: fallbackTeacher,
-            confirmed_by_teacher: hasChanged ? "unconfirmed" : undefined,
+            accepted: true,
           })
           .eq("id", substitutions[period].id);
 
@@ -244,123 +239,12 @@ export default function AbsenceIDPage() {
       }
       setTeacherTimetable(timetable);
 
-      // Create list of available teachers by period
-      const { data: allTeachers } = await supabase
-        .from("teachers")
-        .select("id, name, division")
-        .in("role", ["teacher", "admin-teacher"])
-        .neq("id", teacher.id);
-      const teachers = allTeachers || [];
-
-      // STEP 1: Build a Set of teacher IDs who teach the target class (per period)
-
-      // Fetch all teachers who teach each class in the timetable (do it only once)
-      // For each distinct class in teacherTimetable, fetch teachers teaching that class
-      const classesInTimetable = [...new Set(timetable.map((p) => p.class))];
-
-      const teachersByClassMap: Record<string, Set<string>> = {}; // class -> Set<teacherId>
-
-      for (const cls of classesInTimetable) {
-        const { data: classTeachers, error } = await supabase
-          .from("base_timetable")
-          .select("teacher_id")
-          .eq("class", cls);
-
-        if (error) {
-          console.error("Error fetching teachers for class", cls, error);
-          teachersByClassMap[cls] = new Set();
-        } else {
-          teachersByClassMap[cls] = new Set(
-            classTeachers?.map((row) => row.teacher_id) || [],
-          );
-        }
-      }
-
-      // STEP 2: Build timetableMap: for every teacher, a boolean array of busy periods (true = busy)
-
-      const allPeriods = Array.from(
-        new Set(
-          (
-            await supabase
-              .from("base_timetable")
-              .select("period_number")
-              .eq("day_of_week", day)
-          ).data?.map((row) => row.period_number) || [],
-        ),
-      ).sort((a, b) => a - b);
-
-      // For efficiency, build a cache of timetable & absence & daily timetable per teacher
-      const timetableMap: Record<string, boolean[]> = {};
-
-      for (const t of teachers) {
-        // Base timetable busy periods for the teacher
-        const { data: baseData } = await supabase
-          .from("base_timetable")
-          .select("period_number")
-          .eq("teacher_id", t.id)
-          .eq("day_of_week", day);
-
-        // Daily timetable busy periods
-        const { data: dailyData } = await supabase
-          .from("daily_timetable")
-          .select("period_number")
-          .eq("teacher_id", t.id)
-          .eq("date", date);
-
-        // Absence check to mark teacher busy if absent on date
-        const { data: absencesData } = await supabase
-          .from("absences")
-          .select("id")
-          .eq("teacher_id", t.id)
-          .eq("date", date)
-          .eq("status", "confirmed");
-
-        // Collect busy periods
-        const busyPeriodsSet = new Set<number>([
-          ...(baseData?.map((p) => p.period_number) || []),
-          ...(dailyData?.map((p) => p.period_number) || []),
-        ]);
-
-        const isAbsent = (absencesData?.length ?? 0) > 0;
-
-        timetableMap[t.id] = allPeriods.map((periodNum) =>
-          isAbsent ? true : busyPeriodsSet.has(periodNum),
-        );
-      }
-
-      // STEP 3: Build availableTeachersByPeriod using suggestion engine
-
-      const availableTeachersByPeriod: Record<number, Teacher[]> = {};
-
-      for (const period of timetable) {
-        const targetClass = period.class;
-
-        const teachersWhoTeachTargetClass =
-          teachersByClassMap[targetClass] || new Set();
-
-        // Filter out teachers busy this period
-        const notBusyTeachers = teachers.filter((t) => {
-          const busyToday = timetableMap[t.id] || [];
-          // Find index of this period in allPeriods (should exist)
-          const periodIndex = allPeriods.indexOf(period.period_number);
-          if (periodIndex === -1) return false;
-          // Exclude if busy this period
-          return !busyToday[periodIndex];
-        });
-
-        const targetDivision = getClassDivision(period.class);
-
-        // Call the suggestion engine
-        const candidates = getSubstitutionCandidates({
-          availableTeachers: notBusyTeachers,
-          teachersWhoTeachTargetClass,
-          timetableMap,
-          targetDivision,
-        });
-
-        availableTeachersByPeriod[Number(period.period_number)] = candidates;
-      }
-
+     const availableTeachersByPeriod = await fetchAvailableTeachers({
+      absentTeacherId: teacher.id,
+      date: absence.date,
+      day,
+      timetable,
+    });
       // Set to state for rendering
       setAvailableTeachersByPeriod(availableTeachersByPeriod);
 
@@ -376,7 +260,6 @@ export default function AbsenceIDPage() {
               ...prev,
               [period.period_number]: {
                 substituteID: period.substitute_teacher,
-                original_substituteID: period.substitute_teacher,
                 class: period.class,
                 id: period.id,
                 fallbackID: period.fallback
@@ -436,17 +319,17 @@ export default function AbsenceIDPage() {
                         availableTeachersByPeriod[period.period_number] || []
                       ).find(
                         (t) =>
-                          t.id ===
-                          substitutions[period.period_number]?.substituteID,
-                      ) || undefined
+                          t.id === substitutions[period.period_number]?.substituteID,
+                      ) ?? undefined
                     }
                     onChange={(_, newValue) => {
                       setSubstitutions((prev) => ({
                         ...prev,
                         [period.period_number]: {
                           ...substitutions[period.period_number],
-                          substituteID: newValue?.id || null,
+                          substituteID: newValue?.id ?? undefined,
                           class: period.class,
+                          fallbackID: undefined,
                         },
                       }));
                     }}
@@ -482,6 +365,7 @@ export default function AbsenceIDPage() {
                       />
                     )}
                   />
+                  {substitutions[period.period_number]?.substituteID && (
                   <Autocomplete
                     className="mt-4"
                     fullWidth
@@ -491,13 +375,13 @@ export default function AbsenceIDPage() {
                     getOptionLabel={(option) => option.name}
                     value={(availableTeachersByPeriod[period.period_number] || []).find(
                       t => t.id === substitutions[period.period_number]?.fallbackID
-                    ) || null}
+                    ) ?? undefined }
                     onChange={(_, newValue) => {
                       setSubstitutions((prev) => ({
                         ...prev,
                         [period.period_number]: {
                           ...substitutions[period.period_number],
-                          fallbackID: newValue?.id || null,
+                          fallbackID: newValue?.id ?? undefined,
                         },
                       }));
                     }}
@@ -505,6 +389,7 @@ export default function AbsenceIDPage() {
                       <TextField {...params} label="Select Fallback Teacher" />
                     )}
                   />
+                  )}
                 </div>
               );
             })}

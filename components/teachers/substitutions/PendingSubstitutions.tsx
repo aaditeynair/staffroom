@@ -19,7 +19,7 @@ type Substitution = {
   date: string;
   period_number: number;
   class: string;
-  confirmed_by_teacher: "unconfirmed" | "accepted" | "declined";
+  accepted:boolean
 };
 interface Pending {
   refreshFlag: boolean;
@@ -55,9 +55,9 @@ export default function PendingSubstitutions({
 
       const { data, error } = await supabase
         .from("substitutions")
-        .select("id,date,period_number,class,confirmed_by_teacher")
+        .select("id,date,period_number,class,accepted")
         .eq("substitute_teacher", teacher.id)
-        .eq("confirmed_by_teacher", "unconfirmed")
+        .eq("accepted", true)
         .not("fallback", "is", null)
         .order("date")
         .order("period_number");
@@ -101,10 +101,9 @@ export default function PendingSubstitutions({
 
   const handleDecision = async (accepted: boolean, reason?: string) => {
     if (!selectedSub) return;
-    const status = accepted ? "accepted" : "declined";
     const { error } = await supabase
       .from("substitutions")
-      .update({ confirmed_by_teacher: status, reason: reason })
+      .update({ accepted: accepted, reason: reason })
       .eq("id", selectedSub.id);
     if (!accepted) {
       try {

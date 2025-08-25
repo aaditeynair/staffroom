@@ -1,7 +1,6 @@
 import { supabase } from "@/lib/supabase/browser";
 import getClassDivision from "@/lib/getClassDivision";
 import getSubstitutionCandidates from "@/lib/substitutionEngine";
-import dayjs from "dayjs";
 
 interface Teacher {
   id: string;
@@ -20,20 +19,13 @@ export default async function fetchAvailableTeachers({
   absentTeacherId,
   date,
   timetable,
+  day
 }: {
   absentTeacherId: string;
   date: string;
   timetable: TimetablePeriod[];
+  day:string
 }): Promise<Record<number, Teacher[]>> {
-  const day = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ][dayjs(date).day()];
 
   // Get all teachers except the absent one
   const { data: allTeachers } = await supabase
@@ -58,17 +50,7 @@ export default async function fetchAvailableTeachers({
     );
   }
 
-  // All periods of the day
-  const allPeriods = Array.from(
-    new Set(
-      (
-        await supabase
-          .from("base_timetable")
-          .select("period_number")
-          .eq("day_of_week", day)
-      ).data?.map((r) => r.period_number) || [],
-    ),
-  ).sort((a, b) => a - b);
+const allPeriods = Array.from({ length: 10 }, (_, i) => i + 1);
 
   // Timetable map: teacher → busy array
   const timetableMap: Record<string, boolean[]> = {};
@@ -122,6 +104,7 @@ export default async function fetchAvailableTeachers({
         teachersWhoTeachTargetClass,
         timetableMap,
         targetDivision,
+        periodIndex:allPeriods.indexOf(period.period_number)
       },
     );
   }

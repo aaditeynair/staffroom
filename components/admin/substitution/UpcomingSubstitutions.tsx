@@ -33,7 +33,7 @@ interface Substitution {
   class: string;
   original_teacher: Teacher;
   substitute_teacher: Teacher;
-  confirmed_by_teacher: "unconfirmed" | "accepted" | "declined";
+  accepted:boolean
 }
 
 interface Filters {
@@ -109,7 +109,7 @@ export default function UpcomingSubstitutions() {
             class: s.class,
             original_teacher: originalTeacher,
             substitute_teacher: substituteTeacher,
-            confirmed_by_teacher: s.confirmed_by_teacher,
+            accepted: s.accepted
           });
         }
         console.log(subs);
@@ -164,7 +164,11 @@ export default function UpcomingSubstitutions() {
         ? sub.class === filters.classFilter
         : true;
       const statusOk = filters.statusFilter
-        ? sub.confirmed_by_teacher === filters.statusFilter
+        ? filters.statusFilter === "accepted"
+          ? sub.accepted === true
+          : filters.statusFilter === "declined"
+            ? sub.accepted === false
+            : true
         : true;
       const teacherOk = filters.originalTeacherFilter
         ? sub.original_teacher.id === filters.originalTeacherFilter
@@ -253,7 +257,6 @@ export default function UpcomingSubstitutions() {
                 <MenuItem value="">
                   <em>All</em>
                 </MenuItem>
-                <MenuItem value="unconfirmed">Unconfirmed</MenuItem>
                 <MenuItem value="accepted">Accepted</MenuItem>
                 <MenuItem value="declined">Declined</MenuItem>
               </Select>
@@ -322,7 +325,7 @@ export default function UpcomingSubstitutions() {
                       {substituteTeacherDisplay(sub.substitute_teacher)}
                     </TableCell>
                     <TableCell>
-                      {capitalizeFirstLetter(sub.confirmed_by_teacher)}
+                      {sub.accepted ? 'accepted' : 'declined'}
                     </TableCell>
                   </TableRow>
                 ))
@@ -340,7 +343,4 @@ function substituteTeacherDisplay(teacher: Teacher | null | undefined) {
   return teacher?.name || "Unassigned";
 }
 
-function capitalizeFirstLetter(text: string) {
-  if (!text) return "";
-  return text.charAt(0).toUpperCase() + text.slice(1);
-}
+

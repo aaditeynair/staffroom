@@ -53,7 +53,6 @@ interface Substitution {
   period_number: string;
   class: string;
   original_teacher: { name: string };
-  confirmed_by_teacher: string;
 }
 
 export default function TeacherDetailPage() {
@@ -117,7 +116,7 @@ export default function TeacherDetailPage() {
         const { data: subs, error: subsError } = await supabase
           .from("substitutions")
           .select(
-            "id, date, class, period_number, original_teacher, confirmed_by_teacher",
+            "id, date, class, period_number, original_teacher",
           )
           .eq("substitute_teacher", teacherId)
           .order("date", { ascending: false })
@@ -301,7 +300,6 @@ export default function TeacherDetailPage() {
                     <TableCell>{sub.period_number}</TableCell>
                     <TableCell>{sub.class}</TableCell>
                     <TableCell>{sub.original_teacher.name}</TableCell>
-                    <TableCell>{sub.confirmed_by_teacher}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
