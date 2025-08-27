@@ -8,9 +8,6 @@ export default function OneSignalProvider() {
     if (typeof window !== "undefined") {
       OneSignal.init({
         appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID!,
-        notifyButton: {
-          enable: true,
-        },
         allowLocalhostAsSecureOrigin: true,
       }).then(() => {
         OneSignal.Debug.setLogLevel("trace");
