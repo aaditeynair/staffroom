@@ -21,6 +21,10 @@ export default function Head() {
         sizes="180x180"
         href="/icons/apple-touch-icon.png"
       />
+      <script
+        src="https://cdn.onesignal.com/sdks/OneSignalSDK.js"
+        async={false}
+      ></script>
     </>
   );
 }
