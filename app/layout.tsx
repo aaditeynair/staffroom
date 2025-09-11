@@ -4,7 +4,6 @@ import { ThemeProvider } from "@mui/material/styles";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import { ReactNode } from "react";
 import theme from "@/lib/theme";
-import OneSignalProvider from "@/components/onesignal/OneSignalProvider";
 
 export const metadata = {
   title: "Staffroom",
@@ -23,7 +22,6 @@ export default async function RootLayout({
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>
           <ThemeProvider theme={theme}>
             <GlobalStyles styles="@layer theme, base, mui, components, utilities;" />
-            <OneSignalProvider />
             {children}
           </ThemeProvider>
         </AppRouterCacheProvider>
