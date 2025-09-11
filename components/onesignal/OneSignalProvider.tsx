@@ -11,9 +11,9 @@ export default function OneSignalProvider() {
         allowLocalhostAsSecureOrigin: true,
       }).then(() => {
         OneSignal.Debug.setLogLevel("trace");
-        OneSignal.Notifications.requestPermission();
       });
     }
+    OneSignal.Notifications.requestPermission();
   }, []);
 
   return null;
