@@ -6,9 +6,8 @@ import {
 
 type Props = {
   open: boolean;
-  mode: 'accept' | 'decline';
   onClose: () => void;
-  onConfirm: (accepted: boolean, reason?: string) => void;
+  onConfirm: (reason: string) => void;
 };
 
 const declineReasons = [
@@ -20,15 +19,17 @@ const declineReasons = [
 
 export default function ConfirmSubstitutionDialog({
   open,
-  mode,
   onClose,
   onConfirm,
 }: Props) {
   const [reason, setReason] = useState('');
+  const [customReason, setCustomReason] = useState("");
+
 
   const handleConfirm = () => {
-    if (mode === 'decline' && !reason) return; // prevent confirm with no reason
-    onConfirm(mode === 'accept', reason || undefined);
+    const finalReason = reason === "Other" ? customReason.trim() : reason;
+    if (!finalReason) return; // prevent confirm with no reason
+    onConfirm(finalReason);
     setReason('');
   };
 
@@ -39,17 +40,13 @@ export default function ConfirmSubstitutionDialog({
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xs">
-      <DialogTitle>
-        {mode === 'accept' ? 'Confirm Acceptance' : 'Confirm Decline'}
+      <DialogTitle sx={{color:'red'}}>
+        Confirm Decline
       </DialogTitle>
 
       <DialogContent>
-        {mode === 'accept' ? (
-          <p>Are you sure you want to accept this substitution?</p>
-        ) : (
-          <>
             <p>Are you sure you want to decline this substitution?</p>
-            <FormControl fullWidth sx={{ mt: 2 }}>
+            <FormControl fullWidth sx={{ mt: 2}}>
               <InputLabel id="reason-label">Reason</InputLabel>
               <Select
                 labelId="reason-label"
@@ -63,9 +60,26 @@ export default function ConfirmSubstitutionDialog({
                   </MenuItem>
                 ))}
               </Select>
+              {reason === "Other" && (
+            <div className="mt-2">
+              <label
+                htmlFor="customReason"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Specify Reason
+              </label>
+              <textarea
+                id="customReason"
+                maxLength={100}
+                placeholder="Enter reason"
+                value={customReason}
+                required={reason === "Other"}
+                onChange={(e) => setCustomReason(e.target.value)}
+                className="w-full border resize-none border-gray-300 rounded-md px-3 py-2 text-sm"
+              />
+            </div>
+          )}
             </FormControl>
-          </>
-        )}
       </DialogContent>
 
       <DialogActions>
@@ -73,8 +87,8 @@ export default function ConfirmSubstitutionDialog({
         <Button
           onClick={handleConfirm}
           variant="contained"
-          color={mode === 'accept' ? 'primary' : 'error'}
-          disabled={mode === 'decline' && !reason}
+          color={'error'}
+          disabled={!reason}
         >
           Yes
         </Button>

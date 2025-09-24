@@ -77,8 +77,8 @@ export default function WeeklyTimetable() {
             <button
               key={value}
               onClick={() => setSelectedDay(value)}
-              className={`font-bold w-full px-3 py-3 flex-1 text-center min-w-0 truncate transition-colors
-                  ${selectedDay === value ? "bg-teal-600 text-white" : "bg-gray-100 text-gray-800 hover:bg-gray-200"}
+              className={` w-full px-3 py-3 flex-1 text-center min-w-0 truncate transition-colors
+                  ${selectedDay === value ? "bg-teal-600 text-white font-bold" : "bg-gray-100 text-gray-800 hover:bg-gray-200"}
                   ${index === 0 ? "rounded-l-md" : ""}
                   ${index === days.length - 1 ? "rounded-r-md" : ""}
                 `}

@@ -14,7 +14,7 @@ export default function AdminNavMobile() {
       <div className="flex justify-between items-center bg-teal-700 text-white p-4 rounded-t-md">
         <AdminNavItem name="Home" link="/teacher" icon={<HomeRounded />} />
         <AdminNavItem
-          name="Weekly Timetable"
+          name="Timetable"
           link="/teacher/weekly-timetable"
           icon={<CalendarMonthRounded />}
         />

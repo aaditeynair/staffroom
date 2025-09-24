@@ -56,7 +56,7 @@ export default async function fetchAvailableTeachers({
     .from("substitutions")
     .select("substitute_teacher, period_number")
     .eq("for_absence", absence?.id)
-    .eq("confirmed_by_teacher", "declined");
+    .eq("accepted", false);
 
   // Build declined map: period → set of teacher IDs
   const declinedByPeriod: Record<number, Set<string>> = {};
