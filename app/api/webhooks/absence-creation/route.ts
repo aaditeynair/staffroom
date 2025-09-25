@@ -88,7 +88,9 @@ export async function POST(req: Request) {
       return new Response("Error sending notification", { status: 500 });
     }
 
-    return NextResponse.json({ message: "Notifications sent successfully" });
+    return NextResponse.json({
+      message: "Notifications sent successfully - New Absence",
+    });
   } catch (error) {
     let errorMessage = "An unknown error occurred";
     if (error instanceof Error) {
