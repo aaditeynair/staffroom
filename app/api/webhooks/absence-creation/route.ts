@@ -5,7 +5,6 @@ import { createClient } from "@supabase/supabase-js";
 // interface Teacher {
 //   id: string;
 //   name: string;
-//   // Add other teacher properties if needed
 // }
 
 export async function POST(req: Request) {
@@ -45,7 +44,7 @@ export async function POST(req: Request) {
     // 4. Fetch all admin users
     const { data: adminTeachers, error: adminError } = await supabase
       .from("teachers")
-      .select("id") // Only select the ID, as that's all we need
+      .select("auth_id") // Only select the ID, as that's all we need
       .eq("role", "admin-teacher");
 
     if (adminError) {
@@ -65,7 +64,7 @@ export async function POST(req: Request) {
       app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID!,
       headings: { en: "New Absence Submitted" },
       contents: { en: `${teacherName} has submitted a new absence request.` },
-      include_external_user_ids: adminTeachers.map((admin) => admin.id),
+      include_external_user_ids: adminTeachers.map((admin) => admin.auth_id),
     };
 
     const response = await fetch("https://onesignal.com/api/v1/notifications", {
@@ -88,11 +87,13 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ message: "Notifications sent successfully" });
   } catch (error) {
-    let errorMessage = 'An unknown error occurred';
+    let errorMessage = "An unknown error occurred";
     if (error instanceof Error) {
       errorMessage = error.message;
     }
-    console.error('Error handling webhook:', error);
-    return new Response(`Error handling webhook: ${errorMessage}`, { status: 500 });
+    console.error("Error handling webhook:", error);
+    return new Response(`Error handling webhook: ${errorMessage}`, {
+      status: 500,
+    });
   }
 }
