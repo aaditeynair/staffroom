@@ -40,9 +40,7 @@ export async function POST(req: Request) {
     let teacherName = "A teacher"; // Default name
 
     if (newAbsence?.teacher_id) {
-      console.log(
-        `Fetching name for teacher ID: ${newAbsence.teacher_id}`,
-      );
+      console.log(`Fetching name for teacher ID: ${newAbsence.teacher_id}`);
       const { data: teacher, error: teacherError } = await supabase
         .from("teachers")
         .select("name")
@@ -61,7 +59,7 @@ export async function POST(req: Request) {
     const { data: adminTeachers, error: adminError } = await supabase
       .from("teachers")
       .select("auth_id") // Only select the ID, as that's all we need
-      .eq("role", "admin-teacher");
+      .in("role", ["admin", "admin-teacher"]);
 
     if (adminError) {
       console.error("Error fetching admin users:", adminError);
