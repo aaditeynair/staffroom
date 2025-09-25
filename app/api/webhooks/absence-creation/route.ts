@@ -1,39 +1,39 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
 // Define a type for the teacher for better type safety
-interface Teacher {
-  id: string;
-  name: string;
-  // Add other teacher properties if needed
-}
+// interface Teacher {
+//   id: string;
+//   name: string;
+//   // Add other teacher properties if needed
+// }
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
 
     // 1. Verify Supabase webhook signature
-    const authHeader = req.headers.get('Authorization');
+    const authHeader = req.headers.get("Authorization");
     if (authHeader !== `Bearer ${process.env.SUPABASE_WEBHOOK_SECRET}`) {
-      console.warn('Unauthorized webhook attempt detected');
-      return new Response('Unauthorized', { status: 401 });
+      console.warn("Unauthorized webhook attempt detected");
+      return new Response("Unauthorized", { status: 401 });
     }
 
     // 2. Initialize Supabase Admin Client
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
     );
 
     // 3. Extract data and fetch absent teacher's name
     const newAbsence = body.record;
-    let teacherName = 'A teacher'; // Default name
+    let teacherName = "A teacher"; // Default name
 
     if (newAbsence?.teacher_id) {
       const { data: teacher, error: teacherError } = await supabase
-        .from('teachers')
-        .select('name')
-        .eq('id', newAbsence.teacher_id)
+        .from("teachers")
+        .select("name")
+        .eq("id", newAbsence.teacher_id)
         .single();
       if (teacherError) {
         console.error("Error fetching teacher's name:", teacherError);
@@ -44,33 +44,35 @@ export async function POST(req: Request) {
 
     // 4. Fetch all admin users
     const { data: adminTeachers, error: adminError } = await supabase
-      .from('teachers')
-      .select('id') // Only select the ID, as that's all we need
-      .eq('role', 'admin-teacher');
+      .from("teachers")
+      .select("id") // Only select the ID, as that's all we need
+      .eq("role", "admin-teacher");
 
     if (adminError) {
-      console.error('Error fetching admin users:', adminError);
-      return new Response(`Error fetching admin users: ${adminError.message}`, { status: 500 });
+      console.error("Error fetching admin users:", adminError);
+      return new Response(`Error fetching admin users: ${adminError.message}`, {
+        status: 500,
+      });
     }
 
     if (!adminTeachers || adminTeachers.length === 0) {
-      console.log('No admin teachers found to notify.');
-      return NextResponse.json({ message: 'No admins to notify.' });
+      console.log("No admin teachers found to notify.");
+      return NextResponse.json({ message: "No admins to notify." });
     }
 
     // 5. Send a notification to each admin
     const notification = {
       app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID!,
-      headings: { en: 'New Absence Submitted' },
+      headings: { en: "New Absence Submitted" },
       contents: { en: `${teacherName} has submitted a new absence request.` },
       include_external_user_ids: adminTeachers.map((admin) => admin.id),
     };
 
-    const response = await fetch('https://onesignal.com/api/v1/notifications', {
-      method: 'POST',
+    const response = await fetch("https://onesignal.com/api/v1/notifications", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`,
+        "Content-Type": "application/json",
+        Authorization: `Basic ${process.env.ONESIGNAL_REST_API_KEY}`,
       },
       body: JSON.stringify(notification),
     });
@@ -78,16 +80,19 @@ export async function POST(req: Request) {
     const responseData = await response.json();
 
     if (!response.ok) {
-        console.error('OneSignal API Error:', responseData);
-        return new Response('Error sending notification', { status: 500 });
+      console.error("OneSignal API Error:", responseData);
+      return new Response("Error sending notification", { status: 500 });
     }
 
-    console.log('Successfully sent notifications to admins:', responseData);
+    console.log("Successfully sent notifications to admins:", responseData);
 
-    return NextResponse.json({ message: 'Notifications sent successfully' });
-
+    return NextResponse.json({ message: "Notifications sent successfully" });
   } catch (error) {
+    let errorMessage = 'An unknown error occurred';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     console.error('Error handling webhook:', error);
-    return new Response(`Error handling webhook: ${error.message}`, { status: 500 });
+    return new Response(`Error handling webhook: ${errorMessage}`, { status: 500 });
   }
 }
