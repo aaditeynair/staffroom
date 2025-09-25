@@ -65,7 +65,7 @@ export async function POST(req: Request) {
     let notificationTitle = "";
     let notificationMessage = "";
 
-    if (newStatus === "approved") {
+    if (newStatus === "confirmed") {
       notificationTitle = "Absence Request Approved";
       notificationMessage = "Your absence request has been approved.";
     } else if (newStatus === "rejected") {
