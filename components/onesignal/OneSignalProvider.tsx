@@ -1,20 +1,39 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import OneSignal from "react-onesignal";
+import { supabase } from "@/lib/supabase/browser";
 
 export default function OneSignalProvider() {
+  const [isOneSignalInitialized, setIsOneSignalInitialized] = useState(false);
+
   useEffect(() => {
-    if (typeof window !== "undefined" && !window.OneSignal) {
-      OneSignal.init({
+    const initializeOneSignal = async () => {
+      if (isOneSignalInitialized) {
+        return;
+      }
+
+      await OneSignal.init({
         appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID!,
         allowLocalhostAsSecureOrigin: true,
-      }).then(() => {
-        OneSignal.Debug.setLogLevel("trace");
       });
-    }
-    OneSignal.Notifications.requestPermission();
-  }, []);
+
+      setIsOneSignalInitialized(true);
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        OneSignal.login(user.id);
+      }
+
+      OneSignal.Notifications.requestPermission();
+    };
+
+    initializeOneSignal();
+  }, [isOneSignalInitialized]);
 
   return null;
 }
+
