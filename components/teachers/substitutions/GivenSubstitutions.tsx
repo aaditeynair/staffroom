@@ -2,13 +2,10 @@
 
 import { supabase } from "@/lib/supabase/browser";
 import { useState, useEffect, useRef } from "react";
-import { CheckRounded, ClearRounded } from "@mui/icons-material";
 import {
   Button,
   ListItem,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  Card,
   CircularProgress,
 } from "@mui/material";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
@@ -19,20 +16,19 @@ type Substitution = {
   date: string;
   period_number: number;
   class: string;
-  confirmed_by_teacher: "unconfirmed" | "accepted" | "declined";
+  accepted:boolean;
 };
 interface Pending {
   refreshFlag: boolean;
   setRefreshFlagAction: React.Dispatch<React.SetStateAction<boolean>>;
 }
-export default function PendingSubstitutions({
+export default function GivenSubstitutions({
   refreshFlag,
   setRefreshFlagAction,
 }: Pending) {
   const [loading, setLoading] = useState(true);
   const [substitution, setSubstitution] = useState<Substitution[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogMode, setDialogMode] = useState<"accept" | "decline">("accept");
   const [selectedSub, setSelectedSub] = useState<Substitution | null>(null);
   const [showFade, setShowFade] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -55,9 +51,9 @@ export default function PendingSubstitutions({
 
       const { data, error } = await supabase
         .from("substitutions")
-        .select("id,date,period_number,class,confirmed_by_teacher")
+        .select("id,date,period_number,class,accepted")
         .eq("substitute_teacher", teacher.id)
-        .eq("confirmed_by_teacher", "unconfirmed")
+        .eq("accepted", true)
         .order("date")
         .order("period_number");
 
@@ -86,51 +82,46 @@ export default function PendingSubstitutions({
     const [year, month, day] = dateString.split("-");
     return `${day}-${month}-${year}`;
   }
-  const handleOpenAccept = (sub: Substitution) => {
-    setSelectedSub(sub);
-    setDialogMode("accept");
-    setDialogOpen(true);
-  };
 
   const handleOpenDecline = (sub: Substitution) => {
     setSelectedSub(sub);
-    setDialogMode("decline");
     setDialogOpen(true);
   };
 
-  const handleDecision = async (accepted: boolean, reason?: string) => {
+  const handleDecline = async (reason?: string) => {
+    setLoading(true)
     if (!selectedSub) return;
-    const status = accepted ? "accepted" : "declined";
+    setDialogOpen(false);
     const { error } = await supabase
       .from("substitutions")
-      .update({ confirmed_by_teacher: status, reason: reason })
+      .update({ accepted: false, reason: reason })
       .eq("id", selectedSub.id);
-    if (!accepted) {
+
       try {
         await getFallback(selectedSub.id);
         console.log("Fallback promoted to substitute successfully");
       } catch (err) {
         console.error("Error handling fallback:", err);
       }
-    }
 
     if (error) {
       console.error("Failed to update confirmation:", error.message);
     }
-    setDialogOpen(false);
+
     setRefreshFlagAction((prev) => !prev);
     setSelectedSub(null);
+    setLoading(false)
   };
   return (
     <>
-      <div className="max-w-screen bg-white p-5 rounded-md shadow-md">
+      <div className="max-w-screen bg-white p-4 rounded-md shadow-md">
         <h1 className="text-2xl text-teal-700 font-bold mb-4">
           {" "}
-          Pending Substitutions
+          Substitutions Assigned
         </h1>
         {!loading ? (
           <div className="relative">
-            <div className="max-h-60 overflow-y-auto">
+            <div className="max-h-120 overflow-y-auto">
               {substitution.length === 0 ? (
                 <p className="text-teal-800"> No Substitutions Assigned </p>
               ) : (
@@ -139,13 +130,13 @@ export default function PendingSubstitutions({
                     key={index}
                     className="rounded-md mt-1"
                     disableGutters
+
                   >
-                    <Accordion
-                      className="w-full"
+                    <Card
+                      className="w-full p-4 border border-gray-200"
                       sx={{ backgroundColor: "#F8F8F8" }}
                     >
-                      <AccordionSummary>
-                        <div className="flex justify-between w-full">
+                    <div className="flex justify-between w-full">
                           <div className="font-bold">
                             Period: {substitution.period_number}{" "}
                             <p className="text-teal-700">
@@ -156,36 +147,20 @@ export default function PendingSubstitutions({
                             {substitution.date}
                           </div>
                         </div>
-                      </AccordionSummary>
-                      <AccordionDetails>
-                        <div className="gap-4 mt-4 flex w-full">
+                        <div className="gap-4 mt-4 flex w-full justify-end">
                           <Button
                             variant="outlined"
-                            className="w-full"
-                            startIcon={<CheckRounded />}
-                            sx={{ backgroundColor: "white" }}
-                            color="success"
-                            onClick={() => {
-                              handleOpenAccept(substitution);
-                            }}
-                          >
-                            Approve
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            className="w-full"
-                            startIcon={<ClearRounded />}
-                            sx={{ backgroundColor: "white" }}
+                            className="p-0"
+                            sx={{ backgroundColor: "white",p:0.5,fontSize:'0.6rem',}}
                             color="error"
                             onClick={() => {
                               handleOpenDecline(substitution);
                             }}
                           >
-                            Decline
+                            Request Reassignment
                           </Button>
                         </div>
-                      </AccordionDetails>
-                    </Accordion>
+                        </Card>
                   </ListItem>
                 ))
               )}
@@ -202,9 +177,8 @@ export default function PendingSubstitutions({
       </div>
       <ConfirmDialog
         open={dialogOpen}
-        mode={dialogMode}
         onClose={() => setDialogOpen(false)}
-        onConfirm={handleDecision}
+        onConfirm={handleDecline}
       />
     </>
   );
