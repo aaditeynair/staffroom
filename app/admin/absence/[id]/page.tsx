@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/browser";
-import getSubstitutionCandidates from "@/lib/substitutionEngine";
 import {
   CircularProgress,
   Alert,
@@ -13,8 +12,8 @@ import {
 } from "@mui/material";
 import dayjs from "dayjs";
 import AbsenceDetailCard from "@/components/admin/absence/AbsenceDetailCard";
-import getClassDivision from "@/lib/getClassDivision";
 import { useParams } from "next/navigation";
+import fetchAvailableTeachers from "@/lib/fetchAvailableTeachers";
 
 interface Teacher {
   id: string;
@@ -35,13 +34,13 @@ interface AbsenceDetails {
 interface TimetablePeriod {
   id: string;
   period_number: number;
-  class: string;
+  classes: string[];
 }
 
 interface SubstitutionInfo {
   substituteID: string | null;
-  original_substituteID: string | null;
-  class: string;
+  fallbackID: string | null;
+  classes: string[];
   id?: string;
 }
 
@@ -74,34 +73,37 @@ export default function AbsenceIDPage() {
   };
 
   const createSubstitutions = async () => {
-    if (Object.keys(substitutions).length !== teacherTimetable.length) {
+    const isInvalid = teacherTimetable.some((period) => {
+      const subInfo = substitutions[period.period_number];
+      return !subInfo || !subInfo.substituteID || !subInfo.fallbackID;
+    });
+
+    if (isInvalid) {
       setSnackbar({
         open: true,
-        message: "Please select substitute teachers for all periods",
+        message: "Please select a substitute and a fallback for all periods.",
         severity: "error",
       });
       return;
     }
+
     if (absenceDetails && absenceDetails.dealt_with !== true) {
       for (const period in substitutions) {
-        const periodNumber = Number(period);
-        const fallbackTeacher =
-          (availableTeachersByPeriod[periodNumber] || []).find(
-            (t) => t.id !== substitutions[period].substituteID,
-          )?.id || null;
+        const fallbackTeacher = substitutions[period].fallbackID;
 
         const { data, error } = await supabase
           .from("substitutions")
           .insert({
             date: absenceDetails.date,
             period_number: period,
-            class: substitutions[period].class,
+            classes: substitutions[period].classes,
             original_teacher: absenceDetails.teacher.id,
             substitute_teacher: substitutions[period].substituteID,
             for_absence: absenceDetails.id,
             fallback: fallbackTeacher,
+            accepted: true,
           })
-          .select("id, period_number, class, substitute_teacher");
+          .select("id, period_number, classes, substitute_teacher, fallback");
 
         if (error) {
           console.error(error);
@@ -118,8 +120,8 @@ export default function AbsenceIDPage() {
             ...prev,
             [period.period_number]: {
               substituteID: period.substitute_teacher,
-              original_substituteID: period.substitute_teacher,
-              class: period.class,
+              fallbackID: period.fallback,
+              classes: period.classes,
               id: period.id,
             },
           }));
@@ -150,17 +152,13 @@ export default function AbsenceIDPage() {
       }
     } else {
       for (const period in substitutions) {
-        const periodNumber = Number(period);
-        const fallbackTeacher =
-          (availableTeachersByPeriod[periodNumber] || []).find(
-            (t) => t.id !== substitutions[period].substituteID,
-          )?.id || null;
+        const fallbackTeacher = substitutions[period].fallbackID;
         const { error } = await supabase
           .from("substitutions")
           .update({
             substitute_teacher: substitutions[period].substituteID,
             fallback: fallbackTeacher,
-            accepted:true,
+            accepted: true,
           })
           .eq("id", substitutions[period].id);
 
@@ -228,9 +226,10 @@ export default function AbsenceIDPage() {
       // Get timetable for the absent teacher
       const { data: timetable } = await supabase
         .from("base_timetable")
-        .select("id, period_number, class")
+        .select("id, period_number, classes")
         .eq("teacher_id", teacher.id)
-        .eq("day_of_week", day);
+        .eq("day_of_week", day)
+        .order("period_number");
 
       if (!timetable) {
         setTeacherTimetable([]);
@@ -239,143 +238,48 @@ export default function AbsenceIDPage() {
       }
       setTeacherTimetable(timetable);
 
-      // Create list of available teachers by period
-      const { data: allTeachers } = await supabase
-        .from("teachers")
-        .select("id, name, division")
-        .in("role", ["teacher", "admin-teacher"])
-        .neq("id", teacher.id);
-      const teachers = allTeachers || [];
+      const available = await fetchAvailableTeachers({
+          absentTeacherId: teacher.id,
+          date: absence.date,
+          timetable: timetable || [],
+      });
 
-      // STEP 1: Build a Set of teacher IDs who teach the target class (per period)
+      setAvailableTeachersByPeriod(available);
 
-      // Fetch all teachers who teach each class in the timetable (do it only once)
-      // For each distinct class in teacherTimetable, fetch teachers teaching that class
-      const classesInTimetable = [...new Set(timetable.map((p) => p.class))];
+      // Pre-fill substitutions if not already dealt with, or load existing ones
+      if (absence.dealt_with !== true) {
+        const initialSubstitutions: Record<string, SubstitutionInfo> = {};
+        if (timetable) {
+          for (const period of timetable) {
+            const availableTeachers = available[period.period_number] || [];
+            const substitute = availableTeachers[0] || null;
+            const fallback = availableTeachers[1] || null;
 
-      const teachersByClassMap: Record<string, Set<string>> = {}; // class -> Set<teacherId>
-
-      for (const cls of classesInTimetable) {
-        const { data: classTeachers, error } = await supabase
-          .from("base_timetable")
-          .select("teacher_id")
-          .eq("class", cls);
-
-        if (error) {
-          console.error("Error fetching teachers for class", cls, error);
-          teachersByClassMap[cls] = new Set();
-        } else {
-          teachersByClassMap[cls] = new Set(
-            classTeachers?.map((row) => row.teacher_id) || [],
-          );
+            initialSubstitutions[period.period_number] = {
+              substituteID: substitute?.id || null,
+              fallbackID: fallback?.id || null,
+              classes: period.classes,
+            };
+          }
         }
-      }
-
-      // STEP 2: Build timetableMap: for every teacher, a boolean array of busy periods (true = busy)
-
-      const allPeriods = Array.from(
-        new Set(
-          (
-            await supabase
-              .from("base_timetable")
-              .select("period_number")
-              .eq("day_of_week", day)
-          ).data?.map((row) => row.period_number) || [],
-        ),
-      ).sort((a, b) => a - b);
-
-      // For efficiency, build a cache of timetable & absence & daily timetable per teacher
-      const timetableMap: Record<string, boolean[]> = {};
-
-      for (const t of teachers) {
-        // Base timetable busy periods for the teacher
-        const { data: baseData } = await supabase
-          .from("base_timetable")
-          .select("period_number")
-          .eq("teacher_id", t.id)
-          .eq("day_of_week", day);
-
-        // Daily timetable busy periods
-        const { data: dailyData } = await supabase
-          .from("daily_timetable")
-          .select("period_number")
-          .eq("teacher_id", t.id)
-          .eq("date", date);
-
-        // Absence check to mark teacher busy if absent on date
-        const { data: absencesData } = await supabase
-          .from("absences")
-          .select("id")
-          .eq("teacher_id", t.id)
-          .eq("date", date)
-          .eq("status", "confirmed");
-
-        // Collect busy periods
-        const busyPeriodsSet = new Set<number>([
-          ...(baseData?.map((p) => p.period_number) || []),
-          ...(dailyData?.map((p) => p.period_number) || []),
-        ]);
-
-        const isAbsent = (absencesData?.length ?? 0) > 0;
-
-        timetableMap[t.id] = allPeriods.map((periodNum) =>
-          isAbsent ? true : busyPeriodsSet.has(periodNum),
-        );
-      }
-
-      // STEP 3: Build availableTeachersByPeriod using suggestion engine
-
-      const availableTeachersByPeriod: Record<number, Teacher[]> = {};
-
-      for (const period of timetable) {
-        const targetClass = period.class;
-
-        const teachersWhoTeachTargetClass =
-          teachersByClassMap[targetClass] || new Set();
-
-        // Filter out teachers busy this period
-        const notBusyTeachers = teachers.filter((t) => {
-          const busyToday = timetableMap[t.id] || [];
-          // Find index of this period in allPeriods (should exist)
-          const periodIndex = allPeriods.indexOf(period.period_number);
-          if (periodIndex === -1) return false;
-          // Exclude if busy this period
-          return !busyToday[periodIndex];
-        });
-
-        const targetDivision = getClassDivision(period.class);
-
-        // Call the suggestion engine
-        const candidates = getSubstitutionCandidates({
-          availableTeachers: notBusyTeachers,
-          teachersWhoTeachTargetClass,
-          timetableMap,
-          targetDivision,
-        });
-
-        availableTeachersByPeriod[Number(period.period_number)] = candidates;
-      }
-
-      // Set to state for rendering
-      setAvailableTeachersByPeriod(availableTeachersByPeriod);
-
-      // Update substitutions if already created
-      if (absence.dealt_with === true) {
+        setSubstitutions(initialSubstitutions);
+      } else {
+        // Update substitutions if already created
         const { data } = await supabase
           .from("substitutions")
-          .select("id, period_number, class, substitute_teacher")
+          .select("id, period_number, classes, substitute_teacher, fallback")
           .eq("for_absence", absence.id);
         if (data !== null) {
-          data.map((period) => {
-            setSubstitutions((prev) => ({
-              ...prev,
-              [period.period_number]: {
-                substituteID: period.substitute_teacher,
-                class: period.class,
-                id: period.id,
-              },
-            }));
-          });
+          const existingSubstitutions: Record<string, SubstitutionInfo> = {};
+          for (const period of data) {
+            existingSubstitutions[period.period_number] = {
+              substituteID: period.substitute_teacher,
+              fallbackID: period.fallback,
+              classes: period.classes,
+              id: period.id,
+            };
+          }
+          setSubstitutions(existingSubstitutions);
         }
       }
 
@@ -391,6 +295,11 @@ export default function AbsenceIDPage() {
         <CircularProgress size="3rem" color="inherit" />
       </div>
     );
+
+  const isButtonDisabled = teacherTimetable.some((period) => {
+    const subInfo = substitutions[period.period_number];
+    return !subInfo || !subInfo.substituteID || !subInfo.fallbackID;
+  });
 
   return (
     <>
@@ -408,72 +317,133 @@ export default function AbsenceIDPage() {
           </div>
           <div className="flex flex-col gap-4 mb-4 md:mb-0">
             {teacherTimetable.map((period) => {
+              const primarySubstituteID =
+                substitutions[period.period_number]?.substituteID;
+
               return (
                 <div
                   key={period.id}
                   className="bg-white px-4 py-6 rounded-md shadow-md"
                 >
                   <h2 className="mb-4">
-                    Period {period.period_number}: {period.class}
+                    Period {period.period_number}: {period.classes.join(",")}
                   </h2>
-                  <Autocomplete
-                    fullWidth
-                    disableClearable
-                    options={
-                      availableTeachersByPeriod[period.period_number] || []
-                    }
-                    getOptionLabel={(option) => option.name}
-                    value={
-                      (
+                  <div className="flex flex-col gap-4">
+                    <Autocomplete
+                      fullWidth
+                      options={
                         availableTeachersByPeriod[period.period_number] || []
-                      ).find(
-                        (t) =>
-                          t.id ===
-                          substitutions[period.period_number]?.substituteID,
-                      ) || undefined
-                    }
-                    onChange={(_, newValue) => {
-                      setSubstitutions((prev) => ({
-                        ...prev,
-                        [period.period_number]: {
-                          ...substitutions[period.period_number],
-                          substituteID: newValue?.id || null,
-                          class: period.class,
-                        },
-                      }));
-                    }}
-                    renderOption={(props, option) => {
-                      const { key, ...rest } = props;
-                      const colour =
-                        option.score > 4
-                          ? "bg-green-700"
-                          : option.score <= 2
+                      }
+                      getOptionLabel={(option) => option.name}
+                      value={
+                        (
+                          availableTeachersByPeriod[period.period_number] || []
+                        ).find((t) => t.id === primarySubstituteID) || null
+                      }
+                      onChange={(_, newValue) => {
+                        setSubstitutions((prev) => ({
+                          ...prev,
+                          [period.period_number]: {
+                            ...prev[period.period_number],
+                            substituteID: newValue?.id || null,
+                            fallbackID: null, // Reset fallback when primary changes
+                            classes: period.classes,
+                          },
+                        }));
+                      }}
+                      renderOption={(props, option) => {
+                        const { key, ...rest } = props;
+                        const colour =
+                          option.score > 4
+                            ? "bg-green-700"
+                            : option.score <= 2
                             ? "bg-red-700"
                             : "bg-amber-500";
-                      return (
-                        <li
-                          key={key}
-                          {...rest}
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
-                          {option.name}
-                          <div
-                            className={`h-2 w-2 rounded-full ${colour}`}
-                          ></div>
-                        </li>
-                      );
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Select Substitute Teacher"
+                        return (
+                          <li
+                            key={key}
+                            {...rest}
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                          >
+                            {option.name}
+                            <div
+                              className={`h-2 w-2 rounded-full ${colour}`}
+                            ></div>
+                          </li>
+                        );
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Select Substitute Teacher"
+                        />
+                      )}
+                    />
+
+                    {primarySubstituteID && (
+                      <Autocomplete
+                        fullWidth
+                        options={(
+                          availableTeachersByPeriod[period.period_number] || []
+                        ).filter((t) => t.id !== primarySubstituteID)}
+                        getOptionLabel={(option) => option.name}
+                        value={
+                          (
+                            availableTeachersByPeriod[period.period_number] ||
+                            []
+                          ).find(
+                            (t) =>
+                              t.id ===
+                              substitutions[period.period_number]?.fallbackID
+                          ) || null
+                        }
+                        onChange={(_, newValue) => {
+                          setSubstitutions((prev) => ({
+                            ...prev,
+                            [period.period_number]: {
+                              ...prev[period.period_number],
+                              fallbackID: newValue?.id || null,
+                            },
+                          }));
+                        }}
+                        renderOption={(props, option) => {
+                          const { key, ...rest } = props;
+                          const colour =
+                            option.score > 4
+                              ? "bg-green-700"
+                              : option.score <= 2
+                              ? "bg-red-700"
+                              : "bg-amber-500";
+                          return (
+                            <li
+                              key={key}
+                              {...rest}
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                              }}
+                            >
+                              {option.name}
+                              <div
+                                className={`h-2 w-2 rounded-full ${colour}`}
+                              ></div>
+                            </li>
+                          );
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Select Fallback Teacher"
+                          />
+                        )}
                       />
                     )}
-                  />
+                  </div>
                 </div>
               );
             })}
@@ -485,6 +455,7 @@ export default function AbsenceIDPage() {
             <Button
               className="w-full"
               variant="contained"
+              disabled={isButtonDisabled}
               onClick={() => {
                 createSubstitutions();
               }}
