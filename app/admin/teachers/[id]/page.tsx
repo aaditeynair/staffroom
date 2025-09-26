@@ -33,7 +33,7 @@ interface TimetableEntry {
   teacher_id: string;
   day_of_week: string;
   period_number: number;
-  class: string;
+  classes: string[];
 }
 
 interface Absence {
@@ -51,7 +51,7 @@ interface Substitution {
   id: string;
   date: string;
   period_number: string;
-  class: string;
+  classes: string[];
   original_teacher: { name: string };
   accepted: boolean;
 }
@@ -117,7 +117,7 @@ export default function TeacherDetailPage() {
         const { data: subs, error: subsError } = await supabase
           .from("substitutions")
           .select(
-            "id, date, class, period_number, original_teacher, accepted",
+            "id, date, classes, period_number, original_teacher, accepted",
           )
           .eq("substitute_teacher", teacherId)
           .order("date", { ascending: false })
@@ -299,7 +299,7 @@ export default function TeacherDetailPage() {
                       {dayjs(sub.date).format("DD MMM YYYY")}
                     </TableCell>
                     <TableCell>{sub.period_number}</TableCell>
-                    <TableCell>{sub.class}</TableCell>
+                    <TableCell>{sub.classes.join(',')}</TableCell>
                     <TableCell>{sub.original_teacher.name}</TableCell>
                     <TableCell>{sub.accepted}</TableCell>
                   </TableRow>

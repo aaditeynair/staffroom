@@ -3,7 +3,7 @@ export interface TimetableEntry {
   teacher_id: string;
   day_of_week: string; // e.g., "Monday"
   period_number: number;
-  class: string;
+  classes: string[];
 }
 
 export interface TimetableViewerProps {
@@ -79,7 +79,7 @@ export default function WeekTimetable({
                     className="bg-teal-700 text-white rounded-md p-2 text-center row-span-1"
                     key={day + periodNumber}
                   >
-                    {period.class}
+                    {period.classes.join(',')}
                   </div>
                 );
               })}

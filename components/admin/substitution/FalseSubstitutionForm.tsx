@@ -26,7 +26,7 @@ interface TimetablePeriod {
   id: string;
   teacher_id: string;
   period_number: number;
-  class: string;
+  classes: string[];
 }
 
 interface FalseSubstitutionProps {
@@ -122,7 +122,7 @@ export default function FalseSubstitutionForm({
 
     const { data: periods, error } = await supabase
       .from("base_timetable")
-      .select("id, teacher_id, period_number, class")
+      .select("id, teacher_id, period_number, classes")
       .eq("teacher_id", selectedTeacher.id)
       .eq("day_of_week", dayOfWeek)
       .order("period_number", { ascending: true });
@@ -227,7 +227,7 @@ export default function FalseSubstitutionForm({
         .insert({
           date: selectedDate.format("YYYY-MM-DD"),
           period_number: selectedPeriod.period_number,
-          class: selectedPeriod.class,
+          classes: selectedPeriod.classes,
           original_teacher: selectedTeacher.id,
           substitute_teacher: substituteTeacher.id,
         });
@@ -350,7 +350,7 @@ export default function FalseSubstitutionForm({
           <Autocomplete
             options={teacherPeriods}
             getOptionLabel={(option) =>
-              `Period ${option.period_number}: ${option.class}`
+              `Period ${option.period_number}: ${option.classes.join(',')}`
             }
             value={selectedPeriod}
             onChange={(_, newValue) => setSelectedPeriod(newValue)}
@@ -416,7 +416,7 @@ export default function FalseSubstitutionForm({
               <p>Original Teacher: {selectedTeacher.name}</p>
               <p>
                 Period & Class: Period {selectedPeriod.period_number}:{" "}
-                {selectedPeriod.class}
+                {selectedPeriod.classes.join(',')}
               </p>
               <p>
                 Substitute Teacher:{" "}

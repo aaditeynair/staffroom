@@ -14,17 +14,17 @@ export default function AdminNavMobile() {
         <NavItem name="Home" link="/admin" icon={<HomeRounded />} />
         <NavItem
           name="Substitution"
-          link="/admin/substitution/"
+          link="/admin/substitution"
           icon={<SchoolRounded />}
         />
         <NavItem
           name="Teachers"
-          link="/admin/teachers/"
+          link="/admin/teachers"
           icon={<PeopleRounded />}
         />
         <NavItem
           name="Timetable"
-          link="/admin/timetable/"
+          link="/admin/timetable"
           icon={<TableChartRounded />}
         />
       </div>
