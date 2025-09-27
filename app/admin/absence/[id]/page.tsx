@@ -239,9 +239,9 @@ export default function AbsenceIDPage() {
       setTeacherTimetable(timetable);
 
       const available = await fetchAvailableTeachers({
-          absentTeacherId: teacher.id,
-          date: absence.date,
-          timetable: timetable || [],
+        absentTeacherId: teacher.id,
+        date: absence.date,
+        timetable: timetable || [],
       });
 
       setAvailableTeachersByPeriod(available);
@@ -357,8 +357,8 @@ export default function AbsenceIDPage() {
                           option.score > 4
                             ? "bg-green-700"
                             : option.score <= 2
-                            ? "bg-red-700"
-                            : "bg-amber-500";
+                              ? "bg-red-700"
+                              : "bg-amber-500";
                         return (
                           <li
                             key={key}
@@ -398,7 +398,7 @@ export default function AbsenceIDPage() {
                           ).find(
                             (t) =>
                               t.id ===
-                              substitutions[period.period_number]?.fallbackID
+                              substitutions[period.period_number]?.fallbackID,
                           ) || null
                         }
                         onChange={(_, newValue) => {
@@ -416,8 +416,8 @@ export default function AbsenceIDPage() {
                             option.score > 4
                               ? "bg-green-700"
                               : option.score <= 2
-                              ? "bg-red-700"
-                              : "bg-amber-500";
+                                ? "bg-red-700"
+                                : "bg-amber-500";
                           return (
                             <li
                               key={key}
