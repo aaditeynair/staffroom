@@ -5,7 +5,7 @@ import { CircularProgress } from "@mui/material";
 
 type Period = {
   period_number: number;
-  class: string;
+  classes: string[];
   is_substitute: boolean;
 };
 export default function DailyTimetable() {
@@ -36,7 +36,7 @@ export default function DailyTimetable() {
 
       const { data, error } = await supabase
         .from("daily_timetable")
-        .select("period_number, class, is_substitute")
+        .select("period_number, classes, is_substitute")
         .eq("teacher_id", teacher.id)
         .eq("date", formattedDate)
         .order("period_number");
@@ -79,7 +79,7 @@ export default function DailyTimetable() {
               <div className="font-semibold text-gray-700">Period {i + 1}</div>
               {period ? (
                 <div className="text-sm font-semibold text-teal-800">
-                  {period.class}
+                  {period.classes.join(',')}
                 </div>
               ) : (
                 <div className="text-sm text-gray-400">Free</div>

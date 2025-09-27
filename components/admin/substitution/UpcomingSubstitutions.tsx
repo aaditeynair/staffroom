@@ -30,7 +30,7 @@ interface Substitution {
   id: string;
   date: string;
   period_number: number;
-  class: string;
+  classes: string[];
   original_teacher: Teacher;
   substitute_teacher: Teacher;
   accepted:boolean;
@@ -106,7 +106,7 @@ export default function UpcomingSubstitutions() {
             id: s.id,
             date: s.date,
             period_number: s.period_number,
-            class: s.class,
+            classes: s.classes,
             original_teacher: originalTeacher,
             substitute_teacher: substituteTeacher,
             accepted: s.accepted,
@@ -119,12 +119,12 @@ export default function UpcomingSubstitutions() {
       // Fetch all classes from base_timetable (unique)
       const { data: classData, error: classError } = await supabase
         .from("base_timetable")
-        .select("class")
-        .order("class", { ascending: true });
+        .select("classes")
+        .order("classes", { ascending: true });
 
       if (!classError && classData) {
         const uniqueClasses = [
-          ...new Set(classData?.map((r) => r.class)),
+          ...new Set(classData?.flatMap((r) => r.classes)),
         ].sort();
         setClasses(uniqueClasses);
       }
@@ -161,7 +161,7 @@ export default function UpcomingSubstitutions() {
         (!filters.endDate ||
           dayjs(sub.date).isSameOrBefore(filters.endDate, "day"));
       const classOk = filters.classFilter
-        ? sub.class === filters.classFilter
+        ? sub.classes.includes(filters.classFilter)
         : true;
       const statusOk = filters.statusFilter
         ? sub.accepted === (filters.statusFilter === "true")
@@ -315,7 +315,7 @@ export default function UpcomingSubstitutions() {
                       {dayjs(sub.date).format("ddd, DD MMM YYYY")}
                     </TableCell>
                     <TableCell>{sub.period_number}</TableCell>
-                    <TableCell>{sub.class}</TableCell>
+                    <TableCell>{sub.classes.join(',')}</TableCell>
                     <TableCell>{sub.original_teacher.name}</TableCell>
                     <TableCell>
                       {substituteTeacherDisplay(sub.substitute_teacher)}
