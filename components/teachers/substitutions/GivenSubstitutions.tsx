@@ -15,7 +15,7 @@ type Substitution = {
   id: string;
   date: string;
   period_number: number;
-  class: string;
+  classes: string[];
   accepted:boolean;
 };
 interface Pending {
@@ -51,7 +51,7 @@ export default function GivenSubstitutions({
 
       const { data, error } = await supabase
         .from("substitutions")
-        .select("id,date,period_number,class,accepted")
+        .select("id,date,period_number,classes,accepted")
         .eq("substitute_teacher", teacher.id)
         .eq("accepted", true)
         .order("date")
@@ -140,7 +140,7 @@ export default function GivenSubstitutions({
                           <div className="font-bold">
                             Period: {substitution.period_number}{" "}
                             <p className="text-teal-700">
-                              {substitution.class}
+                              {substitution.classes.join(',')}
                             </p>
                           </div>
                           <div className="text-gray-800">

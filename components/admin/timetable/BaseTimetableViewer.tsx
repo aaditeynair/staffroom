@@ -25,7 +25,7 @@ interface Teacher {
 interface TimetableEntry {
   id: string;
   teacher_id: string;
-  class: string;
+  classes: string[];
   period_number: number;
   day_of_week: string;
 }
@@ -51,7 +51,7 @@ export default function BaseTimetableViewer() {
     async function fetchData() {
       const { data: timetableData } = await supabase
         .from("base_timetable")
-        .select("id, teacher_id, class, period_number, day_of_week");
+        .select("id, teacher_id, classes, period_number, day_of_week");
       setTimetable(timetableData || []);
 
       const { data: teachersData } = await supabase
@@ -73,7 +73,7 @@ export default function BaseTimetableViewer() {
     return { grade: parseInt(match[1], 10), section: match[2].toUpperCase() };
   }
 
-  const sortedClasses = [...new Set(timetable.map((e) => e.class))].sort(
+  const sortedClasses = [...new Set(timetable.flatMap((e) => e.classes))].sort(
     (a, b) => {
       const pa = parseClass(a);
       const pb = parseClass(b);
@@ -95,7 +95,7 @@ export default function BaseTimetableViewer() {
     viewMode === "teacher" && selectedTeacher
       ? timetable.filter((t) => t.teacher_id === selectedTeacher)
       : viewMode === "class" && selectedClass
-        ? timetable.filter((t) => t.class === selectedClass)
+        ? timetable.filter((t) => t.classes.includes(selectedClass))
         : [];
 
   // For each day and period, get the entry for the selected teacher/class
@@ -110,7 +110,7 @@ export default function BaseTimetableViewer() {
     if (viewMode === "teacher") {
       return (
         <Box>
-          <Typography variant="body2">{entry.class}</Typography>
+          <Typography variant="body2">{entry.classes.join(',')}</Typography>
         </Box>
       );
     } else {

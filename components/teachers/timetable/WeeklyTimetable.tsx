@@ -6,7 +6,7 @@ import { CircularProgress } from "@mui/material";
 
 type Period = {
   period_number: number;
-  class: string;
+  classes: string[];
   is_substitution: boolean;
 };
 
@@ -109,7 +109,7 @@ export default function WeeklyTimetable() {
                   {period ? (
                     <div className="text-sm text-gray-700 text-right">
                       <div className="text-xs font-semibold text-teal-800">
-                        {period.class}
+                        {period.classes.join(',')}
                       </div>
                     </div>
                   ) : (
