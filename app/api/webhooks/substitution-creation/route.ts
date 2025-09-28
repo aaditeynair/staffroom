@@ -1,6 +1,6 @@
-
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import dayjs from "dayjs";
 
 export async function POST(req: Request) {
   try {
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
 
     // 3. Extract data
     const newRecord = body.record;
-    const { substitute_teacher, date, period_number, class: substitution_class } = newRecord;
+    const { substitute_teacher, date, period_number } = newRecord;
 
     // 4. Fetch the teacher's auth_id
     const { data: teacher, error: teacherError } = await supabase
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
 
     // 5. Send a notification to the teacher
     const notificationTitle = "New Substitution Assigned";
-    const notificationMessage = `You have been assigned a new substitution on ${date} for period ${period_number} in class ${substitution_class}.`;
+    const notificationMessage = `You have been assigned a new substitution on ${dayjs(date).format("ddd, DD/MM/YYYY")} for period ${period_number}`;
 
     const notification = {
       app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID!,
