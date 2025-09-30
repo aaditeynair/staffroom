@@ -18,7 +18,7 @@ import {
   AssignmentRounded,
 } from "@mui/icons-material";
 import NavItem from "./NavItem";
-import Account from "../ui/Account";
+import Profile from "../ui/Profile";
 import ChangePassword from "../ui/ChangePassword";
 import Image from "next/image";
 import logo from "@/public/logo.png";
@@ -94,9 +94,16 @@ export default function AppLayout({
         : [...adminLinks, ...teacherLinks];
 
   const drawerContent = (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        margin: "32px 0 16px",
+      }}
+    >
       <Box>
-        <Toolbar className="mt-8 mb-4 ml-4 lg:ml-2">
+        <Toolbar className="mb-4 ml-4 lg:ml-2">
           <Image src={logo} alt="Logo" width={200} />
         </Toolbar>
         {role === "admin-teacher" ? (
@@ -163,7 +170,7 @@ export default function AppLayout({
         )}
       </Box>
       <Box sx={{ mt: "auto", p: 2 }}>
-        <Account onChangePasswordClick={() => setShowPasswordModal(true)} />
+        <Profile onChangePasswordClick={() => setShowPasswordModal(true)} />
       </Box>
     </Box>
   );
