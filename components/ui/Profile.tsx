@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase/browser";
-import { Box, Button, CircularProgress } from "@mui/material";
-import { Logout, Person } from "@mui/icons-material";
+import { Box, CircularProgress } from "@mui/material";
+import { Person } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import ProfileMenu from "./ProfileMenu";
 
@@ -67,7 +66,15 @@ export default function Profile({ onChangePasswordClick }: ProfileProps) {
 
   return (
     <Box>
-      <Box sx={{ display: "flex", alignItems: "center", padding: "0 16px", cursor: "pointer" }} onClick={handleMenuClick}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          padding: "0 16px",
+          cursor: "pointer",
+        }}
+        onClick={handleMenuClick}
+      >
         <Person sx={{ marginRight: "16px" }} />
         <Box>
           <Box sx={{ fontWeight: "bold" }}>{user?.name}</Box>
