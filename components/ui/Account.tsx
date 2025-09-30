@@ -1,9 +1,8 @@
-"use client";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import {
   Menu,
   MenuItem,
-  IconButton,
+  Button,
   Divider,
   CircularProgress,
   Box,
@@ -62,24 +61,33 @@ export default function Account({ onChangePasswordClick }: AccountProps) {
   };
   return (
     <>
-      <IconButton sx={{ p: 0 }} onClick={handleClick}>
-        <PersonRoundedIcon
-          sx={{ fontSize: { xs: 25, lg: 25 }, color: "white" }}
-        />
-      </IconButton>
+      <Button
+        onClick={handleClick}
+        sx={{
+          color: "black",
+          textTransform: "none",
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          margin: "8px 0",
+        }}
+      >
+        <PersonRoundedIcon sx={{ fontSize: { xs: 25, lg: 25 } }} />
+        Profile
+      </Button>
       <Menu
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
         disableScrollLock
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        anchorOrigin={{ vertical: "center", horizontal: "right" }}
+        transformOrigin={{ vertical: "center", horizontal: "left" }}
         slotProps={{
           paper: {
             sx: {
               width: "14rem",
               maxWidth: "100%",
-              mt: 1.5,
+              ml: 1.5,
             },
           },
         }}

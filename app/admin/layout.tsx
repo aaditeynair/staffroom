@@ -1,9 +1,8 @@
-import AdminNavDesktop from "@/components/admin/AdminNavDesktop";
-import AdminNavMobile from "@/components/admin/AdminNavMobile";
 import { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import OneSignalProvider from "@/components/onesignal/OneSignalProvider";
+import AppLayout from "@/components/layout/AppLayout";
 
 export default async function AdminLayout({
   children,
@@ -16,11 +15,7 @@ export default async function AdminLayout({
   return (
     <>
       <OneSignalProvider />
-      <div className="p-4 md:p-8 min-h-screen flex flex-col">
-        <AdminNavDesktop />
-        <div className="pb-20 lg:pb-0 mt-8 grow flex flex-col">{children}</div>
-        <AdminNavMobile />
-      </div>
+      <AppLayout role={auth.role}>{children}</AppLayout>
     </>
   );
 }
