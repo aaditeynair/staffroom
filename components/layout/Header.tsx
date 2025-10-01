@@ -12,7 +12,7 @@ export default function Header({ handleDrawerToggle }: HeaderProps) {
     <AppBar
       position="fixed"
       sx={{
-        display: { sm: "none" },
+        display: { lg: "none" },
         backgroundColor: "white",
         color: "black",
         padding: "4px 28px",

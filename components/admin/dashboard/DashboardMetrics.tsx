@@ -20,7 +20,8 @@ const DashboardMetrics = async () => {
   const { count: uncoveredAbsences } = await supabase
     .from("absences")
     .select("*", { count: "exact", head: true })
-    .eq("dealt_with", false);
+    .eq("dealt_with", false)
+    .gte("date", today);
 
   const { count: dailyAbsences } = await supabase
     .from("absences")
