@@ -181,7 +181,7 @@ export default function AppLayout({
       <Header handleDrawerToggle={handleDrawerToggle} />
       <Box
         component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+        sx={{ width: { lg: drawerWidth }, flexShrink: { lg: 0 } }}
         aria-label="mailbox folders"
       >
         <Drawer
@@ -192,7 +192,7 @@ export default function AppLayout({
             keepMounted: true, // Better open performance on mobile.
           }}
           sx={{
-            display: { xs: "block", sm: "none" },
+            display: { xs: "block", lg: "none" },
             "& .MuiDrawer-paper": {
               boxSizing: "border-box",
               width: drawerWidth,
@@ -206,7 +206,7 @@ export default function AppLayout({
         <Drawer
           variant="permanent"
           sx={{
-            display: { xs: "none", sm: "block" },
+            display: { xs: "none", lg: "block" },
             "& .MuiDrawer-paper": {
               boxSizing: "border-box",
               width: drawerWidth,
@@ -224,8 +224,8 @@ export default function AppLayout({
         sx={{
           flexGrow: 1,
           p: 3,
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          paddingTop: { xs: "88px", sm: "32px" },
+          width: { lg: `calc(100% - ${drawerWidth}px)` },
+          paddingTop: { xs: "88px", lg: "32px" },
         }}
       >
         {children}
