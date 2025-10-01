@@ -41,20 +41,16 @@ const DashboardMetrics = async () => {
     .lte("date", today);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
       <MetricCard title="Today's Absences" value={dailyAbsences ?? 0} />
       <MetricCard
         title="Substitutions Today"
         value={totalSubstitutionsToday ?? 0}
       />
       <MetricCard title="Uncovered Absences" value={uncoveredAbsences ?? 0} />
-      <MetricCard
-        title="Pending Absence Requests"
-        value={pendingAbsences ?? 0}
-      />
+      <MetricCard title="Pending Requests" value={pendingAbsences ?? 0} />
     </div>
   );
 };
 
 export default DashboardMetrics;
-
