@@ -366,4 +366,4 @@ npx tsc --noEmit
 
 ## License
 
-[MIT](LICENSE) © 2026 Aaditey Nair
+[MIT](LICENSE) © 2026 Aaditey Nair & Tejas Shyam
