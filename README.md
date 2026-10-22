@@ -21,9 +21,6 @@ ranks who should cover each missed period, and everyone gets notified.
 > as a reference and as a starting point for anyone who wants to take it further. Large
 > parts of the original deployment infrastructure no longer exist, several features are
 > half-built, and there is no test suite.
->
-> Expect to spend real time finishing it before it is usable in production. If you pick
-> it up, issues and pull requests are welcome — but please don't expect a response.
 
 ---
 
