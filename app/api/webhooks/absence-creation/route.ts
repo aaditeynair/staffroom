@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { SUPABASE_URL } from "@/lib/supabase/config";
 
 // Define a type for the teacher for better type safety
 // interface Teacher {
@@ -26,7 +27,7 @@ export async function POST(req: Request) {
 
     // 2. Initialize Supabase Admin Client
     const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      SUPABASE_URL,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
     );
 
