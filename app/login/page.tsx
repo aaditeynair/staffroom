@@ -78,7 +78,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="mt-1 block w-full rounded-md outline-2 p-2 outline-gray-300 focus:outline-teal-800 sm:text-sm"
-              placeholder="you@goodshepherdtvm.com"
+              placeholder="you@school.edu"
             />
           </div>
 
